@@ -128,103 +128,355 @@
   <script type="text/babel" data-presets="react">
     const { useState, useEffect, useMemo, useRef } = React;
 
-    // --- MENU DATA ---
+    // --- LATEST OFFICIAL MENU DATA (From Nipah Satay Flyer) ---
     const INITIAL_MENU = [
+      // 1. MENU SATE & SET CUP
       {
         id: 'satay-ayam',
-        name: 'Satay Ayam Tradisi',
-        category: 'ayam',
+        name: 'Sate Ayam',
+        category: 'sate',
         price: 1.30,
         minOrder: 10,
         unit: 'cucuk',
         image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
         fallbackImage: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
         badge: '🔥 Paling Laris',
-        description: 'Daging ayam segar diperap 24 jam dengan rempah kunyit hidup, serai & halia. Dibakar rangup di luar, berjus di dalam.',
+        description: 'Daging ayam segar diperap rempah kunyit hidup & serai. Dibakar arang asli rangup di luar, berjus di dalam.',
         spiciness: 2,
         calories: '45 kcal/cucuk',
-        highlight: '100% Isi Peha & Dada Segar'
+        highlight: 'RM 1.30 / cucuk'
       },
       {
         id: 'satay-lembu',
-        name: 'Satay Lembu Empuk',
-        category: 'lembu',
-        price: 1.60,
+        name: 'Sate Lembu',
+        category: 'sate',
+        price: 1.50,
         minOrder: 10,
         unit: 'cucuk',
         image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
         fallbackImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
-        badge: '⭐ Pilihan Chef',
-        description: 'Daging lembu premium tanpa urat liat, diperap rempah ratus istimewa bersama minyak lengkuas arang.',
+        badge: '⭐ Pilihan Utama',
+        description: 'Daging lembu empuk tanpa urat liat, diperap rempah ratus istimewa khas Nipah Satay.',
         spiciness: 2,
         calories: '55 kcal/cucuk',
-        highlight: 'Tender & Juicy Marinated Beef'
+        highlight: 'RM 1.50 / cucuk'
       },
       {
         id: 'satay-kambing',
-        name: 'Satay Kambing Gula Melaka',
-        category: 'kambing',
+        name: 'Sate Kambing',
+        category: 'sate',
         price: 2.20,
         minOrder: 10,
         unit: 'cucuk',
         image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
         fallbackImage: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
         badge: '👑 Signature Premium',
-        description: 'Daging kambing empuk tanpa bau hamis, diglis madu dan gula melaka asli sambil dibakar arang kelapa wangi.',
+        description: 'Daging kambing empuk tanpa bau hamis, diglis madu dan gula melaka asli dibakar arang kelapa.',
         spiciness: 3,
         calories: '65 kcal/cucuk',
-        highlight: 'Aroma Asli Tanpa Bau Hamis'
+        highlight: 'RM 2.20 / cucuk'
       },
       {
-        id: 'nasi-impit',
-        name: 'Nasi Impit & Kuah Kacang Set',
-        category: 'sides',
-        price: 2.50,
+        id: 'satay-perut',
+        name: 'Sate Perut (Babat)',
+        category: 'sate',
+        price: 2.00,
+        minOrder: 10,
+        unit: 'cucuk',
+        image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+        badge: '✨ Menu Baharu',
+        description: 'Perut lembu (babat) segar diperap lembut berseraikan rempah wangi khas.',
+        spiciness: 2,
+        calories: '50 kcal/cucuk',
+        highlight: 'RM 2.00 / cucuk'
+      },
+      {
+        id: 'sate-cup-ayam',
+        name: 'Sate Cup (Ayam)',
+        category: 'sate',
+        price: 7.00,
         minOrder: 1,
-        unit: 'set (4 ketul + timun/bawang)',
+        unit: 'cup',
+        image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        badge: '🥤 Set On-The-Go',
+        description: 'Pakej Cup: 5 Cucuk Sate Ayam + 1 Ketul Nasi Impit + Timun & Bawang + Kuah Kacang Pekat.',
+        spiciness: 2,
+        calories: '300 kcal/cup',
+        highlight: 'Lengkap Nasi Impit & Kuah'
+      },
+      {
+        id: 'sate-cup-lembu',
+        name: 'Sate Cup (Lembu)',
+        category: 'sate',
+        price: 8.00,
+        minOrder: 1,
+        unit: 'cup',
+        image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80',
+        badge: '🥤 Set On-The-Go',
+        description: 'Pakej Cup: 5 Cucuk Sate Lembu + 1 Ketul Nasi Impit + Timun & Bawang + Kuah Kacang Pekat.',
+        spiciness: 2,
+        calories: '350 kcal/cup',
+        highlight: 'Lengkap Nasi Impit & Kuah'
+      },
+      {
+        id: 'nasi-impit-mini',
+        name: 'Nasi Impit (Mini)',
+        category: 'sate',
+        price: 1.00,
+        minOrder: 1,
+        unit: 'ketul',
         image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80',
         fallbackImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
-        badge: '🌾 Wajib Ada',
-        description: 'Nasi impit padat dan lembut dibalut kemas, lengkap dengan hirisan timun segar, bawang merah dan kuah kacang pekat manis.',
+        badge: '🌾 Pelengkap Sate',
+        description: 'Nasi impit lembut & padat, dipotong kemas sedia dimakan bersama kuah kacang sate.',
         spiciness: 1,
-        calories: '120 kcal/set',
-        highlight: 'Dihidang Bersama Timun & Bawang'
+        calories: '80 kcal/ketul',
+        highlight: 'RM 1.00 / ketul'
       },
+
+      // 2. SANTAI (Nasi & Mee Bungkus)
+      {
+        id: 'nasi-lemak-bungkus',
+        name: 'Nasi Lemak Bungkus',
+        category: 'santai',
+        price: 2.00,
+        minOrder: 1,
+        unit: 'bungkus',
+        image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+        badge: '🌴 Menu Santai',
+        description: 'Nasi lemak kukus bersantan wangi, dihidang bersama telur, ikan bilis, timun & sambal manis pedas.',
+        spiciness: 2,
+        calories: '320 kcal/bungkus',
+        highlight: 'RM 2.00 / bungkus'
+      },
+      {
+        id: 'mi-goreng-bungkus',
+        name: 'Mi Goreng Bungkus',
+        category: 'santai',
+        price: 2.00,
+        minOrder: 1,
+        unit: 'bungkus',
+        image: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+        badge: '🍝 Menu Santai',
+        description: 'Mi goreng basah berempah gaya kampung, lazat dan mengenyangkan.',
+        spiciness: 2,
+        calories: '340 kcal/bungkus',
+        highlight: 'RM 2.00 / bungkus'
+      },
+      {
+        id: 'mihun-goreng-bungkus',
+        name: 'Mihun Goreng Bungkus',
+        category: 'santai',
+        price: 2.00,
+        minOrder: 1,
+        unit: 'bungkus',
+        image: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=800&q=80',
+        badge: '🍝 Menu Santai',
+        description: 'Mihun goreng Singapore/kampung beraroma, dihidang panas-panas.',
+        spiciness: 2,
+        calories: '310 kcal/bungkus',
+        highlight: 'RM 2.00 / bungkus'
+      },
+
+      // 3. ANEKA MI / SOTO
+      {
+        id: 'mi-rebus',
+        name: 'Mi Rebus Special',
+        category: 'noodles',
+        price: 7.00,
+        minOrder: 1,
+        unit: 'mangkuk',
+        image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80',
+        badge: '🍜 Signature Kuah',
+        description: 'Mi kuah pekat udang & ubi keledek asli, lengkap telur rebus, tauhu goreng, taugeh & hirisan cili.',
+        spiciness: 2,
+        calories: '450 kcal/mangkuk',
+        highlight: 'RM 7.00 / mangkuk'
+      },
+      {
+        id: 'mi-bihun-sup',
+        name: 'Mi / Bihun Sup',
+        category: 'noodles',
+        price: 5.00,
+        minOrder: 1,
+        unit: 'mangkuk',
+        image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+        badge: '🍲 Sup Panas',
+        description: 'Sup berempah harum dihidang segar bersama mi kuning atau bihun lembut pilihan anda.',
+        spiciness: 1,
+        calories: '380 kcal/mangkuk',
+        highlight: 'RM 5.00 / mangkuk'
+      },
+      {
+        id: 'soto-ayam',
+        name: 'Soto Tradisi',
+        category: 'noodles',
+        price: 5.00,
+        minOrder: 1,
+        unit: 'mangkuk',
+        image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+        badge: '🥣 Resipi Warisan',
+        description: 'Kuah soto kuning berempah khas, dihidang bersama nasi impit, isi ayam carik & sambal kicap pedas.',
+        spiciness: 2,
+        calories: '390 kcal/mangkuk',
+        highlight: 'RM 5.00 / mangkuk'
+      },
+
+      // 4. KUDAP-KUDAPAN
+      {
+        id: 'karipap-kentang',
+        name: 'Karipap Kentang',
+        category: 'kudap',
+        price: 1.00,
+        minOrder: 1,
+        unit: 'ketul',
+        image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+        badge: '🥐 Kudapan Rangup',
+        description: 'Karipap kulit pusing rangup berintikan kentang berempah karuk tradisi.',
+        spiciness: 1,
+        calories: '120 kcal/ketul',
+        highlight: 'RM 1.00 / ketul'
+      },
+      {
+        id: 'karipap-sardin',
+        name: 'Karipap Sardin',
+        category: 'kudap',
+        price: 1.20,
+        minOrder: 1,
+        unit: 'ketul',
+        image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+        badge: '🥐 Kudapan Rangup',
+        description: 'Karipap rangup dengan inti sambal sardin pedas-pedas manis yang padu.',
+        spiciness: 2,
+        calories: '130 kcal/ketul',
+        highlight: 'RM 1.20 / ketul'
+      },
+      {
+        id: 'karipap-ayam',
+        name: 'Karipap Ayam',
+        category: 'kudap',
+        price: 1.20,
+        minOrder: 1,
+        unit: 'ketul',
+        image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+        badge: '🥐 Kudapan Rangup',
+        description: 'Karipap rangup berintikan isi ayam dan kentang rempah khas.',
+        spiciness: 1,
+        calories: '135 kcal/ketul',
+        highlight: 'RM 1.20 / ketul'
+      },
+
+      // 5. MENU SET (Makan di restoran saja)
+      {
+        id: 'set-santai',
+        name: 'Menu Set Santai',
+        category: 'sets',
+        price: 3.90,
+        minOrder: 1,
+        unit: 'set',
+        image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=800&q=80',
+        badge: '🍽️ Makan Di Restoran',
+        description: 'Set Penjimatan: Nasi Lemak / Mihun Goreng / Mi Goreng + 2 Ketul Karipap Kentang.',
+        spiciness: 2,
+        calories: 'Set Hemat',
+        highlight: 'Hanya RM 3.90'
+      },
+      {
+        id: 'set-nasi-lemak-sate',
+        name: 'Menu Set Nasi Lemak + Sate',
+        category: 'sets',
+        price: 7.00,
+        minOrder: 1,
+        unit: 'set',
+        image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80',
+        badge: '🔥 Set Restoran Popular',
+        description: 'Set Lengkap: Nasi Lemak Bungkus + 3 Cucuk Sate Ayam + Kuah Kacang + Minuman (Teh O Ais / Sirap Ais).',
+        spiciness: 2,
+        calories: 'Set Lengkap',
+        highlight: 'Hanya RM 7.00'
+      },
+      {
+        id: 'set-gempaq',
+        name: 'Menu Set Gempaq',
+        category: 'sets',
+        price: 12.90,
+        minOrder: 1,
+        unit: 'set',
+        image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        badge: '⚡ Set Gempaq Restoran',
+        description: 'Set Mewah: Mi Rebus Special + 3 Cucuk Sate Ayam + Kuah Kacang + Teh O Ais Limau.',
+        spiciness: 2,
+        calories: 'Set Mewah',
+        highlight: 'Hanya RM 12.90'
+      },
+
+      // 6. MINUMAN ISTIMEWA & KUAH
+      {
+        id: 'lai-chee-kang',
+        name: 'Lai Chee Kang T\'Sallee',
+        category: 'minuman',
+        price: 6.00,
+        minOrder: 1,
+        unit: 'pek/gelas',
+        image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+        badge: '🥤 Minuman Istimewa',
+        description: 'Minuman sejuk herba ramuan 10 bahan istimewa menyegarkan tekak dan penawar dahaga.',
+        spiciness: 0,
+        calories: '180 kcal/pek',
+        highlight: '10 Ramuan Herba Asli'
+      },
+      {
+        id: 'kuah-kacang-1kg',
+        name: 'Kuah Kacang Pekat (1kg)',
+        category: 'minuman',
+        price: 22.00,
+        minOrder: 1,
+        unit: 'pek 1kg',
+        image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80',
+        badge: '🥜 Kuah Ekstra 1kg',
+        description: 'Kuah kacang pekat beraroma khas Nipah Satay, dimasak perlahan dengan kacang tanah sangai & rempah ratus.',
+        spiciness: 2,
+        calories: 'Pek 1kg',
+        highlight: 'Pek Keluarga 1kg'
+      },
+
+      // 7. KOMBO & KATERING
       {
         id: 'set-keluarga-30',
         name: 'Set Kombo Nipah (30 Cucuk)',
-        category: 'combo',
+        category: 'catering',
         price: 49.90,
         originalPrice: 55.00,
         minOrder: 1,
         unit: 'pakej',
         image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
         fallbackImage: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
-        badge: '🏷️ Jimat 10%',
-        description: '15 Cucuk Satay Ayam + 10 Cucuk Satay Lembu + 5 Cucuk Satay Kambing + 2 Set Nasi Impit + 2 Mangkok Kuah Kacang Ekstra.',
+        badge: '🏷️ Jimat Kombo',
+        description: '15 Cucuk Sate Ayam + 10 Cucuk Sate Lembu + 5 Cucuk Sate Kambing + 2 Nasi Impit + Kuah Kacang.',
         spiciness: 2,
         calories: 'Sesuai 3-4 Orang',
         highlight: 'Lengkap Semua Pilihan Daging'
       },
       {
-        id: 'set-pesta-50',
-        name: 'Set Pesta Arang Nipah (50 Cucuk)',
-        category: 'combo',
-        price: 79.90,
-        originalPrice: 90.00,
-        minOrder: 1,
-        unit: 'pakej',
-        image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
-        fallbackImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
-        badge: '🎉 Best for Party',
-        description: '25 Satay Ayam + 15 Satay Lembu + 10 Satay Kambing + 4 Nasi Impit + Kuah Kacang Gergasi + Sambal Kicap Cili Padi.',
-        spiciness: 2,
-        calories: 'Sesuai 5-7 Orang',
-        highlight: 'Percuma Sambal Kicap Cili Padi'
-      },
-      {
         id: 'catering-station-200',
-        name: 'Pakej Katering Live Grill (200 Cucuk)',
+        name: 'Pakej Live Grill Katering (200 Cucuk)',
         category: 'catering',
         price: 380.00,
         originalPrice: 420.00,
@@ -233,26 +485,10 @@
         image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
         fallbackImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
         badge: '🎪 Live Grilling',
-        description: 'Khidmat Pitmaster bakar panas-panas di lokasi anda. Termasuk 120 Ayam, 50 Lembu, 30 Kambing, Nasi Impit & Set Pinggan.',
+        description: 'Khidmat Pitmaster bakar panas-panas di majlis anda: 120 Ayam, 50 Lembu, 30 Kambing, Nasi Impit & Set Pinggan.',
         spiciness: 2,
-        calories: 'Sesuai Majlis 20-30 Pax',
+        calories: 'Sesuai 20-30 Pax',
         highlight: 'Termasuk Tukang Bakar & Dapur Arang'
-      },
-      {
-        id: 'catering-kenduri-500',
-        name: 'Pakej Kenduri & Korporat (500 Cucuk)',
-        category: 'catering',
-        price: 890.00,
-        originalPrice: 990.00,
-        minOrder: 1,
-        unit: 'pakej katering',
-        image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80',
-        fallbackImage: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
-        badge: '🏆 Pakej Perkahwinan',
-        description: 'Pakej penuh live bakar katering perkahwinan / sambutan hari jadi / majlis korporat dengan 2 stesen arang & 2 jurubakar.',
-        spiciness: 2,
-        calories: 'Sesuai 60-100 Tetamu',
-        highlight: '2 Stesen Bakar + Live Setup'
       }
     ];
 
@@ -369,8 +605,11 @@
       // Totals calculation
       const totalSkewerCount = useMemo(() => {
         return cart.reduce((acc, item) => {
-          if (item.category === 'ayam' || item.category === 'lembu' || item.category === 'kambing') {
+          if (item.category === 'sate' && (item.id === 'satay-ayam' || item.id === 'satay-lembu' || item.id === 'satay-kambing' || item.id === 'satay-perut')) {
             return acc + item.qty;
+          }
+          if (item.id === 'sate-cup-ayam' || item.id === 'sate-cup-lembu') {
+            return acc + (item.qty * 5);
           }
           return acc;
         }, 0);
@@ -841,13 +1080,14 @@
                   {/* Category Filter */}
                   <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
                     {[
-                      { id: 'all', label: '🌟 Semua' },
-                      { id: 'ayam', label: '🍗 Ayam' },
-                      { id: 'lembu', label: '🥩 Lembu' },
-                      { id: 'kambing', label: '🐐 Kambing' },
-                      { id: 'sides', label: '🍚 Nasi Impit' },
-                      { id: 'combo', label: '🍱 Set Kombo' },
-                      { id: 'catering', label: '🎪 Katering' },
+                      { id: 'all', label: '🌟 Semua Menu' },
+                      { id: 'sate', label: '🍢 Sate & Set Cup' },
+                      { id: 'santai', label: '🍚 Menu Santai' },
+                      { id: 'noodles', label: '🍜 Mi & Soto' },
+                      { id: 'kudap', label: '🥐 Kudapan' },
+                      { id: 'sets', label: '🍽️ Set Restoran' },
+                      { id: 'minuman', label: '🥤 Minuman & Kuah' },
+                      { id: 'catering', label: '🎪 Kombo & Katering' },
                     ].map(cat => (
                       <button
                         key={cat.id}
