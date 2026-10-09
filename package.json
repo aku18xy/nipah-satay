@@ -1,0 +1,19 @@
+{
+  "name": "nipah-satay",
+  "version": "1.0.0",
+  "description": "Nipah Satay™ - Charcoal Grilled Satay & Catering Web App",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 3000"
+  },
+  "keywords": [
+    "satay",
+    "malaysia",
+    "react",
+    "food-ordering",
+    "catering",
+    "vercel"
+  ],
+  "author": "nbef",
+  "license": "MIT"
+}

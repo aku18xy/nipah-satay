@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nipah Satay™ | Warisan Rasa Arang Asli - Delivery, Pickup & Catering</title>
+  <meta name="description" content="Authentic Malaysian charcoal-grilled satay ayam, satay lembu, satay kambing and nasi impit with signature thick peanut sauce. Order online for delivery, pickup, or event catering." />
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+              ember: '#ff4d00',
+              gold: '#f59e0b',
+              charcoal: '#121110',
+              dark: '#1c1917',
+              darker: '#0c0a09',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- React 18 & ReactDOM & Babel Standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0c0a09;
+      color: #f5f5f4;
+      overflow-x: hidden;
+    }
+    .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+    /* Ember Glow Animations */
+    @keyframes emberFloat {
+      0% { transform: translateY(0) scale(1); opacity: 0.8; }
+      50% { transform: translateY(-30px) scale(1.1); opacity: 1; }
+      100% { transform: translateY(-70px) scale(0.6); opacity: 0; }
+    }
+    .ember-dot {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ff6b00 0%, #ff2200 60%, transparent 100%);
+      pointer-events: none;
+      animation: emberFloat 4s infinite ease-in;
+    }
+    .gradient-text-gold {
+      background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 50%, #ea580c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gradient-text-ember {
+      background: linear-gradient(135deg, #ffedd5 0%, #f97316 60%, #dc2626 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .glass-panel {
+      background: rgba(28, 25, 23, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(249, 115, 22, 0.15);
+    }
+    .glass-panel-glow {
+      background: rgba(28, 25, 23, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      box-shadow: 0 10px 40px -10px rgba(234, 88, 12, 0.2);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0c0a09;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #44403c;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ea580c;
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-stone-100 selection:bg-brand-600 selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    // --- MENU DATA ---
+    const INITIAL_MENU = [
+      {
+        id: 'satay-ayam',
+        name: 'Satay Ayam Tradisi',
+        category: 'ayam',
+        price: 1.30,
+        minOrder: 10,
+        unit: 'cucuk',
+        image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+        badge: '🔥 Paling Laris',
+        description: 'Daging ayam segar diperap 24 jam dengan rempah kunyit hidup, serai & halia. Dibakar rangup di luar, berjus di dalam.',
+        spiciness: 2,
+        calories: '45 kcal/cucuk',
+        highlight: '100% Isi Dada & Peha Ayam Segar'
+      },
+      {
+        id: 'satay-lembu',
+        name: 'Satay Lembu Empuk',
+        category: 'lembu',
+        price: 1.60,
+        minOrder: 10,
+        unit: 'cucuk',
+        image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        badge: '⭐ Pilihan Chef',
+        description: 'Daging lembu premium tanpa urat liat, diperap rempah ratus istimewa bersama minyak lengkuas arang.',
+        spiciness: 2,
+        calories: '55 kcal/cucuk',
+        highlight: 'Tender & Juicy Marinated Beef'
+      },
+      {
+        id: 'satay-kambing',
+        name: 'Satay Kambing Gula Melaka',
+        category: 'kambing',
+        price: 2.20,
+        minOrder: 10,
+        unit: 'cucuk',
+        image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
+        badge: '👑 Signature Premium',
+        description: 'Daging kambing empuk tanpa bau hamis, diglis madu dan gula melaka asli sambil dibakar arang kelapa wangi.',
+        spiciness: 3,
+        calories: '65 kcal/cucuk',
+        highlight: 'Aroma Asli Tanpa Bau Hamis'
+      },
+      {
+        id: 'nasi-impit',
+        name: 'Nasi Impit & Kuah Kacang Set',
+        category: 'sides',
+        price: 2.50,
+        minOrder: 1,
+        unit: 'set (4 ketul + timun/bawang)',
+        image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+        badge: '🌾 Wajib Ada',
+        description: 'Nasi impit padat dan lembut dibalut kemas, lengkap dengan hirisan timun segar, bawang merah dan kuah kacang pekat manis.',
+        spiciness: 1,
+        calories: '120 kcal/set',
+        highlight: 'Dihidang Bersama Timun & Bawang'
+      },
+      {
+        id: 'set-keluarga-30',
+        name: 'Set Kombo Nipah (30 Cucuk)',
+        category: 'combo',
+        price: 49.90,
+        originalPrice: 55.00,
+        minOrder: 1,
+        unit: 'pakej',
+        image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+        badge: '🏷️ Jimat 10%',
+        description: '15 Cucuk Satay Ayam + 10 Cucuk Satay Lembu + 5 Cucuk Satay Kambing + 2 Set Nasi Impit + 2 Mangkok Kuah Kacang Ekstra.',
+        spiciness: 2,
+        calories: 'Sesuai 3-4 Orang',
+        highlight: 'Lengkap Semua Pilihan Daging'
+      },
+      {
+        id: 'set-pesta-50',
+        name: 'Set Pesta Arang Nipah (50 Cucuk)',
+        category: 'combo',
+        price: 79.90,
+        originalPrice: 90.00,
+        minOrder: 1,
+        unit: 'pakej',
+        image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        badge: '🎉 Best for Party',
+        description: '25 Satay Ayam + 15 Satay Lembu + 10 Satay Kambing + 4 Nasi Impit + Kuah Kacang Gergasi + Sambal Kicap Cili Padi.',
+        spiciness: 2,
+        calories: 'Sesuai 5-7 Orang',
+        highlight: 'Percuma Sambal Kicap Cili Padi'
+      },
+      {
+        id: 'catering-station-200',
+        name: 'Pakej Katering Live Grill (200 Cucuk)',
+        category: 'catering',
+        price: 380.00,
+        originalPrice: 420.00,
+        minOrder: 1,
+        unit: 'pakej majlis',
+        image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        badge: '🎪 Live Grilling',
+        description: 'Khidmat Pitmaster bakar panas-panas di lokasi anda. Termasuk 120 Ayam, 50 Lembu, 30 Kambing, Nasi Impit tanpa had & Set Pinggan Mesra Alam.',
+        spiciness: 2,
+        calories: 'Sesuai Majlis 20-30 Pax',
+        highlight: 'Termasuk Tukang Bakar & Dapur Arang'
+      },
+      {
+        id: 'catering-kenduri-500',
+        name: 'Pakej Kenduri & Korporat (500 Cucuk)',
+        category: 'catering',
+        price: 890.00,
+        originalPrice: 990.00,
+        minOrder: 1,
+        unit: 'pakej katering',
+        image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80',
+        fallbackImage: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=800&q=80',
+        badge: '🏆 Pakej Perkahwinan',
+        description: 'Pakej penuh live bakar katering perkahwinan / sambutan hari jadi / majlis korporat dengan 2 stesen arang & 2 jurubakar.',
+        spiciness: 2,
+        calories: 'Sesuai 60-100 Tetamu',
+        highlight: '2 Stesen Bakar + Live Setup'
+      }
+    ];
+
+    const BRANCHES = [
+      { id: 'bangi', name: 'Nipah Satay - Bandar Baru Bangi (HQ)', address: 'No. 18, Jalan Medan Pusat 2D, Seksyen 9, 43650 Bandar Baru Bangi, Selangor', phone: '+6011-23456789' },
+      { id: 'shahalam', name: 'Nipah Satay - Seksyen 7 Shah Alam', address: 'Jalan Plumbum 7/95, Seksyen 7, 40000 Shah Alam, Selangor', phone: '+6011-98765432' },
+      { id: 'kl', name: 'Nipah Satay - Kampung Baru KL', address: 'Jalan Raja Abdullah, Kampung Baru, 50300 Kuala Lumpur', phone: '+6012-34567890' }
+    ];
+
+    const TESTIMONIALS = [
+      {
+        name: 'Dato’ Seri Rizal Rahman',
+        role: 'Pelanggan Katering Korporat (Petronas)',
+        rating: 5,
+        comment: 'Satay kambing dia paling mantap! Lembut, langsung tak hamis dan kuah kacang betul-betul pekat macam kenduri dulu-dulu. Tetamu VIP semua puji.',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'
+      },
+      {
+        name: 'Nur Syafiqah & Farhan',
+        role: 'Pengantin Majlis Sanding (Bangi Convention)',
+        rating: 5,
+        comment: 'Book pakej live grill 1,000 cucuk untuk majlis kahwin. Team Nipah Satay sangat on-time, kemas, dan asap arang wangi membangkitkan selera tetamu.',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'
+      },
+      {
+        name: 'Chef Ammar Zul',
+        role: 'Food Reviewer & Influencer',
+        rating: 5,
+        comment: 'Perapan serai dan kunyit dia menyerap sampai ke dalam isi ayam & daging. Makan panas-panas dengan sambal kicap cili padi... padu gila!',
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80'
+      }
+    ];
+
+    function App() {
+      // Order & Cart State
+      const [orderMode, setOrderMode] = useState('delivery'); // 'delivery' | 'pickup' | 'event'
+      const [cart, setCart] = useState([]);
+      const [selectedCategory, setSelectedCategory] = useState('all');
+      const [isCartOpen, setIsCartOpen] = useState(false);
+      const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+      const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+      const [lastConfirmedOrder, setLastConfirmedOrder] = useState(null);
+      const [toastMessage, setToastMessage] = useState(null);
+      const [promoCode, setPromoCode] = useState('');
+      const [appliedDiscount, setAppliedDiscount] = useState(0);
+      const [activeTab, setActiveTab] = useState('home'); // 'home' | 'menu' | 'catering' | 'about' | 'contact'
+
+      // Customer form details
+      const [customerDetails, setCustomerDetails] = useState({
+        name: '',
+        phone: '',
+        email: '',
+        address: '',
+        deliveryDate: new Date().toISOString().split('T')[0],
+        deliveryTime: '18:00',
+        branch: 'bangi',
+        pickupPlateNo: '',
+        eventType: 'Kenduri Kahwin',
+        guestPax: 100,
+        liveGrillNeeded: true,
+        specialNotes: '',
+        saucePreference: 'Bungkus Asing (Separate Gravy)'
+      });
+
+      // Show toast helper
+      const showToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(null), 3500);
+      };
+
+      // Add item to cart
+      const addToCart = (item, qtyToAdd = null) => {
+        const qty = qtyToAdd || item.minOrder || 1;
+        setCart(prev => {
+          const existing = prev.find(i => i.id === item.id);
+          if (existing) {
+            return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + qty } : i);
+          } else {
+            return [...prev, { ...item, qty }];
+          }
+        });
+        showToast(`✅ Ditambah ke troli: +${qty} ${item.unit} ${item.name}`);
+      };
+
+      // Update item quantity
+      const updateQty = (itemId, newQty) => {
+        if (newQty <= 0) {
+          setCart(prev => prev.filter(i => i.id !== itemId));
+          showToast('🗑️ Item dikeluarkan dari troli');
+        } else {
+          setCart(prev => prev.map(i => i.id === itemId ? { ...i, qty: newQty } : i));
+        }
+      };
+
+      // Clear Cart
+      const clearCart = () => {
+        setCart([]);
+        setAppliedDiscount(0);
+        setPromoCode('');
+      };
+
+      // Apply Promo Code
+      const handleApplyPromo = () => {
+        const code = promoCode.trim().toUpperCase();
+        if (code === 'NIPAH10' || code === 'SATAYSEDAP') {
+          setAppliedDiscount(0.10); // 10% discount
+          showToast('🎉 Kod Promo NIPAH10 berjaya ditebus! Diskaun 10%');
+        } else if (code === 'KENDURI50') {
+          setAppliedDiscount(0.15); // 15% discount
+          showToast('🎉 Kod KENDURI50 berjaya! Diskaun 15%');
+        } else {
+          showToast('⚠️ Kod promo tidak sah. Cuba "NIPAH10"');
+        }
+      };
+
+      // Totals
+      const totalSkewerCount = useMemo(() => {
+        return cart.reduce((acc, item) => {
+          if (item.category === 'ayam' || item.category === 'lembu' || item.category === 'kambing') {
+            return acc + item.qty;
+          }
+          return acc;
+        }, 0);
+      }, [cart]);
+
+      const subtotal = useMemo(() => {
+        return cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      }, [cart]);
+
+      const discountAmount = useMemo(() => {
+        return subtotal * appliedDiscount;
+      }, [subtotal, appliedDiscount]);
+
+      const deliveryFee = useMemo(() => {
+        if (orderMode === 'delivery') {
+          return subtotal > 100 ? 0 : 8.00; // Free delivery over RM100
+        }
+        if (orderMode === 'event') {
+          return customerDetails.liveGrillNeeded ? 50.00 : 25.00; // Setup and transport fee
+        }
+        return 0; // Pickup is free
+      }, [orderMode, subtotal, customerDetails.liveGrillNeeded]);
+
+      const grandTotal = useMemo(() => {
+        return Math.max(0, subtotal - discountAmount + deliveryFee);
+      }, [subtotal, discountAmount, deliveryFee]);
+
+      // Category filtered items
+      const filteredMenu = useMemo(() => {
+        if (selectedCategory === 'all') return INITIAL_MENU;
+        return INITIAL_MENU.filter(item => item.category === selectedCategory);
+      }, [selectedCategory]);
+
+      // Generate WhatsApp Direct Order Message
+      const generateWhatsAppMessage = () => {
+        const orderId = 'NPS-' + Math.floor(100000 + Math.random() * 900000);
+        let text = `🔥 *TEMPAHAN NIPAH SATAY™ (${orderId})* 🔥\n\n`;
+        text += `📌 *Mod Pesanan:* ${orderMode.toUpperCase()}\n`;
+        text += `👤 *Nama:* ${customerDetails.name || 'Pelanggan'}\n`;
+        text += `📞 *No Telefon:* ${customerDetails.phone || '-'}\n`;
+        
+        if (orderMode === 'delivery') {
+          text += `📍 *Alamat Penghantaran:* ${customerDetails.address || '-'}\n`;
+          text += `📅 *Tarikh/Masa:* ${customerDetails.deliveryDate} @ ${customerDetails.deliveryTime}\n`;
+        } else if (orderMode === 'pickup') {
+          const br = BRANCHES.find(b => b.id === customerDetails.branch);
+          text += `🏪 *Cawangan Pickup:* ${br ? br.name : 'HQ Bangi'}\n`;
+          text += `🚗 *No Plat Kenderaan:* ${customerDetails.pickupPlateNo || '-'}\n`;
+          text += `⏰ *Masa Pengambilan:* ${customerDetails.deliveryTime}\n`;
+        } else if (orderMode === 'event') {
+          text += `🎪 *Jenis Acara:* ${customerDetails.eventType}\n`;
+          text += `👥 *Anggaran Tetamu:* ${customerDetails.guestPax} Pax\n`;
+          text += `🔥 *Stesen Live Grill:* ${customerDetails.liveGrillNeeded ? 'YA (Termasuk Pitmaster)' : 'TIDAK (Chafing Dish Delivery)'}\n`;
+          text += `📍 *Lokasi Acara:* ${customerDetails.address || '-'}\n`;
+          text += `📅 *Tarikh Majlis:* ${customerDetails.deliveryDate} (${customerDetails.deliveryTime})\n`;
+        }
+
+        text += `\n🍢 *SENARAI PESANAN:*\n`;
+        cart.forEach((item, idx) => {
+          text += `${idx + 1}. ${item.name} (${item.qty} ${item.unit}) - RM ${(item.price * item.qty).toFixed(2)}\n`;
+        });
+
+        text += `\n🌶️ *Pilihan Kuah:* ${customerDetails.saucePreference}\n`;
+        if (customerDetails.specialNotes) {
+          text += `📝 *Nota Khas:* ${customerDetails.specialNotes}\n`;
+        }
+
+        text += `\n💰 *RINGKASAN PEMBAYARAN:*\n`;
+        text += `Subtotal: RM ${subtotal.toFixed(2)}\n`;
+        if (appliedDiscount > 0) {
+          text += `Diskaun Promo: -RM ${discountAmount.toFixed(2)}\n`;
+        }
+        text += `Caj Penghantaran/Setup: RM ${deliveryFee.toFixed(2)}\n`;
+        text += `*JUMLAH KESELURUHAN: RM ${grandTotal.toFixed(2)}*\n\n`;
+        text += `Mohon pihak Nipah Satay sahkan pesanan dan sediakan slot. Terima kasih! 🙏`;
+
+        return { orderId, text };
+      };
+
+      // Submit Order Handler
+      const handleConfirmOrder = () => {
+        if (!customerDetails.name || !customerDetails.phone) {
+          alert('Sila lengkapkan Nama dan Nombor Telefon anda terlebih dahulu.');
+          return;
+        }
+        if (orderMode === 'delivery' && !customerDetails.address) {
+          alert('Sila masukkan alamat penghantaran anda.');
+          return;
+        }
+        if (orderMode === 'event' && !customerDetails.address) {
+          alert('Sila masukkan lokasi majlis/acara katering anda.');
+          return;
+        }
+        if (cart.length === 0) {
+          alert('Troli anda masih kosong. Sila pilih menu terlebih dahulu.');
+          return;
+        }
+
+        const { orderId, text } = generateWhatsAppMessage();
+        const orderData = {
+          orderId,
+          date: new Date().toLocaleString('ms-MY'),
+          customerDetails: { ...customerDetails },
+          orderMode,
+          cart: [...cart],
+          subtotal,
+          discountAmount,
+          deliveryFee,
+          grandTotal,
+          rawText: text
+        };
+
+        setLastConfirmedOrder(orderData);
+        setIsCheckoutModalOpen(false);
+        setIsCartOpen(false);
+        setIsReceiptModalOpen(true);
+
+        // Confetti celebration
+        if (window.confetti) {
+          window.confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+        }
+      };
+
+      const sendToWhatsApp = () => {
+        if (!lastConfirmedOrder) return;
+        const targetPhone = '601123456789'; // Business WhatsApp number
+        const encoded = encodeURIComponent(lastConfirmedOrder.rawText);
+        window.open(`https://wa.me/${targetPhone}?text=${encoded}`, '_blank');
+      };
+
+      // Quick Order presets
+      const handleQuickAddCombo = (comboId) => {
+        const item = INITIAL_MENU.find(i => i.id === comboId);
+        if (item) {
+          addToCart(item, 1);
+          setIsCartOpen(true);
+        }
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col bg-brand-darker text-stone-100">
+          
+          {/* TOAST NOTIFICATION */}
+          {toastMessage && (
+            <div className="fixed top-20 right-5 z-50 bg-brand-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-orange-400 animate-bounce">
+              <i data-lucide="sparkles" className="w-5 h-5"></i>
+              <span className="font-semibold text-sm">{toastMessage}</span>
+            </div>
+          )}
+
+          {/* TOP ANNOUNCEMENT BANNER */}
+          <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-red-700 text-white text-xs md:text-sm py-2 px-4 text-center font-medium flex items-center justify-center gap-3 shadow-inner">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+            </span>
+            <span>🔥 <strong>DAPUR ARANG SEDANG MEMBARA!</strong> Penghantaran Pantas Sekitar Lembah Klang & Tempahan Katering Live Grill Kini Dibuka!</span>
+            <span className="hidden md:inline bg-black/30 px-2 py-0.5 rounded text-xs">Kod: NIPAH10 (Diskaun 10%)</span>
+          </div>
+
+          {/* HEADER / NAVIGATION BAR */}
+          <header className="sticky top-0 z-40 glass-panel border-b border-orange-950/60 transition-all">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+              
+              {/* BRAND LOGO */}
+              <div 
+                onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="flex items-center gap-3 cursor-pointer group"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-700 flex items-center justify-center shadow-lg shadow-orange-900/40 group-hover:scale-105 transition-transform border border-amber-400/40">
+                  <span className="text-2xl">🍢</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-display font-black text-2xl tracking-tight gradient-text-gold">NIPAH SATAY</span>
+                    <span className="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-1.5 py-0.5 rounded border border-amber-500/30">EST. 1998</span>
+                  </div>
+                  <p className="text-[11px] text-stone-400 font-medium tracking-wide">Warisan Arang Asli • 100% Halal</p>
+                </div>
+              </div>
+
+              {/* DESKTOP NAV LINKS */}
+              <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-300">
+                <button 
+                  onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className={`hover:text-amber-400 transition-colors ${activeTab === 'home' ? 'text-amber-400 font-bold' : ''}`}
+                >
+                  Utama
+                </button>
+                <button 
+                  onClick={() => { setActiveTab('menu'); document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' }); }}
+                  className={`hover:text-amber-400 transition-colors ${activeTab === 'menu' ? 'text-amber-400 font-bold' : ''}`}
+                >
+                  Menu Satay
+                </button>
+                <button 
+                  onClick={() => { 
+                    setOrderMode('event');
+                    setActiveTab('catering'); 
+                    document.getElementById('order-mode-section')?.scrollIntoView({ behavior: 'smooth' }); 
+                  }}
+                  className={`hover:text-amber-400 transition-colors ${activeTab === 'catering' ? 'text-amber-400 font-bold' : ''}`}
+                >
+                  🎪 Katering & Majlis
+                </button>
+                <button 
+                  onClick={() => { setActiveTab('about'); document.getElementById('heritage-section')?.scrollIntoView({ behavior: 'smooth' }); }}
+                  className="hover:text-amber-400 transition-colors"
+                >
+                  Rahsia Resipi
+                </button>
+                <button 
+                  onClick={() => { setActiveTab('contact'); document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' }); }}
+                  className="hover:text-amber-400 transition-colors"
+                >
+                  Cawangan
+                </button>
+              </nav>
+
+              {/* ACTION BUTTONS & CART TRIGGER */}
+              <div className="flex items-center gap-3">
+                
+                {/* Order Mode Badge Selector */}
+                <div className="hidden lg:flex bg-stone-900/90 p-1 rounded-xl border border-stone-800 text-xs font-semibold">
+                  <button 
+                    onClick={() => { setOrderMode('delivery'); showToast('Mod Pesanan: Delivery Penghantaran'); }}
+                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${orderMode === 'delivery' ? 'bg-orange-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                  >
+                    <span>🛵</span> Delivery
+                  </button>
+                  <button 
+                    onClick={() => { setOrderMode('pickup'); showToast('Mod Pesanan: Self-Pickup'); }}
+                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${orderMode === 'pickup' ? 'bg-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                  >
+                    <span>🏪</span> Pickup
+                  </button>
+                  <button 
+                    onClick={() => { setOrderMode('event'); showToast('Mod Pesanan: Katering Majlis'); }}
+                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${orderMode === 'event' ? 'bg-red-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
+                  >
+                    <span>🎪</span> Katering
+                  </button>
+                </div>
+
+                {/* Cart Button with Counter */}
+                <button 
+                  onClick={() => setIsCartOpen(true)}
+                  className="relative flex items-center gap-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white px-4 py-2.5 rounded-xl font-bold shadow-lg shadow-orange-950/50 hover:scale-105 transition-all"
+                >
+                  <span className="text-xl">🛒</span>
+                  <span className="hidden sm:inline text-sm">Troli</span>
+                  {cart.length > 0 && (
+                    <span className="bg-white text-orange-700 font-extrabold text-xs px-2 py-0.5 rounded-full shadow animate-pulse">
+                      {cart.reduce((s, i) => s + i.qty, 0)}
+                    </span>
+                  )}
+                  {subtotal > 0 && (
+                    <span className="hidden md:inline text-xs font-medium opacity-90 border-l border-orange-400/40 pl-2">
+                      RM {subtotal.toFixed(2)}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+            </div>
+          </header>
+
+          {/* MAIN CONTENT AREA */}
+          <main className="flex-1">
+
+            {/* HERO SECTION */}
+            <section className="relative overflow-hidden pt-12 pb-20 md:py-24 border-b border-stone-800">
+              
+              {/* Ambient Ember & Glow Backdrops */}
+              <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/15 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute top-10 right-10 w-72 h-72 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                  
+                  {/* Left Column: Headline & Value Prop */}
+                  <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    
+                    <div className="inline-flex items-center gap-2 bg-orange-950/80 border border-orange-500/30 px-3.5 py-1.5 rounded-full text-xs font-semibold text-amber-300">
+                      <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+                      <span>Arang Bakau Asli • Resipi Warisan Bonda Sejak 1998</span>
+                    </div>
+
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-white leading-tight">
+                      Satay Bakar Arang <br/>
+                      <span className="gradient-text-ember">Paling Juicy & Wangi</span> <br/>
+                      Di Lembah Klang.
+                    </h1>
+
+                    <p className="text-base sm:text-lg text-stone-300 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                      Diperap 24 jam dengan 12 herba & rempah segar. Dibakar sempurna di atas bara arang membara untuk aroma asap memikat. Dihidang panas bersama <strong>Kuah Kacang Pekat Berkacang Kasar</strong> & Nasi Impit lembut.
+                    </p>
+
+                    {/* Order Mode Switcher Tabs directly on Hero */}
+                    <div className="bg-stone-900/90 p-2 rounded-2xl border border-stone-700/60 max-w-xl mx-auto lg:mx-0 shadow-2xl backdrop-blur-md">
+                      <div className="grid grid-cols-3 gap-2 text-center text-xs sm:text-sm font-bold">
+                        <button 
+                          onClick={() => {
+                            setOrderMode('delivery');
+                            document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className={`py-3 px-2 rounded-xl transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${orderMode === 'delivery' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'}`}
+                        >
+                          <span className="text-lg">🛵</span>
+                          <span>Delivery Rumah</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setOrderMode('pickup');
+                            document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className={`py-3 px-2 rounded-xl transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${orderMode === 'pickup' ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-lg' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'}`}
+                        >
+                          <span className="text-lg">🏪</span>
+                          <span>Self Pickup</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setOrderMode('event');
+                            document.getElementById('catering-section')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className={`py-3 px-2 rounded-xl transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${orderMode === 'event' ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-lg' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'}`}
+                        >
+                          <span className="text-lg">🎪</span>
+                          <span>Katering Majlis</span>
+                        </button>
+                      </div>
+
+                      <div className="mt-3 pt-3 border-t border-stone-800 flex items-center justify-between px-3 text-xs text-stone-400">
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-emerald-400">●</span> Anggaran Siap: <strong>25 - 35 min</strong>
+                        </span>
+                        <span className="text-amber-400 font-semibold">
+                          {orderMode === 'delivery' && '🚀 Free Delivery atas RM100'}
+                          {orderMode === 'pickup' && '⚡ Siap Bungkus Terus Ambil'}
+                          {orderMode === 'event' && '🎪 Live Grilling Station Available'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Quick CTA Buttons */}
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                      <button 
+                        onClick={() => document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-stone-950 font-extrabold px-8 py-4 rounded-xl shadow-xl shadow-orange-950/60 hover:scale-105 transition-all text-base flex items-center gap-2"
+                      >
+                        <span>Pilih Menu Sekarang</span>
+                        <span>🍢</span>
+                      </button>
+
+                      <button 
+                        onClick={() => handleQuickAddCombo('set-keluarga-30')}
+                        className="bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold px-6 py-4 rounded-xl border border-stone-700 hover:border-amber-500/50 transition-all text-base flex items-center gap-2"
+                      >
+                        <span>🔥 Order Set Kombo 30 Cucuk</span>
+                      </button>
+                    </div>
+
+                    {/* Quality Highlights */}
+                    <div className="grid grid-cols-3 gap-4 pt-6 border-t border-stone-800/80 max-w-lg mx-auto lg:mx-0">
+                      <div>
+                        <div className="font-bold text-amber-400 text-lg sm:text-xl">100%</div>
+                        <div className="text-xs text-stone-400">Halal & Daging Segar</div>
+                      </div>
+                      <div>
+                        <div className="font-bold text-orange-400 text-lg sm:text-xl">25,000+</div>
+                        <div className="text-xs text-stone-400">Cucuk Dibakar Setiap Bulan</div>
+                      </div>
+                      <div>
+                        <div className="font-bold text-amber-300 text-lg sm:text-xl">4.9 ★</div>
+                        <div className="text-xs text-stone-400">1,400+ Review Pelanggan</div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Right Column: Hero Visual Card */}
+                  <div className="lg:col-span-5 relative">
+                    <div className="relative rounded-3xl overflow-hidden glass-panel-glow p-2 border-2 border-orange-500/30">
+                      
+                      {/* Image Frame */}
+                      <div className="relative h-96 sm:h-[450px] rounded-2xl overflow-hidden group">
+                        <img 
+                          src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=80" 
+                          alt="Nipah Satay Charcoal Grilled Skewers"
+                          className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
+                          onError={(e) => {
+                            e.target.src = 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1000&q=80';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+
+                        {/* Floating Badges */}
+                        <div className="absolute top-4 left-4 bg-orange-600/90 backdrop-blur-md text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 shadow-lg">
+                          <span>🔥</span>
+                          <span>Bakar Arang Panas-Panas</span>
+                        </div>
+
+                        <div className="absolute bottom-4 left-4 right-4 bg-stone-950/85 backdrop-blur-md p-4 rounded-2xl border border-orange-500/30">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-bold text-white text-base">Aneka Satay & Kuah Kacang Pekat</span>
+                            <span className="text-amber-400 font-extrabold text-sm">Dari RM 1.30/cucuk</span>
+                          </div>
+                          <p className="text-xs text-stone-300">Ayam • Lembu • Kambing • Nasi Impit • Sambal Cili Padi</p>
+                          
+                          <div className="mt-3 flex items-center gap-2">
+                            <button 
+                              onClick={() => handleQuickAddCombo('set-keluarga-30')}
+                              className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-stone-950 font-bold py-2 rounded-xl text-xs hover:brightness-110 transition-all text-center"
+                            >
+                              + Tambah Kombo Jimat 30 Cucuk
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </section>
+
+            {/* ORDER MODE SELECTION SECTION */}
+            <section id="order-mode-section" className="py-12 bg-stone-900/50 border-b border-stone-800">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center max-w-2xl mx-auto mb-8">
+                  <h2 className="text-2xl sm:text-3xl font-display font-bold text-white">
+                    Pilih Cara Anda Menikmati <span className="gradient-text-gold">Nipah Satay</span>
+                  </h2>
+                  <p className="text-stone-400 text-sm mt-2">
+                    Kami menyediakan penghantaran pantas ke pintu anda, pengambilan pandu lalu, atau stesen katering live grill untuk majlis istimewa.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  {/* Delivery Card */}
+                  <div 
+                    onClick={() => {
+                      setOrderMode('delivery');
+                      showToast('Mod Delivery Dipilih! Sila pilih menu.');
+                    }}
+                    className={`cursor-pointer rounded-2xl p-6 transition-all relative overflow-hidden ${orderMode === 'delivery' ? 'glass-panel-glow border-2 border-orange-500 scale-[1.02]' : 'glass-panel hover:border-stone-600'}`}
+                  >
+                    {orderMode === 'delivery' && (
+                      <div className="absolute top-3 right-3 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        DIPILIH ✓
+                      </div>
+                    )}
+                    <div className="w-14 h-14 rounded-2xl bg-orange-950/80 border border-orange-500/30 flex items-center justify-center text-3xl mb-4">
+                      🛵
+                    </div>
+                    <h3 className="text-lg font-bold text-white">1. Penghantaran (Delivery)</h3>
+                    <p className="text-xs text-stone-400 mt-1 leading-relaxed">
+                      Dihantar terus panas-panas dari dapur arang kami ke rumah atau pejabat anda di seluruh Lembah Klang.
+                    </p>
+                    <div className="mt-4 pt-4 border-t border-stone-800 flex items-center justify-between text-xs text-amber-400 font-semibold">
+                      <span>Caj Flat: RM 8.00</span>
+                      <span>Percuma > RM 100</span>
+                    </div>
+                  </div>
+
+                  {/* Pickup Card */}
+                  <div 
+                    onClick={() => {
+                      setOrderMode('pickup');
+                      showToast('Mod Self Pickup Dipilih! Sila pilih cawangan.');
+                    }}
+                    className={`cursor-pointer rounded-2xl p-6 transition-all relative overflow-hidden ${orderMode === 'pickup' ? 'glass-panel-glow border-2 border-amber-500 scale-[1.02]' : 'glass-panel hover:border-stone-600'}`}
+                  >
+                    {orderMode === 'pickup' && (
+                      <div className="absolute top-3 right-3 bg-amber-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        DIPILIH ✓
+                      </div>
+                    )}
+                    <div className="w-14 h-14 rounded-2xl bg-amber-950/80 border border-amber-500/30 flex items-center justify-center text-3xl mb-4">
+                      🏪
+                    </div>
+                    <h3 className="text-lg font-bold text-white">2. Ambil Sendiri (Pickup)</h3>
+                    <p className="text-xs text-stone-400 mt-1 leading-relaxed">
+                      Order lebih awal tanpa perlu beratur. Makanan siap dibungkus kemas di kaunter pandu lalu cawangan kami.
+                    </p>
+                    <div className="mt-4 pt-4 border-t border-stone-800 flex items-center justify-between text-xs text-amber-400 font-semibold">
+                      <span>3 Cawangan</span>
+                      <span>Tanpa Caj Tambahan</span>
+                    </div>
+                  </div>
+
+                  {/* Catering Card */}
+                  <div 
+                    onClick={() => {
+                      setOrderMode('event');
+                      showToast('Mod Katering & Live Grill Dipilih!');
+                      document.getElementById('catering-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className={`cursor-pointer rounded-2xl p-6 transition-all relative overflow-hidden ${orderMode === 'event' ? 'glass-panel-glow border-2 border-red-500 scale-[1.02]' : 'glass-panel hover:border-stone-600'}`}
+                  >
+                    {orderMode === 'event' && (
+                      <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        DIPILIH ✓
+                      </div>
+                    )}
+                    <div className="w-14 h-14 rounded-2xl bg-red-950/80 border border-red-500/30 flex items-center justify-center text-3xl mb-4">
+                      🎪
+                    </div>
+                    <h3 className="text-lg font-bold text-white">3. Katering & Acara (Live Grill)</h3>
+                    <p className="text-xs text-stone-400 mt-1 leading-relaxed">
+                      Katering majlis kahwin, aqiqah, hari lahir & jamuan korporat dengan kru pitmaster membakar satay di lokasi majlis anda.
+                    </p>
+                    <div className="mt-4 pt-4 border-t border-stone-800 flex items-center justify-between text-xs text-amber-400 font-semibold">
+                      <span>Pakej 200 - 5,000 Cucuk</span>
+                      <span>Termasuk Dapur Arang</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </section>
+
+            {/* BROWSE MENU SECTION */}
+            <section id="menu-section" className="py-16 md:py-24">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                {/* Menu Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                  <div>
+                    <div className="inline-block bg-orange-950/70 border border-orange-500/30 px-3 py-1 rounded-full text-xs font-semibold text-amber-400 mb-2">
+                      🍢 Resipi Asli 100% Halal
+                    </div>
+                    <h2 className="text-3xl sm:text-4xl font-display font-black text-white">
+                      Menu Istimewa <span className="gradient-text-ember">Nipah Satay</span>
+                    </h2>
+                    <p className="text-stone-400 text-sm mt-1">
+                      Setiap cucuk satay dibalut rapi dengan rempah asli, minyak biji sawit segar & dibakar arang berkualiti.
+                    </p>
+                  </div>
+
+                  {/* Category Filter Pills */}
+                  <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
+                    {[
+                      { id: 'all', label: '🌟 Semua' },
+                      { id: 'ayam', label: '🍗 Ayam' },
+                      { id: 'lembu', label: '🥩 Lembu' },
+                      { id: 'kambing', label: '🐐 Kambing' },
+                      { id: 'sides', label: '🍚 Nasi Impit' },
+                      { id: 'combo', label: '🍱 Set Kombo' },
+                      { id: 'catering', label: '🎪 Pakej Katering' },
+                    ].map(cat => (
+                      <button
+                        key={cat.id}
+                        onClick={() => setSelectedCategory(cat.id)}
+                        className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${selectedCategory === cat.id ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg shadow-orange-950/50' : 'bg-stone-900/80 text-stone-300 hover:bg-stone-800 border border-stone-800'}`}
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Menu Items Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {filteredMenu.map(item => {
+                    const cartItem = cart.find(i => i.id === item.id);
+                    const currentQty = cartItem ? cartItem.qty : 0;
+
+                    return (
+                      <div 
+                        key={item.id}
+                        className="glass-panel rounded-3xl overflow-hidden flex flex-col justify-between border border-stone-800 hover:border-orange-500/40 transition-all group hover:shadow-2xl hover:shadow-orange-950/40"
+                      >
+                        {/* Food Image Banner */}
+                        <div className="relative h-48 sm:h-52 overflow-hidden bg-stone-900">
+                          <img 
+                            src={item.image} 
+                            alt={item.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            onError={(e) => { e.target.src = item.fallbackImage; }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-transparent opacity-90"></div>
+
+                          {/* Top Badge */}
+                          <div className="absolute top-3 left-3 bg-stone-950/80 backdrop-blur-md border border-orange-500/30 text-amber-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                            {item.badge}
+                          </div>
+
+                          {/* Min Order pill */}
+                          {item.minOrder > 1 && (
+                            <div className="absolute top-3 right-3 bg-black/70 text-stone-300 px-2 py-0.5 rounded text-[10px]">
+                              Min {item.minOrder} {item.unit}
+                            </div>
+                          )}
+
+                          {/* Calories/highlight */}
+                          <div className="absolute bottom-2 left-3 right-3 text-[11px] text-stone-300 flex items-center justify-between">
+                            <span className="bg-stone-900/90 px-2 py-0.5 rounded text-[10px] text-amber-400 font-medium">
+                              {item.highlight}
+                            </span>
+                            <span className="text-[10px] text-stone-400">
+                              {item.calories}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Details Content */}
+                        <div className="p-5 flex-1 flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <h3 className="font-bold text-base text-white group-hover:text-amber-400 transition-colors">
+                                {item.name}
+                              </h3>
+                            </div>
+                            
+                            <p className="text-xs text-stone-400 line-clamp-2 leading-relaxed mb-4">
+                              {item.description}
+                            </p>
+                          </div>
+
+                          {/* Price and Cart Controller */}
+                          <div>
+                            <div className="flex items-baseline justify-between mb-3">
+                              <div>
+                                <span className="text-xs text-stone-400">Harga:</span>
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="text-xl font-extrabold text-amber-400">
+                                    RM {item.price.toFixed(2)}
+                                  </span>
+                                  <span className="text-xs text-stone-400">/{item.unit}</span>
+                                </div>
+                              </div>
+                              {item.originalPrice && (
+                                <span className="text-xs text-stone-500 line-through">
+                                  RM {item.originalPrice.toFixed(2)}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Actions */}
+                            {currentQty > 0 ? (
+                              <div className="flex items-center justify-between bg-stone-900 border border-orange-500/40 rounded-xl p-1">
+                                <button 
+                                  onClick={() => updateQty(item.id, currentQty - (item.minOrder > 1 ? item.minOrder : 1))}
+                                  className="w-8 h-8 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-400 font-bold flex items-center justify-center transition-colors"
+                                >
+                                  -
+                                </button>
+                                <span className="text-sm font-bold text-white">
+                                  {currentQty} {item.unit}
+                                </span>
+                                <button 
+                                  onClick={() => updateQty(item.id, currentQty + (item.minOrder > 1 ? item.minOrder : 1))}
+                                  className="w-8 h-8 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold flex items-center justify-center transition-colors"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <button 
+                                  onClick={() => addToCart(item)}
+                                  className="flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-1.5"
+                                >
+                                  <span>+ Tambah</span>
+                                  {item.minOrder > 1 && <span className="text-[10px] opacity-80">({item.minOrder} {item.unit})</span>}
+                                </button>
+                                
+                                {item.category !== 'combo' && item.category !== 'catering' && (
+                                  <button 
+                                    onClick={() => addToCart(item, 20)}
+                                    title="Tambah 20 cucuk segera"
+                                    className="bg-stone-800 hover:bg-stone-700 text-amber-400 border border-stone-700 px-2.5 py-2.5 rounded-xl text-xs font-bold transition-colors"
+                                  >
+                                    +20
+                                  </button>
+                                )}
+                              </div>
+                            )}
+
+                          </div>
+
+                        </div>
+
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Free Add-ons Banner */}
+                <div className="mt-12 bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 border border-amber-500/20 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl shrink-0">
+                      🥜
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg text-white">Percuma Kuah Kacang Pekat, Timun & Bawang Merah!</h4>
+                      <p className="text-xs sm:text-sm text-stone-400 mt-1">
+                        Setiap pesanan satay didatangkan lengkap dengan kuah kacang berlemak manis istimewa dan ulam timun segar tanpa bayaran tersembunyi.
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setIsCartOpen(true)}
+                    className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold px-6 py-3 rounded-xl text-sm whitespace-nowrap shadow-lg transition-transform hover:scale-105"
+                  >
+                    Semak Troli ({cart.length} item) →
+                  </button>
+                </div>
+
+              </div>
+            </section>
+
+            {/* CATERING & EVENT SECTION */}
+            <section id="catering-section" className="py-16 md:py-24 bg-gradient-to-b from-stone-900/60 to-brand-darker border-y border-stone-800 relative">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                  
+                  {/* Left Column: Catering Intro */}
+                  <div className="lg:col-span-6 space-y-6">
+                    <div className="inline-flex items-center gap-2 bg-red-950/80 border border-red-500/30 px-3.5 py-1.5 rounded-full text-xs font-semibold text-red-300">
+                      <span>🎪 Stesen Bakar Arang Di Majlis Anda</span>
+                    </div>
+
+                    <h2 className="text-3xl sm:text-4xl font-display font-black text-white leading-tight">
+                      Katering Satay Live Grill <br/>
+                      <span className="gradient-text-gold">Untuk Majlis Kahwin & Acara</span>
+                    </h2>
+
+                    <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
+                      Jadikan majlis perkahwinan, aqiqah, jamuan raya atau acara syarikat anda kenangan paling manis dengan aroma asap satay yang menyelerakan. Pasukan jurubakar kami akan hadir lengkap bersama dapur arang, payung & stesen hidangan.
+                    </p>
+
+                    <div className="space-y-3 text-sm text-stone-300">
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</span>
+                        <span><strong>Live On-Site Grilling:</strong> Dibakar segar terus di depan tetamu</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</span>
+                        <span><strong>Kuah Kacang Tanpa Had:</strong> Dihidang panas dengan ulam segar</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</span>
+                        <span><strong>Kru Berpengalaman:</strong> Memakai uniform kemas & mematuhi SOP kebersihan</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</span>
+                        <span><strong>Fleksibel:</strong> Pakej bermula dari 200 hingga 10,000 cucuk</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 flex flex-wrap gap-4">
+                      <button 
+                        onClick={() => {
+                          setOrderMode('event');
+                          setIsCheckoutModalOpen(true);
+                        }}
+                        className="bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 hover:brightness-110 text-white font-extrabold px-8 py-4 rounded-xl shadow-xl shadow-red-950/60 transition-all text-sm"
+                      >
+                        Borang Tempahan Katering Majlis ✍️
+                      </button>
+                    </div>
+
+                  </div>
+
+                  {/* Right Column: Catering Live Package Cards */}
+                  <div className="lg:col-span-6 space-y-4">
+                    
+                    <div className="glass-panel-glow p-6 rounded-3xl border border-red-500/30 relative">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <span className="bg-red-500/20 text-red-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                            Pakej Katering Paling Popular
+                          </span>
+                          <h3 className="text-xl font-bold text-white mt-2">Pakej Kenduri Mesra (500 Cucuk)</h3>
+                          <p className="text-xs text-stone-400 mt-1">Sesuai untuk 50 - 80 orang tetamu</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-2xl font-black text-amber-400">RM 890</span>
+                          <div className="text-[10px] text-stone-400">Termasuk Live Griller</div>
+                        </div>
+                      </div>
+
+                      <div className="my-4 grid grid-cols-2 gap-2 text-xs text-stone-300 bg-stone-900/80 p-3 rounded-xl">
+                        <div>🍗 300 Cucuk Satay Ayam</div>
+                        <div>🥩 150 Cucuk Satay Lembu</div>
+                        <div>🐐 50 Cucuk Satay Kambing</div>
+                        <div>🍚 30 Set Nasi Impit & Kuah</div>
+                      </div>
+
+                      <button 
+                        onClick={() => handleQuickAddCombo('catering-kenduri-500')}
+                        className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow"
+                      >
+                        Pilih Pakej Ini & Tetapkan Tarikh →
+                      </button>
+                    </div>
+
+                    <div className="glass-panel p-6 rounded-3xl border border-stone-800">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <span className="bg-amber-500/20 text-amber-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                            Mini Event / Jamuan Pejabat
+                          </span>
+                          <h3 className="text-lg font-bold text-white mt-1">Pakej Mini Grill (200 Cucuk)</h3>
+                          <p className="text-xs text-stone-400">Sesuai untuk 20 - 30 orang</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xl font-black text-amber-400">RM 380</span>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => handleQuickAddCombo('catering-station-200')}
+                        className="w-full mt-3 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold py-2 rounded-xl text-xs transition-colors border border-stone-700"
+                      >
+                        Pilih Pakej Mini (200 Cucuk)
+                      </button>
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+            </section>
+
+            {/* HERITAGE & SECRET RECIPE SECTION */}
+            <section id="heritage-section" className="py-16 md:py-24 border-b border-stone-800">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                  <div className="inline-block bg-amber-950/70 border border-amber-500/30 px-3 py-1 rounded-full text-xs font-semibold text-amber-400 mb-2">
+                    🪵 Warisan Arang Asli Sejak 1998
+                  </div>
+                  <h2 className="text-3xl sm:text-4xl font-display font-black text-white">
+                    4 Rahsia Kelazatan <span className="gradient-text-gold">Nipah Satay</span>
+                  </h2>
+                  <p className="text-stone-400 text-sm sm:text-base mt-2">
+                    Kami mengekalkan kaedah perapan tradisional turun-temurun tanpa sebarang bahan pengawet atau pelembut daging tiruan.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  
+                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center hover:border-amber-500/40 transition-all">
+                    <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl mx-auto mb-4">
+                      🌿
+                    </div>
+                    <h3 className="font-bold text-white text-base">1. Perapan 12 Herba Asli</h3>
+                    <p className="text-xs text-stone-400 mt-2 leading-relaxed">
+                      Serai kampung, kunyit hidup, jintan manis & bawang merah diperap selama 24 jam supaya rasa menyerap sehingga ke serat daging.
+                    </p>
+                  </div>
+
+                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center hover:border-orange-500/40 transition-all">
+                    <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-3xl mx-auto mb-4">
+                      🔥
+                    </div>
+                    <h3 className="font-bold text-white text-base">2. Arang Kayu Bakau Asli</h3>
+                    <p className="text-xs text-stone-400 mt-2 leading-relaxed">
+                      Dibakar perlahan di atas bara arang kayu berkualiti tinggi yang menghasilkan haba sekata dan aroma asap tradisional yang wangi.
+                    </p>
+                  </div>
+
+                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center hover:border-amber-500/40 transition-all">
+                    <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl mx-auto mb-4">
+                      🥜
+                    </div>
+                    <h3 className="font-bold text-white text-base">3. Kuah Kacang 4 Jam</h3>
+                    <p className="text-xs text-stone-400 mt-2 leading-relaxed">
+                      Kacang tanah digoreng tanpa minyak lalu dikisar kasar bersama cili kering dan minyak kelapa, direneh 4 jam hingga pecah minyak.
+                    </p>
+                  </div>
+
+                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center hover:border-red-500/40 transition-all">
+                    <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-3xl mx-auto mb-4">
+                      🥩
+                    </div>
+                    <h3 className="font-bold text-white text-base">4. 100% Daging Segar</h3>
+                    <p className="text-xs text-stone-400 mt-2 leading-relaxed">
+                      Dipotong segar setiap pagi tanpa lemak berlebihan. Satay ayam, lembu dan kambing dijamin lembut dan tidak liat.
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+            </section>
+
+            {/* TESTIMONIALS SECTION */}
+            <section className="py-16 bg-stone-900/40 border-b border-stone-800">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div className="text-center max-w-2xl mx-auto mb-12">
+                  <h2 className="text-2xl sm:text-3xl font-display font-bold text-white">
+                    Apa Kata <span className="gradient-text-gold">Peminat Satay Kami</span>
+                  </h2>
+                  <p className="text-stone-400 text-sm mt-1">
+                    Lebih 25,000 pelanggan berpuas hati dengan keenakan Nipah Satay di seluruh Selangor dan KL.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {TESTIMONIALS.map((t, idx) => (
+                    <div key={idx} className="glass-panel p-6 rounded-3xl border border-stone-800 flex flex-col justify-between">
+                      <div>
+                        <div className="flex text-amber-400 mb-3">
+                          {'★'.repeat(t.rating)}
+                        </div>
+                        <p className="text-xs sm:text-sm text-stone-300 italic leading-relaxed">
+                          "{t.comment}"
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3 mt-6 pt-4 border-t border-stone-800">
+                        <img 
+                          src={t.avatar} 
+                          alt={t.name}
+                          className="w-10 h-10 rounded-full object-cover border border-amber-500/40"
+                        />
+                        <div>
+                          <h4 className="font-bold text-white text-xs sm:text-sm">{t.name}</h4>
+                          <p className="text-[11px] text-stone-400">{t.role}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </section>
+
+            {/* BRANCHES & CONTACT SECTION */}
+            <section id="contact-section" className="py-16 md:py-24">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div className="text-center max-w-2xl mx-auto mb-12">
+                  <h2 className="text-3xl font-display font-bold text-white">
+                    Cawangan & <span className="gradient-text-ember">Waktu Operasi</span>
+                  </h2>
+                  <p className="text-stone-400 text-sm mt-1">
+                    Kunjungi cawangan terdekat kami untuk hidangan panas atau pandu lalu pickup.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {BRANCHES.map(b => (
+                    <div key={b.id} className="glass-panel p-6 rounded-3xl border border-stone-800 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-xl">🏪</span>
+                          <h3 className="font-bold text-white text-base">{b.name}</h3>
+                        </div>
+                        <p className="text-xs text-stone-400 leading-relaxed">
+                          📍 {b.address}
+                        </p>
+                        <div className="mt-4 space-y-1 text-xs text-stone-300">
+                          <div>⏰ <strong>Waktu Operasi:</strong> 4:00 PM – 11:30 PM (Setiap Hari)</div>
+                          <div>📞 <strong>Hotline:</strong> {b.phone}</div>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 pt-4 border-t border-stone-800 flex items-center gap-2">
+                        <button 
+                          onClick={() => {
+                            setCustomerDetails(prev => ({ ...prev, branch: b.id }));
+                            setOrderMode('pickup');
+                            setIsCartOpen(true);
+                          }}
+                          className="flex-1 bg-stone-800 hover:bg-orange-600 text-white font-bold py-2 rounded-xl text-xs transition-colors text-center"
+                        >
+                          Pilih Untuk Pickup
+                        </button>
+                        <a 
+                          href={`https://wa.me/${b.phone.replace(/[^0-9]/g, '')}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-xl text-xs transition-colors"
+                          title="WhatsApp Cawangan"
+                        >
+                          💬
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </section>
+
+          </main>
+
+          {/* FOOTER */}
+          <footer className="bg-stone-950 border-t border-stone-900 py-12 text-stone-400 text-xs">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white text-lg font-bold">🍢</div>
+                  <span className="font-display font-bold text-white text-lg">NIPAH SATAY</span>
+                </div>
+                <p className="text-stone-400 leading-relaxed">
+                  Restoran dan perkhidmatan katering satay bakar arang asli terulung di Malaysia.
+                </p>
+                <p className="text-[11px] text-amber-500">© 2026 Nipah Satay Heritage. Hak Cipta Terpelihara.</p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-white mb-3">Pilihan Menu</h4>
+                <ul className="space-y-1.5 text-stone-400">
+                  <li>Satay Ayam Tradisi (RM 1.30)</li>
+                  <li>Satay Lembu Empuk (RM 1.60)</li>
+                  <li>Satay Kambing Gula Melaka (RM 2.20)</li>
+                  <li>Nasi Impit & Timun (RM 2.50)</li>
+                  <li>Set Kombo Pesta & Katering</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-white mb-3">Perkhidmatan</h4>
+                <ul className="space-y-1.5 text-stone-400">
+                  <li>🛵 Penghantaran Ke Rumah (Lembah Klang)</li>
+                  <li>🏪 Ambil Sendiri (Pandu Lalu)</li>
+                  <li>🎪 Katering Majlis Perkahwinan</li>
+                  <li>🏢 Jamuan Korporat & Hari Jadi</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-white mb-3">Hubungi Kami</h4>
+                <p className="mb-2">WhatsApp Order: <strong>+6011-2345 6789</strong></p>
+                <p className="mb-3">Emel: order@nipahsatay.com.my</p>
+                <div className="flex items-center gap-3 text-lg">
+                  <span className="p-2 bg-stone-900 rounded-lg hover:text-white cursor-pointer">📘</span>
+                  <span className="p-2 bg-stone-900 rounded-lg hover:text-white cursor-pointer">📸</span>
+                  <span className="p-2 bg-stone-900 rounded-lg hover:text-white cursor-pointer">🎵</span>
+                </div>
+              </div>
+
+            </div>
+          </footer>
+
+          {/* CART DRAWER */}
+          {isCartOpen && (
+            <div className="fixed inset-0 z-50 overflow-hidden">
+              <div 
+                className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+                onClick={() => setIsCartOpen(false)}
+              ></div>
+
+              <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+                <div className="w-screen max-w-md bg-stone-950 border-l border-stone-800 shadow-2xl flex flex-col justify-between">
+                  
+                  {/* Cart Header */}
+                  <div className="p-6 border-b border-stone-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl">🛒</span>
+                      <div>
+                        <h3 className="font-bold text-lg text-white">Troli Pesanan</h3>
+                        <p className="text-xs text-stone-400">Mod: <strong className="text-amber-400 uppercase">{orderMode}</strong></p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsCartOpen(false)}
+                      className="w-8 h-8 rounded-full bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center font-bold text-lg"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Cart Items List */}
+                  <div className="p-6 flex-1 overflow-y-auto space-y-4">
+                    
+                    {/* Order Mode Switcher in Cart */}
+                    <div className="grid grid-cols-3 gap-1 bg-stone-900 p-1 rounded-xl text-xs font-semibold mb-4 border border-stone-800">
+                      <button 
+                        onClick={() => setOrderMode('delivery')}
+                        className={`py-1.5 rounded-lg transition-all ${orderMode === 'delivery' ? 'bg-orange-600 text-white' : 'text-stone-400'}`}
+                      >
+                        🛵 Delivery
+                      </button>
+                      <button 
+                        onClick={() => setOrderMode('pickup')}
+                        className={`py-1.5 rounded-lg transition-all ${orderMode === 'pickup' ? 'bg-amber-600 text-white' : 'text-stone-400'}`}
+                      >
+                        🏪 Pickup
+                      </button>
+                      <button 
+                        onClick={() => setOrderMode('event')}
+                        className={`py-1.5 rounded-lg transition-all ${orderMode === 'event' ? 'bg-red-600 text-white' : 'text-stone-400'}`}
+                      >
+                        🎪 Katering
+                      </button>
+                    </div>
+
+                    {cart.length === 0 ? (
+                      <div className="text-center py-16 space-y-3">
+                        <div className="text-5xl opacity-40">🍢</div>
+                        <p className="text-stone-400 text-sm">Troli anda masih kosong.</p>
+                        <button 
+                          onClick={() => {
+                            setIsCartOpen(false);
+                            document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-4 py-2 rounded-xl text-xs"
+                        >
+                          Lihat Menu Satay
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-3">
+                          {cart.map(item => (
+                            <div key={item.id} className="bg-stone-900/90 border border-stone-800 p-3.5 rounded-2xl flex items-center justify-between gap-3">
+                              <img 
+                                src={item.image} 
+                                alt={item.name}
+                                className="w-14 h-14 rounded-xl object-cover"
+                                onError={(e) => { e.target.src = item.fallbackImage; }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-bold text-xs text-white truncate">{item.name}</h4>
+                                <div className="text-[11px] text-amber-400 font-semibold">
+                                  RM {item.price.toFixed(2)} /{item.unit}
+                                </div>
+                                <div className="text-[10px] text-stone-400">
+                                  Subtotal: RM {(item.price * item.qty).toFixed(2)}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-1.5 bg-stone-950 p-1 rounded-xl border border-stone-800">
+                                <button 
+                                  onClick={() => updateQty(item.id, item.qty - (item.minOrder > 1 ? item.minOrder : 1))}
+                                  className="w-6 h-6 rounded-lg bg-stone-800 text-amber-400 font-bold text-xs flex items-center justify-center hover:bg-stone-700"
+                                >
+                                  -
+                                </button>
+                                <span className="text-xs font-bold text-white px-1">{item.qty}</span>
+                                <button 
+                                  onClick={() => updateQty(item.id, item.qty + (item.minOrder > 1 ? item.minOrder : 1))}
+                                  className="w-6 h-6 rounded-lg bg-orange-600 text-white font-bold text-xs flex items-center justify-center hover:bg-orange-500"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Promo Code Input */}
+                        <div className="pt-2">
+                          <div className="flex gap-2">
+                            <input 
+                              type="text" 
+                              placeholder="Kod Promo (cth: NIPAH10)"
+                              value={promoCode}
+                              onChange={(e) => setPromoCode(e.target.value)}
+                              className="flex-1 bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
+                            />
+                            <button 
+                              onClick={handleApplyPromo}
+                              className="bg-stone-800 hover:bg-stone-700 text-amber-400 font-bold px-3 py-2 rounded-xl text-xs border border-stone-700"
+                            >
+                              Guna
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Sauces Preference */}
+                        <div className="bg-stone-900/60 p-3 rounded-xl border border-stone-800 text-xs">
+                          <label className="block text-stone-400 font-semibold mb-1">Pilihan Kuah & Sambal:</label>
+                          <select 
+                            value={customerDetails.saucePreference}
+                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, saucePreference: e.target.value }))}
+                            className="w-full bg-stone-950 border border-stone-700 rounded-lg p-2 text-white text-xs focus:outline-none focus:border-amber-500"
+                          >
+                            <option>Bungkus Asing (Kuah Kacang Standard)</option>
+                            <option>Ekstra Pedas (+ Sambal Cili Padi)</option>
+                            <option>Kurang Manis</option>
+                            <option>Kuah Kacang Ekstra Pekat</option>
+                          </select>
+                        </div>
+                      </>
+                    )}
+
+                  </div>
+
+                  {/* Cart Footer / Checkout CTA */}
+                  {cart.length > 0 && (
+                    <div className="p-6 border-t border-stone-800 bg-stone-950 space-y-3">
+                      
+                      <div className="space-y-1.5 text-xs">
+                        <div className="flex justify-between text-stone-400">
+                          <span>Jumlah Cucuk Satay:</span>
+                          <span className="font-semibold text-white">{totalSkewerCount} cucuk</span>
+                        </div>
+                        <div className="flex justify-between text-stone-400">
+                          <span>Subtotal:</span>
+                          <span className="font-semibold text-white">RM {subtotal.toFixed(2)}</span>
+                        </div>
+                        {appliedDiscount > 0 && (
+                          <div className="flex justify-between text-emerald-400">
+                            <span>Diskaun ({appliedDiscount * 100}%):</span>
+                            <span>- RM {discountAmount.toFixed(2)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between text-stone-400">
+                          <span>{orderMode === 'delivery' ? 'Caj Penghantaran:' : orderMode === 'event' ? 'Caj Setup Katering:' : 'Caj Pickup:'}</span>
+                          <span className="font-semibold text-white">
+                            {deliveryFee === 0 ? <span className="text-emerald-400">PERCUMA</span> : `RM ${deliveryFee.toFixed(2)}`}
+                          </span>
+                        </div>
+                        <div className="pt-2 border-t border-stone-800 flex justify-between items-baseline">
+                          <span className="font-bold text-sm text-white">Jumlah Bayaran:</span>
+                          <span className="font-black text-xl gradient-text-gold">RM {grandTotal.toFixed(2)}</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => {
+                          setIsCartOpen(false);
+                          setIsCheckoutModalOpen(true);
+                        }}
+                        className="w-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:brightness-110 text-white font-extrabold py-3.5 rounded-xl text-sm shadow-xl shadow-orange-950/60 transition-all flex items-center justify-center gap-2"
+                      >
+                        <span>Teruskan Ke Tempahan ({orderMode.toUpperCase()})</span>
+                        <span>→</span>
+                      </button>
+
+                      <button 
+                        onClick={clearCart}
+                        className="w-full text-center text-xs text-stone-500 hover:text-red-400 transition-colors"
+                      >
+                        Kosongkan Troli
+                      </button>
+
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* CHECKOUT & DETAILS MODAL */}
+          {isCheckoutModalOpen && (
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="bg-stone-950 border border-orange-500/30 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+                
+                <div className="flex items-center justify-between border-b border-stone-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      <span>🍢</span>
+                      <span>Maklumat Pesanan & Pembayaran</span>
+                    </h3>
+                    <p className="text-xs text-stone-400">Mod Pesanan: <strong className="text-amber-400 uppercase">{orderMode}</strong></p>
+                  </div>
+                  <button 
+                    onClick={() => setIsCheckoutModalOpen(false)}
+                    className="w-8 h-8 rounded-full bg-stone-900 text-stone-400 hover:text-white flex items-center justify-center"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Form Fields */}
+                <div className="space-y-4 text-xs sm:text-sm">
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-stone-300 font-semibold mb-1">Nama Penuh *</label>
+                      <input 
+                        type="text" 
+                        required
+                        placeholder="cth: Ahmad Zaki"
+                        value={customerDetails.name}
+                        onChange={(e) => setCustomerDetails(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-stone-300 font-semibold mb-1">No Telefon (WhatsApp) *</label>
+                      <input 
+                        type="tel" 
+                        required
+                        placeholder="cth: 012-3456789"
+                        value={customerDetails.phone}
+                        onChange={(e) => setCustomerDetails(prev => ({ ...prev, phone: e.target.value }))}
+                        className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Mode Specific Fields */}
+                  {orderMode === 'delivery' && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-stone-300 font-semibold mb-1">Alamat Penuh Penghantaran *</label>
+                        <textarea 
+                          rows="2"
+                          placeholder="No rumah, jalan, taman, poskod, bandar..."
+                          value={customerDetails.address}
+                          onChange={(e) => setCustomerDetails(prev => ({ ...prev, address: e.target.value }))}
+                          className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                        ></textarea>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-stone-300 font-semibold mb-1">Tarikh Penghantaran</label>
+                          <input 
+                            type="date"
+                            value={customerDetails.deliveryDate}
+                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, deliveryDate: e.target.value }))}
+                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-stone-300 font-semibold mb-1">Masa Diingini</label>
+                          <input 
+                            type="time"
+                            value={customerDetails.deliveryTime}
+                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, deliveryTime: e.target.value }))}
+                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {orderMode === 'pickup' && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-stone-300 font-semibold mb-1">Pilih Cawangan Pickup *</label>
+                        <select 
+                          value={customerDetails.branch}
+                          onChange={(e) => setCustomerDetails(prev => ({ ...prev, branch: e.target.value }))}
+                          className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                        >
+                          {BRANCHES.map(b => (
+                            <option key={b.id} value={b.id}>{b.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-stone-300 font-semibold mb-1">No Plat Kenderaan (Pandu Lalu)</label>
+                          <input 
+                            type="text" 
+                            placeholder="cth: VDF 8812"
+                            value={customerDetails.pickupPlateNo}
+                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, pickupPlateNo: e.target.value }))}
+                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-stone-300 font-semibold mb-1">Anggaran Masa Ambil</label>
+                          <input 
+                            type="time"
+                            value={customerDetails.deliveryTime}
+                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, deliveryTime: e.target.value }))}
+                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {orderMode === 'event' && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-stone-300 font-semibold mb-1">Jenis Acara / Majlis</label>
+                          <select 
+                            value={customerDetails.eventType}
+                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, eventType: e.target.value }))}
+                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                          >
+                            <option>Kenduri Perkahwinan / Sanding</option>
+                            <option>Majlis Aqiqah & Kesyukuran</option>
+                            <option>Jamuan Hari Jadi / Reunion</option>
+                            <option>Acara Korporat & Syarikat</option>
+                            <option>Open House Hari Raya</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-stone-300 font-semibold mb-1">Anggaran Tetamu (Pax)</label>
+                          <input 
+                            type="number"
+                            value={customerDetails.guestPax}
+                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, guestPax: parseInt(e.target.value) || 0 }))}
+                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-stone-300 font-semibold mb-1">Lokasi Majlis / Dewan / Rumah *</label>
+                        <textarea 
+                          rows="2"
+                          placeholder="Alamat dewan atau lokasi majlis..."
+                          value={customerDetails.address}
+                          onChange={(e) => setCustomerDetails(prev => ({ ...prev, address: e.target.value }))}
+                          className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                        ></textarea>
+                      </div>
+                      <div className="flex items-center gap-2 bg-stone-900 p-3 rounded-xl border border-stone-800">
+                        <input 
+                          type="checkbox"
+                          id="liveGrillCheck"
+                          checked={customerDetails.liveGrillNeeded}
+                          onChange={(e) => setCustomerDetails(prev => ({ ...prev, liveGrillNeeded: e.target.checked }))}
+                          className="w-4 h-4 text-orange-600 rounded bg-stone-950 border-stone-700"
+                        />
+                        <label htmlFor="liveGrillCheck" className="text-xs text-stone-300">
+                          Sediakan <strong>Stesen Live Grilling</strong> bersama Tukang Bakar Nipah Satay di lokasi majlis
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-stone-300 font-semibold mb-1">Nota Tambahan / Permintaan Khas</label>
+                    <input 
+                      type="text" 
+                      placeholder="cth: Minta kuah kacang lebih pekat, cili potong asing..."
+                      value={customerDetails.specialNotes}
+                      onChange={(e) => setCustomerDetails(prev => ({ ...prev, specialNotes: e.target.value }))}
+                      className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                    />
+                  </div>
+
+                </div>
+
+                {/* Order Summary in Modal */}
+                <div className="bg-stone-900/80 p-4 rounded-2xl border border-stone-800 text-xs space-y-2">
+                  <div className="font-bold text-white flex justify-between">
+                    <span>Ringkasan ({cart.length} item):</span>
+                    <span className="text-amber-400">Jumlah: RM {grandTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="text-stone-400 text-[11px]">
+                    {cart.map(i => `${i.name} (${i.qty} ${i.unit})`).join(' • ')}
+                  </div>
+                </div>
+
+                {/* Confirm Buttons */}
+                <div className="space-y-3 pt-2">
+                  <button 
+                    onClick={handleConfirmOrder}
+                    className="w-full bg-gradient-to-r from-emerald-600 via-orange-600 to-amber-600 hover:brightness-110 text-white font-black py-4 rounded-2xl text-sm shadow-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>Sahkan Tempahan & Hantar WhatsApp</span>
+                    <span>📱</span>
+                  </button>
+                  <p className="text-center text-[11px] text-stone-400">
+                    Setelah disahkan, ringkasan tempahan rasmi akan dijana dan dibuka terus melalui WhatsApp Nipah Satay.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* ORDER CONFIRMATION / RECEIPT MODAL */}
+          {isReceiptModalOpen && lastConfirmedOrder && (
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="bg-stone-950 border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 text-center">
+                
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-3xl mx-auto">
+                  ✓
+                </div>
+
+                <div>
+                  <span className="text-xs font-bold text-amber-400 tracking-wider uppercase">Tempahan Berjaya Dijana</span>
+                  <h3 className="text-2xl font-black text-white mt-1">Resit Tempahan Rasmi</h3>
+                  <p className="text-xs text-stone-400 mt-1">No. Rujukan: <strong className="text-white font-mono">{lastConfirmedOrder.orderId}</strong></p>
+                </div>
+
+                {/* Digital Receipt Card */}
+                <div className="bg-stone-900 border border-dashed border-stone-700 p-5 rounded-2xl text-left text-xs space-y-3 font-mono">
+                  
+                  <div className="flex justify-between border-b border-stone-800 pb-2">
+                    <span className="text-stone-400">Tarikh:</span>
+                    <span className="text-white">{lastConfirmedOrder.date}</span>
+                  </div>
+
+                  <div className="flex justify-between border-b border-stone-800 pb-2">
+                    <span className="text-stone-400">Pelanggan:</span>
+                    <span className="text-white">{lastConfirmedOrder.customerDetails.name} ({lastConfirmedOrder.customerDetails.phone})</span>
+                  </div>
+
+                  <div className="flex justify-between border-b border-stone-800 pb-2">
+                    <span className="text-stone-400">Mod Pesanan:</span>
+                    <span className="text-amber-400 font-bold uppercase">{lastConfirmedOrder.orderMode}</span>
+                  </div>
+
+                  {/* Items */}
+                  <div className="py-2 space-y-1.5 border-b border-stone-800">
+                    <div className="text-stone-400 font-bold">Item Pesanan:</div>
+                    {lastConfirmedOrder.cart.map((item, idx) => (
+                      <div key={idx} className="flex justify-between text-stone-200">
+                        <span>{item.qty}x {item.name}</span>
+                        <span>RM {(item.price * item.qty).toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Pricing Breakdown */}
+                  <div className="space-y-1 pt-1">
+                    <div className="flex justify-between text-stone-400">
+                      <span>Subtotal:</span>
+                      <span>RM {lastConfirmedOrder.subtotal.toFixed(2)}</span>
+                    </div>
+                    {lastConfirmedOrder.discountAmount > 0 && (
+                      <div className="flex justify-between text-emerald-400">
+                        <span>Diskaun:</span>
+                        <span>-RM {lastConfirmedOrder.discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-stone-400">
+                      <span>Caj Penghantaran/Setup:</span>
+                      <span>RM {lastConfirmedOrder.deliveryFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-base font-bold text-amber-400 pt-2 border-t border-stone-700">
+                      <span>JUMLAH BESAR:</span>
+                      <span>RM {lastConfirmedOrder.grandTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Actions */}
+                <div className="space-y-3">
+                  <button 
+                    onClick={sendToWhatsApp}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-2xl text-sm shadow-xl shadow-emerald-950/60 transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>Hantar WhatsApp Ke Restoran Nipah Satay</span>
+                    <span>💬</span>
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(lastConfirmedOrder.rawText);
+                      showToast('📋 Teks pesanan telah disalin ke papan keratan!');
+                    }}
+                    className="w-full bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold py-2.5 rounded-xl text-xs transition-colors"
+                  >
+                    Salin Ringkasan Pesanan (Copy Text)
+                  </button>
+
+                  <button 
+                    onClick={() => setIsReceiptModalOpen(false)}
+                    className="text-xs text-stone-400 hover:text-white"
+                  >
+                    Tutup Resit
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // Render React Application
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
