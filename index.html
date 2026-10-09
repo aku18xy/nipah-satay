@@ -6,7 +6,7 @@
   <title>Nipah Satay™ | Warisan Rasa Arang Asli - Delivery, Pickup & Catering</title>
   <meta name="description" content="Authentic Malaysian charcoal-grilled satay ayam, satay lembu, satay kambing and nasi impit with signature thick peanut sauce. Order online for delivery, pickup, or event catering." />
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -37,21 +37,21 @@
           }
         }
       }
-    }
+    };
+    window.process = { env: { NODE_ENV: 'production' } };
   </script>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- React 18 & ReactDOM & Babel Standalone -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- React 18 & ReactDOM from reliable CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  
+  <!-- Babel Standalone with explicit react preset -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin="anonymous"></script>
 
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -62,22 +62,11 @@
       background-color: #0c0a09;
       color: #f5f5f4;
       overflow-x: hidden;
+      margin: 0;
+      padding: 0;
     }
     .font-display {
       font-family: 'Playfair Display', serif;
-    }
-    /* Ember Glow Animations */
-    @keyframes emberFloat {
-      0% { transform: translateY(0) scale(1); opacity: 0.8; }
-      50% { transform: translateY(-30px) scale(1.1); opacity: 1; }
-      100% { transform: translateY(-70px) scale(0.6); opacity: 0; }
-    }
-    .ember-dot {
-      position: absolute;
-      border-radius: 50%;
-      background: radial-gradient(circle, #ff6b00 0%, #ff2200 60%, transparent 100%);
-      pointer-events: none;
-      animation: emberFloat 4s infinite ease-in;
     }
     .gradient-text-gold {
       background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 50%, #ea580c 100%);
@@ -117,10 +106,26 @@
     }
   </style>
 </head>
-<body class="bg-brand-darker text-stone-100 selection:bg-brand-600 selection:text-white">
-  <div id="root"></div>
+<body class="bg-[#0c0a09] text-stone-100 selection:bg-orange-600 selection:text-white">
+  
+  <!-- Root App Container with Initial Loader Fallback -->
+  <div id="root">
+    <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0c0a09; color: #f5f5f4; text-align: center; padding: 20px;">
+      <div style="font-size: 48px; margin-bottom: 16px; animation: bounce 1s infinite;">🍢</div>
+      <h2 style="font-size: 24px; font-weight: 800; color: #fbbf24; margin: 0 0 8px 0; font-family: sans-serif;">NIPAH SATAY™</h2>
+      <p style="color: #a8a29e; font-size: 14px; margin: 0;">Memuatkan Dapur Arang Warisan...</p>
+    </div>
+  </div>
 
-  <script type="text/babel">
+  <!-- Global Error Logger for Safety -->
+  <script>
+    window.addEventListener('error', function(e) {
+      console.error('Nipah Satay Runtime Event:', e.message, e.filename, e.lineno);
+    });
+  </script>
+
+  <!-- React Application Component -->
+  <script type="text/babel" data-presets="react">
     const { useState, useEffect, useMemo, useRef } = React;
 
     // --- MENU DATA ---
@@ -138,7 +143,7 @@
         description: 'Daging ayam segar diperap 24 jam dengan rempah kunyit hidup, serai & halia. Dibakar rangup di luar, berjus di dalam.',
         spiciness: 2,
         calories: '45 kcal/cucuk',
-        highlight: '100% Isi Dada & Peha Ayam Segar'
+        highlight: '100% Isi Peha & Dada Segar'
       },
       {
         id: 'satay-lembu',
@@ -228,7 +233,7 @@
         image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
         fallbackImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
         badge: '🎪 Live Grilling',
-        description: 'Khidmat Pitmaster bakar panas-panas di lokasi anda. Termasuk 120 Ayam, 50 Lembu, 30 Kambing, Nasi Impit tanpa had & Set Pinggan Mesra Alam.',
+        description: 'Khidmat Pitmaster bakar panas-panas di lokasi anda. Termasuk 120 Ayam, 50 Lembu, 30 Kambing, Nasi Impit & Set Pinggan.',
         spiciness: 2,
         calories: 'Sesuai Majlis 20-30 Pax',
         highlight: 'Termasuk Tukang Bakar & Dapur Arang'
@@ -293,7 +298,7 @@
       const [toastMessage, setToastMessage] = useState(null);
       const [promoCode, setPromoCode] = useState('');
       const [appliedDiscount, setAppliedDiscount] = useState(0);
-      const [activeTab, setActiveTab] = useState('home'); // 'home' | 'menu' | 'catering' | 'about' | 'contact'
+      const [activeTab, setActiveTab] = useState('home');
 
       // Customer form details
       const [customerDetails, setCustomerDetails] = useState({
@@ -309,7 +314,7 @@
         guestPax: 100,
         liveGrillNeeded: true,
         specialNotes: '',
-        saucePreference: 'Bungkus Asing (Separate Gravy)'
+        saucePreference: 'Bungkus Asing (Standard)'
       });
 
       // Show toast helper
@@ -329,7 +334,7 @@
             return [...prev, { ...item, qty }];
           }
         });
-        showToast(`✅ Ditambah ke troli: +${qty} ${item.unit} ${item.name}`);
+        showToast(`✅ Ditambah: +${qty} ${item.unit} ${item.name}`);
       };
 
       // Update item quantity
@@ -353,17 +358,17 @@
       const handleApplyPromo = () => {
         const code = promoCode.trim().toUpperCase();
         if (code === 'NIPAH10' || code === 'SATAYSEDAP') {
-          setAppliedDiscount(0.10); // 10% discount
-          showToast('🎉 Kod Promo NIPAH10 berjaya ditebus! Diskaun 10%');
+          setAppliedDiscount(0.10);
+          showToast('🎉 Kod Promo NIPAH10 berjaya! Diskaun 10%');
         } else if (code === 'KENDURI50') {
-          setAppliedDiscount(0.15); // 15% discount
+          setAppliedDiscount(0.15);
           showToast('🎉 Kod KENDURI50 berjaya! Diskaun 15%');
         } else {
-          showToast('⚠️ Kod promo tidak sah. Cuba "NIPAH10"');
+          showToast('⚠️ Kod tidak sah. Sila cuba "NIPAH10"');
         }
       };
 
-      // Totals
+      // Totals calculation
       const totalSkewerCount = useMemo(() => {
         return cart.reduce((acc, item) => {
           if (item.category === 'ayam' || item.category === 'lembu' || item.category === 'kambing') {
@@ -383,25 +388,25 @@
 
       const deliveryFee = useMemo(() => {
         if (orderMode === 'delivery') {
-          return subtotal > 100 ? 0 : 8.00; // Free delivery over RM100
+          return subtotal > 100 ? 0 : 8.00;
         }
         if (orderMode === 'event') {
-          return customerDetails.liveGrillNeeded ? 50.00 : 25.00; // Setup and transport fee
+          return customerDetails.liveGrillNeeded ? 50.00 : 25.00;
         }
-        return 0; // Pickup is free
+        return 0;
       }, [orderMode, subtotal, customerDetails.liveGrillNeeded]);
 
       const grandTotal = useMemo(() => {
         return Math.max(0, subtotal - discountAmount + deliveryFee);
       }, [subtotal, discountAmount, deliveryFee]);
 
-      // Category filtered items
+      // Filtered items
       const filteredMenu = useMemo(() => {
         if (selectedCategory === 'all') return INITIAL_MENU;
         return INITIAL_MENU.filter(item => item.category === selectedCategory);
       }, [selectedCategory]);
 
-      // Generate WhatsApp Direct Order Message
+      // Generate WhatsApp message
       const generateWhatsAppMessage = () => {
         const orderId = 'NPS-' + Math.floor(100000 + Math.random() * 900000);
         let text = `🔥 *TEMPAHAN NIPAH SATAY™ (${orderId})* 🔥\n\n`;
@@ -420,7 +425,7 @@
         } else if (orderMode === 'event') {
           text += `🎪 *Jenis Acara:* ${customerDetails.eventType}\n`;
           text += `👥 *Anggaran Tetamu:* ${customerDetails.guestPax} Pax\n`;
-          text += `🔥 *Stesen Live Grill:* ${customerDetails.liveGrillNeeded ? 'YA (Termasuk Pitmaster)' : 'TIDAK (Chafing Dish Delivery)'}\n`;
+          text += `🔥 *Stesen Live Grill:* ${customerDetails.liveGrillNeeded ? 'YA (Termasuk Pitmaster)' : 'TIDAK (Buffet Delivery)'}\n`;
           text += `📍 *Lokasi Acara:* ${customerDetails.address || '-'}\n`;
           text += `📅 *Tarikh Majlis:* ${customerDetails.deliveryDate} (${customerDetails.deliveryTime})\n`;
         }
@@ -442,15 +447,15 @@
         }
         text += `Caj Penghantaran/Setup: RM ${deliveryFee.toFixed(2)}\n`;
         text += `*JUMLAH KESELURUHAN: RM ${grandTotal.toFixed(2)}*\n\n`;
-        text += `Mohon pihak Nipah Satay sahkan pesanan dan sediakan slot. Terima kasih! 🙏`;
+        text += `Mohon sahkan tempahan ini. Terima kasih! 🙏`;
 
         return { orderId, text };
       };
 
-      // Submit Order Handler
+      // Confirm order
       const handleConfirmOrder = () => {
         if (!customerDetails.name || !customerDetails.phone) {
-          alert('Sila lengkapkan Nama dan Nombor Telefon anda terlebih dahulu.');
+          alert('Sila lengkapkan Nama dan No Telefon anda.');
           return;
         }
         if (orderMode === 'delivery' && !customerDetails.address) {
@@ -458,7 +463,7 @@
           return;
         }
         if (orderMode === 'event' && !customerDetails.address) {
-          alert('Sila masukkan lokasi majlis/acara katering anda.');
+          alert('Sila masukkan lokasi majlis/katering anda.');
           return;
         }
         if (cart.length === 0) {
@@ -485,24 +490,18 @@
         setIsCartOpen(false);
         setIsReceiptModalOpen(true);
 
-        // Confetti celebration
         if (window.confetti) {
-          window.confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
+          window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
       };
 
       const sendToWhatsApp = () => {
         if (!lastConfirmedOrder) return;
-        const targetPhone = '601123456789'; // Business WhatsApp number
+        const targetPhone = '601123456789';
         const encoded = encodeURIComponent(lastConfirmedOrder.rawText);
         window.open(`https://wa.me/${targetPhone}?text=${encoded}`, '_blank');
       };
 
-      // Quick Order presets
       const handleQuickAddCombo = (comboId) => {
         const item = INITIAL_MENU.find(i => i.id === comboId);
         if (item) {
@@ -512,12 +511,12 @@
       };
 
       return (
-        <div className="min-h-screen flex flex-col bg-brand-darker text-stone-100">
+        <div className="min-h-screen flex flex-col bg-[#0c0a09] text-stone-100">
           
           {/* TOAST NOTIFICATION */}
           {toastMessage && (
-            <div className="fixed top-20 right-5 z-50 bg-brand-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-orange-400 animate-bounce">
-              <i data-lucide="sparkles" className="w-5 h-5"></i>
+            <div className="fixed top-20 right-5 z-50 bg-orange-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-orange-400 animate-bounce">
+              <span>✨</span>
               <span className="font-semibold text-sm">{toastMessage}</span>
             </div>
           )}
@@ -528,20 +527,20 @@
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
             </span>
-            <span>🔥 <strong>DAPUR ARANG SEDANG MEMBARA!</strong> Penghantaran Pantas Sekitar Lembah Klang & Tempahan Katering Live Grill Kini Dibuka!</span>
+            <span>🔥 <strong>DAPUR ARANG SEDANG MEMBARA!</strong> Penghantaran Lembah Klang & Katering Live Grill Dibuka!</span>
             <span className="hidden md:inline bg-black/30 px-2 py-0.5 rounded text-xs">Kod: NIPAH10 (Diskaun 10%)</span>
           </div>
 
-          {/* HEADER / NAVIGATION BAR */}
-          <header className="sticky top-0 z-40 glass-panel border-b border-orange-950/60 transition-all">
+          {/* HEADER */}
+          <header className="sticky top-0 z-40 glass-panel border-b border-stone-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
               
-              {/* BRAND LOGO */}
+              {/* Brand Logo */}
               <div 
                 onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 className="flex items-center gap-3 cursor-pointer group"
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-700 flex items-center justify-center shadow-lg shadow-orange-900/40 group-hover:scale-105 transition-transform border border-amber-400/40">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-700 flex items-center justify-center shadow-lg shadow-orange-950/50 group-hover:scale-105 transition-transform border border-amber-400/40">
                   <span className="text-2xl">🍢</span>
                 </div>
                 <div>
@@ -553,7 +552,7 @@
                 </div>
               </div>
 
-              {/* DESKTOP NAV LINKS */}
+              {/* Desktop Nav */}
               <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-300">
                 <button 
                   onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
@@ -591,32 +590,29 @@
                 </button>
               </nav>
 
-              {/* ACTION BUTTONS & CART TRIGGER */}
+              {/* Actions & Cart */}
               <div className="flex items-center gap-3">
-                
-                {/* Order Mode Badge Selector */}
                 <div className="hidden lg:flex bg-stone-900/90 p-1 rounded-xl border border-stone-800 text-xs font-semibold">
                   <button 
-                    onClick={() => { setOrderMode('delivery'); showToast('Mod Pesanan: Delivery Penghantaran'); }}
+                    onClick={() => { setOrderMode('delivery'); showToast('Mod Pesanan: Delivery'); }}
                     className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${orderMode === 'delivery' ? 'bg-orange-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
                   >
                     <span>🛵</span> Delivery
                   </button>
                   <button 
-                    onClick={() => { setOrderMode('pickup'); showToast('Mod Pesanan: Self-Pickup'); }}
+                    onClick={() => { setOrderMode('pickup'); showToast('Mod Pesanan: Pickup'); }}
                     className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${orderMode === 'pickup' ? 'bg-amber-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
                   >
                     <span>🏪</span> Pickup
                   </button>
                   <button 
-                    onClick={() => { setOrderMode('event'); showToast('Mod Pesanan: Katering Majlis'); }}
+                    onClick={() => { setOrderMode('event'); showToast('Mod Pesanan: Katering'); }}
                     className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${orderMode === 'event' ? 'bg-red-600 text-white shadow-md' : 'text-stone-400 hover:text-white'}`}
                   >
                     <span>🎪</span> Katering
                   </button>
                 </div>
 
-                {/* Cart Button with Counter */}
                 <button 
                   onClick={() => setIsCartOpen(true)}
                   className="relative flex items-center gap-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white px-4 py-2.5 rounded-xl font-bold shadow-lg shadow-orange-950/50 hover:scale-105 transition-all"
@@ -639,22 +635,16 @@
             </div>
           </header>
 
-          {/* MAIN CONTENT AREA */}
+          {/* MAIN BODY */}
           <main className="flex-1">
 
-            {/* HERO SECTION */}
+            {/* HERO BANNER */}
             <section className="relative overflow-hidden pt-12 pb-20 md:py-24 border-b border-stone-800">
-              
-              {/* Ambient Ember & Glow Backdrops */}
-              <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/15 rounded-full blur-3xl pointer-events-none"></div>
-              <div className="absolute top-10 right-10 w-72 h-72 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                   
-                  {/* Left Column: Headline & Value Prop */}
+                  {/* Left Column */}
                   <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-                    
                     <div className="inline-flex items-center gap-2 bg-orange-950/80 border border-orange-500/30 px-3.5 py-1.5 rounded-full text-xs font-semibold text-amber-300">
                       <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
                       <span>Arang Bakau Asli • Resipi Warisan Bonda Sejak 1998</span>
@@ -670,7 +660,7 @@
                       Diperap 24 jam dengan 12 herba & rempah segar. Dibakar sempurna di atas bara arang membara untuk aroma asap memikat. Dihidang panas bersama <strong>Kuah Kacang Pekat Berkacang Kasar</strong> & Nasi Impit lembut.
                     </p>
 
-                    {/* Order Mode Switcher Tabs directly on Hero */}
+                    {/* Mode Selector */}
                     <div className="bg-stone-900/90 p-2 rounded-2xl border border-stone-700/60 max-w-xl mx-auto lg:mx-0 shadow-2xl backdrop-blur-md">
                       <div className="grid grid-cols-3 gap-2 text-center text-xs sm:text-sm font-bold">
                         <button 
@@ -681,7 +671,7 @@
                           className={`py-3 px-2 rounded-xl transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${orderMode === 'delivery' ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'}`}
                         >
                           <span className="text-lg">🛵</span>
-                          <span>Delivery Rumah</span>
+                          <span>Delivery</span>
                         </button>
                         <button 
                           onClick={() => {
@@ -701,7 +691,7 @@
                           className={`py-3 px-2 rounded-xl transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${orderMode === 'event' ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-lg' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'}`}
                         >
                           <span className="text-lg">🎪</span>
-                          <span>Katering Majlis</span>
+                          <span>Katering</span>
                         </button>
                       </div>
 
@@ -711,13 +701,13 @@
                         </span>
                         <span className="text-amber-400 font-semibold">
                           {orderMode === 'delivery' && '🚀 Free Delivery atas RM100'}
-                          {orderMode === 'pickup' && '⚡ Siap Bungkus Terus Ambil'}
-                          {orderMode === 'event' && '🎪 Live Grilling Station Available'}
+                          {orderMode === 'pickup' && '⚡ Pandu Lalu Siap Dibungkus'}
+                          {orderMode === 'event' && '🎪 Live Grilling Station'}
                         </span>
                       </div>
                     </div>
 
-                    {/* Quick CTA Buttons */}
+                    {/* CTAs */}
                     <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
                       <button 
                         onClick={() => document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' })}
@@ -731,33 +721,15 @@
                         onClick={() => handleQuickAddCombo('set-keluarga-30')}
                         className="bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold px-6 py-4 rounded-xl border border-stone-700 hover:border-amber-500/50 transition-all text-base flex items-center gap-2"
                       >
-                        <span>🔥 Order Set Kombo 30 Cucuk</span>
+                        <span>🔥 Set Kombo 30 Cucuk</span>
                       </button>
-                    </div>
-
-                    {/* Quality Highlights */}
-                    <div className="grid grid-cols-3 gap-4 pt-6 border-t border-stone-800/80 max-w-lg mx-auto lg:mx-0">
-                      <div>
-                        <div className="font-bold text-amber-400 text-lg sm:text-xl">100%</div>
-                        <div className="text-xs text-stone-400">Halal & Daging Segar</div>
-                      </div>
-                      <div>
-                        <div className="font-bold text-orange-400 text-lg sm:text-xl">25,000+</div>
-                        <div className="text-xs text-stone-400">Cucuk Dibakar Setiap Bulan</div>
-                      </div>
-                      <div>
-                        <div className="font-bold text-amber-300 text-lg sm:text-xl">4.9 ★</div>
-                        <div className="text-xs text-stone-400">1,400+ Review Pelanggan</div>
-                      </div>
                     </div>
 
                   </div>
 
-                  {/* Right Column: Hero Visual Card */}
+                  {/* Right Column */}
                   <div className="lg:col-span-5 relative">
                     <div className="relative rounded-3xl overflow-hidden glass-panel-glow p-2 border-2 border-orange-500/30">
-                      
-                      {/* Image Frame */}
                       <div className="relative h-96 sm:h-[450px] rounded-2xl overflow-hidden group">
                         <img 
                           src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=80" 
@@ -769,7 +741,6 @@
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
 
-                        {/* Floating Badges */}
                         <div className="absolute top-4 left-4 bg-orange-600/90 backdrop-blur-md text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 shadow-lg">
                           <span>🔥</span>
                           <span>Bakar Arang Panas-Panas</span>
@@ -777,23 +748,19 @@
 
                         <div className="absolute bottom-4 left-4 right-4 bg-stone-950/85 backdrop-blur-md p-4 rounded-2xl border border-orange-500/30">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-bold text-white text-base">Aneka Satay & Kuah Kacang Pekat</span>
+                            <span className="font-bold text-white text-base">Aneka Satay & Kuah Kacang</span>
                             <span className="text-amber-400 font-extrabold text-sm">Dari RM 1.30/cucuk</span>
                           </div>
-                          <p className="text-xs text-stone-300">Ayam • Lembu • Kambing • Nasi Impit • Sambal Cili Padi</p>
-                          
-                          <div className="mt-3 flex items-center gap-2">
-                            <button 
-                              onClick={() => handleQuickAddCombo('set-keluarga-30')}
-                              className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-stone-950 font-bold py-2 rounded-xl text-xs hover:brightness-110 transition-all text-center"
-                            >
-                              + Tambah Kombo Jimat 30 Cucuk
-                            </button>
-                          </div>
+                          <p className="text-xs text-stone-300">Ayam • Lembu • Kambing • Nasi Impit</p>
+                          <button 
+                            onClick={() => handleQuickAddCombo('set-keluarga-30')}
+                            className="w-full mt-3 bg-gradient-to-r from-amber-500 to-orange-600 text-stone-950 font-bold py-2 rounded-xl text-xs hover:brightness-110 transition-all text-center"
+                          >
+                            + Tambah Kombo Jimat 30 Cucuk
+                          </button>
                         </div>
 
                       </div>
-
                     </div>
                   </div>
 
@@ -801,95 +768,56 @@
               </div>
             </section>
 
-            {/* ORDER MODE SELECTION SECTION */}
+            {/* ORDER MODE SECTION */}
             <section id="order-mode-section" className="py-12 bg-stone-900/50 border-b border-stone-800">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-2xl mx-auto mb-8">
                   <h2 className="text-2xl sm:text-3xl font-display font-bold text-white">
-                    Pilih Cara Anda Menikmati <span className="gradient-text-gold">Nipah Satay</span>
+                    Pilihan Pesanan <span className="gradient-text-gold">Nipah Satay</span>
                   </h2>
-                  <p className="text-stone-400 text-sm mt-2">
-                    Kami menyediakan penghantaran pantas ke pintu anda, pengambilan pandu lalu, atau stesen katering live grill untuk majlis istimewa.
-                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   
-                  {/* Delivery Card */}
                   <div 
-                    onClick={() => {
-                      setOrderMode('delivery');
-                      showToast('Mod Delivery Dipilih! Sila pilih menu.');
-                    }}
-                    className={`cursor-pointer rounded-2xl p-6 transition-all relative overflow-hidden ${orderMode === 'delivery' ? 'glass-panel-glow border-2 border-orange-500 scale-[1.02]' : 'glass-panel hover:border-stone-600'}`}
+                    onClick={() => { setOrderMode('delivery'); showToast('Mod Delivery Dipilih!'); }}
+                    className={`cursor-pointer rounded-2xl p-6 transition-all relative ${orderMode === 'delivery' ? 'glass-panel-glow border-2 border-orange-500 scale-[1.02]' : 'glass-panel hover:border-stone-600'}`}
                   >
-                    {orderMode === 'delivery' && (
-                      <div className="absolute top-3 right-3 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                        DIPILIH ✓
-                      </div>
-                    )}
-                    <div className="w-14 h-14 rounded-2xl bg-orange-950/80 border border-orange-500/30 flex items-center justify-center text-3xl mb-4">
-                      🛵
-                    </div>
+                    <div className="w-14 h-14 rounded-2xl bg-orange-950/80 border border-orange-500/30 flex items-center justify-center text-3xl mb-4">🛵</div>
                     <h3 className="text-lg font-bold text-white">1. Penghantaran (Delivery)</h3>
-                    <p className="text-xs text-stone-400 mt-1 leading-relaxed">
-                      Dihantar terus panas-panas dari dapur arang kami ke rumah atau pejabat anda di seluruh Lembah Klang.
-                    </p>
-                    <div className="mt-4 pt-4 border-t border-stone-800 flex items-center justify-between text-xs text-amber-400 font-semibold">
-                      <span>Caj Flat: RM 8.00</span>
+                    <p className="text-xs text-stone-400 mt-1">Dihantar terus panas-panas dari dapur arang kami ke rumah atau pejabat anda.</p>
+                    <div className="mt-4 pt-4 border-t border-stone-800 flex justify-between text-xs text-amber-400 font-semibold">
+                      <span>Caj: RM 8.00</span>
                       <span>Percuma > RM 100</span>
                     </div>
                   </div>
 
-                  {/* Pickup Card */}
                   <div 
-                    onClick={() => {
-                      setOrderMode('pickup');
-                      showToast('Mod Self Pickup Dipilih! Sila pilih cawangan.');
-                    }}
-                    className={`cursor-pointer rounded-2xl p-6 transition-all relative overflow-hidden ${orderMode === 'pickup' ? 'glass-panel-glow border-2 border-amber-500 scale-[1.02]' : 'glass-panel hover:border-stone-600'}`}
+                    onClick={() => { setOrderMode('pickup'); showToast('Mod Self Pickup Dipilih!'); }}
+                    className={`cursor-pointer rounded-2xl p-6 transition-all relative ${orderMode === 'pickup' ? 'glass-panel-glow border-2 border-amber-500 scale-[1.02]' : 'glass-panel hover:border-stone-600'}`}
                   >
-                    {orderMode === 'pickup' && (
-                      <div className="absolute top-3 right-3 bg-amber-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                        DIPILIH ✓
-                      </div>
-                    )}
-                    <div className="w-14 h-14 rounded-2xl bg-amber-950/80 border border-amber-500/30 flex items-center justify-center text-3xl mb-4">
-                      🏪
-                    </div>
+                    <div className="w-14 h-14 rounded-2xl bg-amber-950/80 border border-amber-500/30 flex items-center justify-center text-3xl mb-4">🏪</div>
                     <h3 className="text-lg font-bold text-white">2. Ambil Sendiri (Pickup)</h3>
-                    <p className="text-xs text-stone-400 mt-1 leading-relaxed">
-                      Order lebih awal tanpa perlu beratur. Makanan siap dibungkus kemas di kaunter pandu lalu cawangan kami.
-                    </p>
-                    <div className="mt-4 pt-4 border-t border-stone-800 flex items-center justify-between text-xs text-amber-400 font-semibold">
+                    <p className="text-xs text-stone-400 mt-1">Order lebih awal. Makanan siap dibungkus kemas di kaunter pandu lalu cawangan.</p>
+                    <div className="mt-4 pt-4 border-t border-stone-800 flex justify-between text-xs text-amber-400 font-semibold">
                       <span>3 Cawangan</span>
                       <span>Tanpa Caj Tambahan</span>
                     </div>
                   </div>
 
-                  {/* Catering Card */}
                   <div 
                     onClick={() => {
                       setOrderMode('event');
                       showToast('Mod Katering & Live Grill Dipilih!');
                       document.getElementById('catering-section')?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className={`cursor-pointer rounded-2xl p-6 transition-all relative overflow-hidden ${orderMode === 'event' ? 'glass-panel-glow border-2 border-red-500 scale-[1.02]' : 'glass-panel hover:border-stone-600'}`}
+                    className={`cursor-pointer rounded-2xl p-6 transition-all relative ${orderMode === 'event' ? 'glass-panel-glow border-2 border-red-500 scale-[1.02]' : 'glass-panel hover:border-stone-600'}`}
                   >
-                    {orderMode === 'event' && (
-                      <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                        DIPILIH ✓
-                      </div>
-                    )}
-                    <div className="w-14 h-14 rounded-2xl bg-red-950/80 border border-red-500/30 flex items-center justify-center text-3xl mb-4">
-                      🎪
-                    </div>
-                    <h3 className="text-lg font-bold text-white">3. Katering & Acara (Live Grill)</h3>
-                    <p className="text-xs text-stone-400 mt-1 leading-relaxed">
-                      Katering majlis kahwin, aqiqah, hari lahir & jamuan korporat dengan kru pitmaster membakar satay di lokasi majlis anda.
-                    </p>
-                    <div className="mt-4 pt-4 border-t border-stone-800 flex items-center justify-between text-xs text-amber-400 font-semibold">
-                      <span>Pakej 200 - 5,000 Cucuk</span>
+                    <div className="w-14 h-14 rounded-2xl bg-red-950/80 border border-red-500/30 flex items-center justify-center text-3xl mb-4">🎪</div>
+                    <h3 className="text-lg font-bold text-white">3. Katering & Majlis (Live Grill)</h3>
+                    <p className="text-xs text-stone-400 mt-1">Katering majlis kahwin, aqiqah, hari lahir & jamuan korporat dengan kru pitmaster.</p>
+                    <div className="mt-4 pt-4 border-t border-stone-800 flex justify-between text-xs text-amber-400 font-semibold">
+                      <span>200 - 5,000 Cucuk</span>
                       <span>Termasuk Dapur Arang</span>
                     </div>
                   </div>
@@ -898,26 +826,22 @@
               </div>
             </section>
 
-            {/* BROWSE MENU SECTION */}
+            {/* BROWSE MENU */}
             <section id="menu-section" className="py-16 md:py-24">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
-                {/* Menu Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                   <div>
                     <div className="inline-block bg-orange-950/70 border border-orange-500/30 px-3 py-1 rounded-full text-xs font-semibold text-amber-400 mb-2">
                       🍢 Resipi Asli 100% Halal
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-display font-black text-white">
-                      Menu Istimewa <span className="gradient-text-ember">Nipah Satay</span>
+                      Menu Pilihan <span className="gradient-text-ember">Nipah Satay</span>
                     </h2>
-                    <p className="text-stone-400 text-sm mt-1">
-                      Setiap cucuk satay dibalut rapi dengan rempah asli, minyak biji sawit segar & dibakar arang berkualiti.
-                    </p>
                   </div>
 
-                  {/* Category Filter Pills */}
-                  <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
+                  {/* Category Filter */}
+                  <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
                     {[
                       { id: 'all', label: '🌟 Semua' },
                       { id: 'ayam', label: '🍗 Ayam' },
@@ -925,12 +849,12 @@
                       { id: 'kambing', label: '🐐 Kambing' },
                       { id: 'sides', label: '🍚 Nasi Impit' },
                       { id: 'combo', label: '🍱 Set Kombo' },
-                      { id: 'catering', label: '🎪 Pakej Katering' },
+                      { id: 'catering', label: '🎪 Katering' },
                     ].map(cat => (
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.id)}
-                        className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${selectedCategory === cat.id ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg shadow-orange-950/50' : 'bg-stone-900/80 text-stone-300 hover:bg-stone-800 border border-stone-800'}`}
+                        className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${selectedCategory === cat.id ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg' : 'bg-stone-900/80 text-stone-300 hover:bg-stone-800 border border-stone-800'}`}
                       >
                         {cat.label}
                       </button>
@@ -938,7 +862,7 @@
                   </div>
                 </div>
 
-                {/* Menu Items Grid */}
+                {/* Items Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {filteredMenu.map(item => {
                     const cartItem = cart.find(i => i.id === item.id);
@@ -947,9 +871,8 @@
                     return (
                       <div 
                         key={item.id}
-                        className="glass-panel rounded-3xl overflow-hidden flex flex-col justify-between border border-stone-800 hover:border-orange-500/40 transition-all group hover:shadow-2xl hover:shadow-orange-950/40"
+                        className="glass-panel rounded-3xl overflow-hidden flex flex-col justify-between border border-stone-800 hover:border-orange-500/40 transition-all group hover:shadow-2xl"
                       >
-                        {/* Food Image Banner */}
                         <div className="relative h-48 sm:h-52 overflow-hidden bg-stone-900">
                           <img 
                             src={item.image} 
@@ -958,45 +881,32 @@
                             onError={(e) => { e.target.src = item.fallbackImage; }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-transparent opacity-90"></div>
-
-                          {/* Top Badge */}
                           <div className="absolute top-3 left-3 bg-stone-950/80 backdrop-blur-md border border-orange-500/30 text-amber-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
                             {item.badge}
                           </div>
-
-                          {/* Min Order pill */}
                           {item.minOrder > 1 && (
                             <div className="absolute top-3 right-3 bg-black/70 text-stone-300 px-2 py-0.5 rounded text-[10px]">
                               Min {item.minOrder} {item.unit}
                             </div>
                           )}
-
-                          {/* Calories/highlight */}
                           <div className="absolute bottom-2 left-3 right-3 text-[11px] text-stone-300 flex items-center justify-between">
                             <span className="bg-stone-900/90 px-2 py-0.5 rounded text-[10px] text-amber-400 font-medium">
                               {item.highlight}
                             </span>
-                            <span className="text-[10px] text-stone-400">
-                              {item.calories}
-                            </span>
+                            <span className="text-[10px] text-stone-400">{item.calories}</span>
                           </div>
                         </div>
 
-                        {/* Details Content */}
                         <div className="p-5 flex-1 flex flex-col justify-between">
                           <div>
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <h3 className="font-bold text-base text-white group-hover:text-amber-400 transition-colors">
-                                {item.name}
-                              </h3>
-                            </div>
-                            
+                            <h3 className="font-bold text-base text-white group-hover:text-amber-400 transition-colors mb-1">
+                              {item.name}
+                            </h3>
                             <p className="text-xs text-stone-400 line-clamp-2 leading-relaxed mb-4">
                               {item.description}
                             </p>
                           </div>
 
-                          {/* Price and Cart Controller */}
                           <div>
                             <div className="flex items-baseline justify-between mb-3">
                               <div>
@@ -1015,7 +925,6 @@
                               )}
                             </div>
 
-                            {/* Actions */}
                             {currentQty > 0 ? (
                               <div className="flex items-center justify-between bg-stone-900 border border-orange-500/40 rounded-xl p-1">
                                 <button 
@@ -1043,7 +952,6 @@
                                   <span>+ Tambah</span>
                                   {item.minOrder > 1 && <span className="text-[10px] opacity-80">({item.minOrder} {item.unit})</span>}
                                 </button>
-                                
                                 {item.category !== 'combo' && item.category !== 'catering' && (
                                   <button 
                                     onClick={() => addToCart(item, 20)}
@@ -1057,7 +965,6 @@
                             )}
 
                           </div>
-
                         </div>
 
                       </div>
@@ -1065,37 +972,14 @@
                   })}
                 </div>
 
-                {/* Free Add-ons Banner */}
-                <div className="mt-12 bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 border border-amber-500/20 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-                  <div className="flex items-center gap-4 text-left">
-                    <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl shrink-0">
-                      🥜
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-lg text-white">Percuma Kuah Kacang Pekat, Timun & Bawang Merah!</h4>
-                      <p className="text-xs sm:text-sm text-stone-400 mt-1">
-                        Setiap pesanan satay didatangkan lengkap dengan kuah kacang berlemak manis istimewa dan ulam timun segar tanpa bayaran tersembunyi.
-                      </p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setIsCartOpen(true)}
-                    className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold px-6 py-3 rounded-xl text-sm whitespace-nowrap shadow-lg transition-transform hover:scale-105"
-                  >
-                    Semak Troli ({cart.length} item) →
-                  </button>
-                </div>
-
               </div>
             </section>
 
-            {/* CATERING & EVENT SECTION */}
-            <section id="catering-section" className="py-16 md:py-24 bg-gradient-to-b from-stone-900/60 to-brand-darker border-y border-stone-800 relative">
+            {/* CATERING SECTION */}
+            <section id="catering-section" className="py-16 md:py-24 bg-gradient-to-b from-stone-900/60 to-stone-950 border-y border-stone-800">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                   
-                  {/* Left Column: Catering Intro */}
                   <div className="lg:col-span-6 space-y-6">
                     <div className="inline-flex items-center gap-2 bg-red-950/80 border border-red-500/30 px-3.5 py-1.5 rounded-full text-xs font-semibold text-red-300">
                       <span>🎪 Stesen Bakar Arang Di Majlis Anda</span>
@@ -1107,7 +991,7 @@
                     </h2>
 
                     <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
-                      Jadikan majlis perkahwinan, aqiqah, jamuan raya atau acara syarikat anda kenangan paling manis dengan aroma asap satay yang menyelerakan. Pasukan jurubakar kami akan hadir lengkap bersama dapur arang, payung & stesen hidangan.
+                      Jadikan majlis perkahwinan, aqiqah, jamuan raya atau acara syarikat anda kenangan manis dengan aroma asap satay menyelerakan.
                     </p>
 
                     <div className="space-y-3 text-sm text-stone-300">
@@ -1117,54 +1001,45 @@
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</span>
-                        <span><strong>Kuah Kacang Tanpa Had:</strong> Dihidang panas dengan ulam segar</span>
+                        <span><strong>Kuah Kacang Tanpa Had:</strong> Dihidang panas dengan timun & bawang</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</span>
-                        <span><strong>Kru Berpengalaman:</strong> Memakai uniform kemas & mematuhi SOP kebersihan</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</span>
-                        <span><strong>Fleksibel:</strong> Pakej bermula dari 200 hingga 10,000 cucuk</span>
+                        <span><strong>Kru Berpengalaman:</strong> Memakai uniform kemas & patuh SOP kebersihan</span>
                       </div>
                     </div>
 
-                    <div className="pt-2 flex flex-wrap gap-4">
-                      <button 
-                        onClick={() => {
-                          setOrderMode('event');
-                          setIsCheckoutModalOpen(true);
-                        }}
-                        className="bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 hover:brightness-110 text-white font-extrabold px-8 py-4 rounded-xl shadow-xl shadow-red-950/60 transition-all text-sm"
-                      >
-                        Borang Tempahan Katering Majlis ✍️
-                      </button>
-                    </div>
-
+                    <button 
+                      onClick={() => {
+                        setOrderMode('event');
+                        setIsCheckoutModalOpen(true);
+                      }}
+                      className="bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 hover:brightness-110 text-white font-extrabold px-8 py-4 rounded-xl shadow-xl transition-all text-sm"
+                    >
+                      Borang Tempahan Katering Majlis ✍️
+                    </button>
                   </div>
 
-                  {/* Right Column: Catering Live Package Cards */}
                   <div className="lg:col-span-6 space-y-4">
-                    
-                    <div className="glass-panel-glow p-6 rounded-3xl border border-red-500/30 relative">
+                    <div className="glass-panel-glow p-6 rounded-3xl border border-red-500/30">
                       <div className="flex items-start justify-between">
                         <div>
-                          <span className="bg-red-500/20 text-red-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            Pakej Katering Paling Popular
+                          <span className="bg-red-500/20 text-red-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase">
+                            Pakej Popular
                           </span>
                           <h3 className="text-xl font-bold text-white mt-2">Pakej Kenduri Mesra (500 Cucuk)</h3>
                           <p className="text-xs text-stone-400 mt-1">Sesuai untuk 50 - 80 orang tetamu</p>
                         </div>
                         <div className="text-right">
                           <span className="text-2xl font-black text-amber-400">RM 890</span>
-                          <div className="text-[10px] text-stone-400">Termasuk Live Griller</div>
+                          <div className="text-[10px] text-stone-400">Termasuk Pitmaster</div>
                         </div>
                       </div>
 
                       <div className="my-4 grid grid-cols-2 gap-2 text-xs text-stone-300 bg-stone-900/80 p-3 rounded-xl">
-                        <div>🍗 300 Cucuk Satay Ayam</div>
-                        <div>🥩 150 Cucuk Satay Lembu</div>
-                        <div>🐐 50 Cucuk Satay Kambing</div>
+                        <div>🍗 300 Satay Ayam</div>
+                        <div>🥩 150 Satay Lembu</div>
+                        <div>🐐 50 Satay Kambing</div>
                         <div>🍚 30 Set Nasi Impit & Kuah</div>
                       </div>
 
@@ -1175,172 +1050,71 @@
                         Pilih Pakej Ini & Tetapkan Tarikh →
                       </button>
                     </div>
-
-                    <div className="glass-panel p-6 rounded-3xl border border-stone-800">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <span className="bg-amber-500/20 text-amber-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            Mini Event / Jamuan Pejabat
-                          </span>
-                          <h3 className="text-lg font-bold text-white mt-1">Pakej Mini Grill (200 Cucuk)</h3>
-                          <p className="text-xs text-stone-400">Sesuai untuk 20 - 30 orang</p>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-xl font-black text-amber-400">RM 380</span>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={() => handleQuickAddCombo('catering-station-200')}
-                        className="w-full mt-3 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold py-2 rounded-xl text-xs transition-colors border border-stone-700"
-                      >
-                        Pilih Pakej Mini (200 Cucuk)
-                      </button>
-                    </div>
-
                   </div>
 
                 </div>
-
               </div>
             </section>
 
-            {/* HERITAGE & SECRET RECIPE SECTION */}
-            <section id="heritage-section" className="py-16 md:py-24 border-b border-stone-800">
+            {/* HERITAGE */}
+            <section id="heritage-section" className="py-16 border-b border-stone-800">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                  <div className="inline-block bg-amber-950/70 border border-amber-500/30 px-3 py-1 rounded-full text-xs font-semibold text-amber-400 mb-2">
-                    🪵 Warisan Arang Asli Sejak 1998
-                  </div>
-                  <h2 className="text-3xl sm:text-4xl font-display font-black text-white">
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                  <h2 className="text-3xl font-display font-black text-white">
                     4 Rahsia Kelazatan <span className="gradient-text-gold">Nipah Satay</span>
                   </h2>
-                  <p className="text-stone-400 text-sm sm:text-base mt-2">
-                    Kami mengekalkan kaedah perapan tradisional turun-temurun tanpa sebarang bahan pengawet atau pelembut daging tiruan.
-                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  
-                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center hover:border-amber-500/40 transition-all">
-                    <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl mx-auto mb-4">
-                      🌿
-                    </div>
-                    <h3 className="font-bold text-white text-base">1. Perapan 12 Herba Asli</h3>
-                    <p className="text-xs text-stone-400 mt-2 leading-relaxed">
-                      Serai kampung, kunyit hidup, jintan manis & bawang merah diperap selama 24 jam supaya rasa menyerap sehingga ke serat daging.
-                    </p>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center">
+                    <div className="text-3xl mb-2">🌿</div>
+                    <h3 className="font-bold text-white text-sm">1. Perapan 12 Herba Asli</h3>
+                    <p className="text-xs text-stone-400 mt-1">Serai kampung, kunyit hidup & rempah diperap 24 jam.</p>
                   </div>
-
-                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center hover:border-orange-500/40 transition-all">
-                    <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-3xl mx-auto mb-4">
-                      🔥
-                    </div>
-                    <h3 className="font-bold text-white text-base">2. Arang Kayu Bakau Asli</h3>
-                    <p className="text-xs text-stone-400 mt-2 leading-relaxed">
-                      Dibakar perlahan di atas bara arang kayu berkualiti tinggi yang menghasilkan haba sekata dan aroma asap tradisional yang wangi.
-                    </p>
+                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center">
+                    <div className="text-3xl mb-2">🔥</div>
+                    <h3 className="font-bold text-white text-sm">2. Arang Kayu Bakau</h3>
+                    <p className="text-xs text-stone-400 mt-1">Dibakar atas bara arang kayu berkualiti tinggi.</p>
                   </div>
-
-                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center hover:border-amber-500/40 transition-all">
-                    <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl mx-auto mb-4">
-                      🥜
-                    </div>
-                    <h3 className="font-bold text-white text-base">3. Kuah Kacang 4 Jam</h3>
-                    <p className="text-xs text-stone-400 mt-2 leading-relaxed">
-                      Kacang tanah digoreng tanpa minyak lalu dikisar kasar bersama cili kering dan minyak kelapa, direneh 4 jam hingga pecah minyak.
-                    </p>
+                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center">
+                    <div className="text-3xl mb-2">🥜</div>
+                    <h3 className="font-bold text-white text-sm">3. Kuah Kacang 4 Jam</h3>
+                    <p className="text-xs text-stone-400 mt-1">Kacang tanah dikisar kasar & direneh 4 jam hingga pecah minyak.</p>
                   </div>
-
-                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center hover:border-red-500/40 transition-all">
-                    <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-3xl mx-auto mb-4">
-                      🥩
-                    </div>
-                    <h3 className="font-bold text-white text-base">4. 100% Daging Segar</h3>
-                    <p className="text-xs text-stone-400 mt-2 leading-relaxed">
-                      Dipotong segar setiap pagi tanpa lemak berlebihan. Satay ayam, lembu dan kambing dijamin lembut dan tidak liat.
-                    </p>
+                  <div className="glass-panel p-6 rounded-3xl border border-stone-800 text-center">
+                    <div className="text-3xl mb-2">🥩</div>
+                    <h3 className="font-bold text-white text-sm">4. 100% Daging Segar</h3>
+                    <p className="text-xs text-stone-400 mt-1">Dipotong segar setiap hari tanpa lemak berlebihan.</p>
                   </div>
-
                 </div>
-
               </div>
             </section>
 
-            {/* TESTIMONIALS SECTION */}
-            <section className="py-16 bg-stone-900/40 border-b border-stone-800">
+            {/* CONTACT & BRANCHES */}
+            <section id="contact-section" className="py-16">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
-                <div className="text-center max-w-2xl mx-auto mb-12">
-                  <h2 className="text-2xl sm:text-3xl font-display font-bold text-white">
-                    Apa Kata <span className="gradient-text-gold">Peminat Satay Kami</span>
-                  </h2>
-                  <p className="text-stone-400 text-sm mt-1">
-                    Lebih 25,000 pelanggan berpuas hati dengan keenakan Nipah Satay di seluruh Selangor dan KL.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {TESTIMONIALS.map((t, idx) => (
-                    <div key={idx} className="glass-panel p-6 rounded-3xl border border-stone-800 flex flex-col justify-between">
-                      <div>
-                        <div className="flex text-amber-400 mb-3">
-                          {'★'.repeat(t.rating)}
-                        </div>
-                        <p className="text-xs sm:text-sm text-stone-300 italic leading-relaxed">
-                          "{t.comment}"
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-3 mt-6 pt-4 border-t border-stone-800">
-                        <img 
-                          src={t.avatar} 
-                          alt={t.name}
-                          className="w-10 h-10 rounded-full object-cover border border-amber-500/40"
-                        />
-                        <div>
-                          <h4 className="font-bold text-white text-xs sm:text-sm">{t.name}</h4>
-                          <p className="text-[11px] text-stone-400">{t.role}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            </section>
-
-            {/* BRANCHES & CONTACT SECTION */}
-            <section id="contact-section" className="py-16 md:py-24">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
-                <div className="text-center max-w-2xl mx-auto mb-12">
+                <div className="text-center max-w-2xl mx-auto mb-10">
                   <h2 className="text-3xl font-display font-bold text-white">
                     Cawangan & <span className="gradient-text-ember">Waktu Operasi</span>
                   </h2>
-                  <p className="text-stone-400 text-sm mt-1">
-                    Kunjungi cawangan terdekat kami untuk hidangan panas atau pandu lalu pickup.
-                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {BRANCHES.map(b => (
                     <div key={b.id} className="glass-panel p-6 rounded-3xl border border-stone-800 flex flex-col justify-between">
                       <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xl">🏪</span>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span>🏪</span>
                           <h3 className="font-bold text-white text-base">{b.name}</h3>
                         </div>
-                        <p className="text-xs text-stone-400 leading-relaxed">
-                          📍 {b.address}
-                        </p>
-                        <div className="mt-4 space-y-1 text-xs text-stone-300">
-                          <div>⏰ <strong>Waktu Operasi:</strong> 4:00 PM – 11:30 PM (Setiap Hari)</div>
+                        <p className="text-xs text-stone-400">📍 {b.address}</p>
+                        <div className="mt-3 text-xs text-stone-300">
+                          <div>⏰ <strong>Operasi:</strong> 4:00 PM – 11:30 PM (Setiap Hari)</div>
                           <div>📞 <strong>Hotline:</strong> {b.phone}</div>
                         </div>
                       </div>
 
-                      <div className="mt-6 pt-4 border-t border-stone-800 flex items-center gap-2">
+                      <div className="mt-4 pt-3 border-t border-stone-800 flex items-center gap-2">
                         <button 
                           onClick={() => {
                             setCustomerDetails(prev => ({ ...prev, branch: b.id }));
@@ -1351,73 +1125,18 @@
                         >
                           Pilih Untuk Pickup
                         </button>
-                        <a 
-                          href={`https://wa.me/${b.phone.replace(/[^0-9]/g, '')}`} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-xl text-xs transition-colors"
-                          title="WhatsApp Cawangan"
-                        >
-                          💬
-                        </a>
                       </div>
                     </div>
                   ))}
                 </div>
-
               </div>
             </section>
 
           </main>
 
           {/* FOOTER */}
-          <footer className="bg-stone-950 border-t border-stone-900 py-12 text-stone-400 text-xs">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
-              
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white text-lg font-bold">🍢</div>
-                  <span className="font-display font-bold text-white text-lg">NIPAH SATAY</span>
-                </div>
-                <p className="text-stone-400 leading-relaxed">
-                  Restoran dan perkhidmatan katering satay bakar arang asli terulung di Malaysia.
-                </p>
-                <p className="text-[11px] text-amber-500">© 2026 Nipah Satay Heritage. Hak Cipta Terpelihara.</p>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-white mb-3">Pilihan Menu</h4>
-                <ul className="space-y-1.5 text-stone-400">
-                  <li>Satay Ayam Tradisi (RM 1.30)</li>
-                  <li>Satay Lembu Empuk (RM 1.60)</li>
-                  <li>Satay Kambing Gula Melaka (RM 2.20)</li>
-                  <li>Nasi Impit & Timun (RM 2.50)</li>
-                  <li>Set Kombo Pesta & Katering</li>
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-white mb-3">Perkhidmatan</h4>
-                <ul className="space-y-1.5 text-stone-400">
-                  <li>🛵 Penghantaran Ke Rumah (Lembah Klang)</li>
-                  <li>🏪 Ambil Sendiri (Pandu Lalu)</li>
-                  <li>🎪 Katering Majlis Perkahwinan</li>
-                  <li>🏢 Jamuan Korporat & Hari Jadi</li>
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-white mb-3">Hubungi Kami</h4>
-                <p className="mb-2">WhatsApp Order: <strong>+6011-2345 6789</strong></p>
-                <p className="mb-3">Emel: order@nipahsatay.com.my</p>
-                <div className="flex items-center gap-3 text-lg">
-                  <span className="p-2 bg-stone-900 rounded-lg hover:text-white cursor-pointer">📘</span>
-                  <span className="p-2 bg-stone-900 rounded-lg hover:text-white cursor-pointer">📸</span>
-                  <span className="p-2 bg-stone-900 rounded-lg hover:text-white cursor-pointer">🎵</span>
-                </div>
-              </div>
-
-            </div>
+          <footer className="bg-stone-950 border-t border-stone-900 py-8 text-center text-stone-500 text-xs">
+            <p>© 2026 Nipah Satay Heritage. Hak Cipta Terpelihara. WhatsApp: +6011-2345 6789</p>
           </footer>
 
           {/* CART DRAWER */}
@@ -1431,7 +1150,6 @@
               <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
                 <div className="w-screen max-w-md bg-stone-950 border-l border-stone-800 shadow-2xl flex flex-col justify-between">
                   
-                  {/* Cart Header */}
                   <div className="p-6 border-b border-stone-800 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <span className="text-2xl">🛒</span>
@@ -1448,10 +1166,8 @@
                     </button>
                   </div>
 
-                  {/* Cart Items List */}
                   <div className="p-6 flex-1 overflow-y-auto space-y-4">
                     
-                    {/* Order Mode Switcher in Cart */}
                     <div className="grid grid-cols-3 gap-1 bg-stone-900 p-1 rounded-xl text-xs font-semibold mb-4 border border-stone-800">
                       <button 
                         onClick={() => setOrderMode('delivery')}
@@ -1477,48 +1193,36 @@
                       <div className="text-center py-16 space-y-3">
                         <div className="text-5xl opacity-40">🍢</div>
                         <p className="text-stone-400 text-sm">Troli anda masih kosong.</p>
-                        <button 
-                          onClick={() => {
-                            setIsCartOpen(false);
-                            document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                          className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-4 py-2 rounded-xl text-xs"
-                        >
-                          Lihat Menu Satay
-                        </button>
                       </div>
                     ) : (
                       <>
                         <div className="space-y-3">
                           {cart.map(item => (
-                            <div key={item.id} className="bg-stone-900/90 border border-stone-800 p-3.5 rounded-2xl flex items-center justify-between gap-3">
+                            <div key={item.id} className="bg-stone-900/90 border border-stone-800 p-3 rounded-2xl flex items-center justify-between gap-3">
                               <img 
                                 src={item.image} 
                                 alt={item.name}
-                                className="w-14 h-14 rounded-xl object-cover"
+                                className="w-12 h-12 rounded-xl object-cover"
                                 onError={(e) => { e.target.src = item.fallbackImage; }}
                               />
                               <div className="flex-1 min-w-0">
                                 <h4 className="font-bold text-xs text-white truncate">{item.name}</h4>
-                                <div className="text-[11px] text-amber-400 font-semibold">
+                                <div className="text-[11px] text-amber-400">
                                   RM {item.price.toFixed(2)} /{item.unit}
-                                </div>
-                                <div className="text-[10px] text-stone-400">
-                                  Subtotal: RM {(item.price * item.qty).toFixed(2)}
                                 </div>
                               </div>
 
                               <div className="flex items-center gap-1.5 bg-stone-950 p-1 rounded-xl border border-stone-800">
                                 <button 
                                   onClick={() => updateQty(item.id, item.qty - (item.minOrder > 1 ? item.minOrder : 1))}
-                                  className="w-6 h-6 rounded-lg bg-stone-800 text-amber-400 font-bold text-xs flex items-center justify-center hover:bg-stone-700"
+                                  className="w-6 h-6 rounded-lg bg-stone-800 text-amber-400 font-bold text-xs flex items-center justify-center"
                                 >
                                   -
                                 </button>
                                 <span className="text-xs font-bold text-white px-1">{item.qty}</span>
                                 <button 
                                   onClick={() => updateQty(item.id, item.qty + (item.minOrder > 1 ? item.minOrder : 1))}
-                                  className="w-6 h-6 rounded-lg bg-orange-600 text-white font-bold text-xs flex items-center justify-center hover:bg-orange-500"
+                                  className="w-6 h-6 rounded-lg bg-orange-600 text-white font-bold text-xs flex items-center justify-center"
                                 >
                                   +
                                 </button>
@@ -1527,53 +1231,29 @@
                           ))}
                         </div>
 
-                        {/* Promo Code Input */}
-                        <div className="pt-2">
-                          <div className="flex gap-2">
-                            <input 
-                              type="text" 
-                              placeholder="Kod Promo (cth: NIPAH10)"
-                              value={promoCode}
-                              onChange={(e) => setPromoCode(e.target.value)}
-                              className="flex-1 bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
-                            />
-                            <button 
-                              onClick={handleApplyPromo}
-                              className="bg-stone-800 hover:bg-stone-700 text-amber-400 font-bold px-3 py-2 rounded-xl text-xs border border-stone-700"
-                            >
-                              Guna
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Sauces Preference */}
-                        <div className="bg-stone-900/60 p-3 rounded-xl border border-stone-800 text-xs">
-                          <label className="block text-stone-400 font-semibold mb-1">Pilihan Kuah & Sambal:</label>
-                          <select 
-                            value={customerDetails.saucePreference}
-                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, saucePreference: e.target.value }))}
-                            className="w-full bg-stone-950 border border-stone-700 rounded-lg p-2 text-white text-xs focus:outline-none focus:border-amber-500"
+                        <div className="flex gap-2 pt-2">
+                          <input 
+                            type="text" 
+                            placeholder="Kod Promo (NIPAH10)"
+                            value={promoCode}
+                            onChange={(e) => setPromoCode(e.target.value)}
+                            className="flex-1 bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                          />
+                          <button 
+                            onClick={handleApplyPromo}
+                            className="bg-stone-800 hover:bg-stone-700 text-amber-400 font-bold px-3 py-2 rounded-xl text-xs border border-stone-700"
                           >
-                            <option>Bungkus Asing (Kuah Kacang Standard)</option>
-                            <option>Ekstra Pedas (+ Sambal Cili Padi)</option>
-                            <option>Kurang Manis</option>
-                            <option>Kuah Kacang Ekstra Pekat</option>
-                          </select>
+                            Guna
+                          </button>
                         </div>
                       </>
                     )}
 
                   </div>
 
-                  {/* Cart Footer / Checkout CTA */}
                   {cart.length > 0 && (
                     <div className="p-6 border-t border-stone-800 bg-stone-950 space-y-3">
-                      
-                      <div className="space-y-1.5 text-xs">
-                        <div className="flex justify-between text-stone-400">
-                          <span>Jumlah Cucuk Satay:</span>
-                          <span className="font-semibold text-white">{totalSkewerCount} cucuk</span>
-                        </div>
+                      <div className="space-y-1 text-xs">
                         <div className="flex justify-between text-stone-400">
                           <span>Subtotal:</span>
                           <span className="font-semibold text-white">RM {subtotal.toFixed(2)}</span>
@@ -1585,7 +1265,7 @@
                           </div>
                         )}
                         <div className="flex justify-between text-stone-400">
-                          <span>{orderMode === 'delivery' ? 'Caj Penghantaran:' : orderMode === 'event' ? 'Caj Setup Katering:' : 'Caj Pickup:'}</span>
+                          <span>Caj {orderMode}:</span>
                           <span className="font-semibold text-white">
                             {deliveryFee === 0 ? <span className="text-emerald-400">PERCUMA</span> : `RM ${deliveryFee.toFixed(2)}`}
                           </span>
@@ -1601,19 +1281,11 @@
                           setIsCartOpen(false);
                           setIsCheckoutModalOpen(true);
                         }}
-                        className="w-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:brightness-110 text-white font-extrabold py-3.5 rounded-xl text-sm shadow-xl shadow-orange-950/60 transition-all flex items-center justify-center gap-2"
+                        className="w-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 text-white font-extrabold py-3.5 rounded-xl text-sm shadow-xl transition-all flex items-center justify-center gap-2"
                       >
-                        <span>Teruskan Ke Tempahan ({orderMode.toUpperCase()})</span>
+                        <span>Teruskan Ke Tempahan</span>
                         <span>→</span>
                       </button>
-
-                      <button 
-                        onClick={clearCart}
-                        className="w-full text-center text-xs text-stone-500 hover:text-red-400 transition-colors"
-                      >
-                        Kosongkan Troli
-                      </button>
-
                     </div>
                   )}
 
@@ -1622,19 +1294,16 @@
             </div>
           )}
 
-          {/* CHECKOUT & DETAILS MODAL */}
+          {/* CHECKOUT MODAL */}
           {isCheckoutModalOpen && (
             <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
               <div className="bg-stone-950 border border-orange-500/30 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
                 
                 <div className="flex items-center justify-between border-b border-stone-800 pb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                      <span>🍢</span>
-                      <span>Maklumat Pesanan & Pembayaran</span>
-                    </h3>
-                    <p className="text-xs text-stone-400">Mod Pesanan: <strong className="text-amber-400 uppercase">{orderMode}</strong></p>
-                  </div>
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <span>🍢</span>
+                    <span>Maklumat Tempahan ({orderMode.toUpperCase()})</span>
+                  </h3>
                   <button 
                     onClick={() => setIsCheckoutModalOpen(false)}
                     className="w-8 h-8 rounded-full bg-stone-900 text-stone-400 hover:text-white flex items-center justify-center"
@@ -1643,16 +1312,14 @@
                   </button>
                 </div>
 
-                {/* Form Fields */}
                 <div className="space-y-4 text-xs sm:text-sm">
-                  
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-stone-300 font-semibold mb-1">Nama Penuh *</label>
                       <input 
                         type="text" 
                         required
-                        placeholder="cth: Ahmad Zaki"
+                        placeholder="Nama anda"
                         value={customerDetails.name}
                         onChange={(e) => setCustomerDetails(prev => ({ ...prev, name: e.target.value }))}
                         className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
@@ -1663,7 +1330,7 @@
                       <input 
                         type="tel" 
                         required
-                        placeholder="cth: 012-3456789"
+                        placeholder="012-3456789"
                         value={customerDetails.phone}
                         onChange={(e) => setCustomerDetails(prev => ({ ...prev, phone: e.target.value }))}
                         className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
@@ -1671,77 +1338,31 @@
                     </div>
                   </div>
 
-                  {/* Mode Specific Fields */}
                   {orderMode === 'delivery' && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-stone-300 font-semibold mb-1">Alamat Penuh Penghantaran *</label>
-                        <textarea 
-                          rows="2"
-                          placeholder="No rumah, jalan, taman, poskod, bandar..."
-                          value={customerDetails.address}
-                          onChange={(e) => setCustomerDetails(prev => ({ ...prev, address: e.target.value }))}
-                          className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
-                        ></textarea>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-stone-300 font-semibold mb-1">Tarikh Penghantaran</label>
-                          <input 
-                            type="date"
-                            value={customerDetails.deliveryDate}
-                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, deliveryDate: e.target.value }))}
-                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-stone-300 font-semibold mb-1">Masa Diingini</label>
-                          <input 
-                            type="time"
-                            value={customerDetails.deliveryTime}
-                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, deliveryTime: e.target.value }))}
-                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
-                          />
-                        </div>
-                      </div>
+                    <div>
+                      <label className="block text-stone-300 font-semibold mb-1">Alamat Penghantaran *</label>
+                      <textarea 
+                        rows="2"
+                        placeholder="Alamat rumah atau pejabat..."
+                        value={customerDetails.address}
+                        onChange={(e) => setCustomerDetails(prev => ({ ...prev, address: e.target.value }))}
+                        className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                      ></textarea>
                     </div>
                   )}
 
                   {orderMode === 'pickup' && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-stone-300 font-semibold mb-1">Pilih Cawangan Pickup *</label>
-                        <select 
-                          value={customerDetails.branch}
-                          onChange={(e) => setCustomerDetails(prev => ({ ...prev, branch: e.target.value }))}
-                          className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
-                        >
-                          {BRANCHES.map(b => (
-                            <option key={b.id} value={b.id}>{b.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-stone-300 font-semibold mb-1">No Plat Kenderaan (Pandu Lalu)</label>
-                          <input 
-                            type="text" 
-                            placeholder="cth: VDF 8812"
-                            value={customerDetails.pickupPlateNo}
-                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, pickupPlateNo: e.target.value }))}
-                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-stone-300 font-semibold mb-1">Anggaran Masa Ambil</label>
-                          <input 
-                            type="time"
-                            value={customerDetails.deliveryTime}
-                            onChange={(e) => setCustomerDetails(prev => ({ ...prev, deliveryTime: e.target.value }))}
-                            className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
-                          />
-                        </div>
-                      </div>
+                    <div>
+                      <label className="block text-stone-300 font-semibold mb-1">Pilih Cawangan Pickup *</label>
+                      <select 
+                        value={customerDetails.branch}
+                        onChange={(e) => setCustomerDetails(prev => ({ ...prev, branch: e.target.value }))}
+                        className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
+                      >
+                        {BRANCHES.map(b => (
+                          <option key={b.id} value={b.id}>{b.name}</option>
+                        ))}
+                      </select>
                     </div>
                   )}
 
@@ -1749,17 +1370,16 @@
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-stone-300 font-semibold mb-1">Jenis Acara / Majlis</label>
+                          <label className="block text-stone-300 font-semibold mb-1">Jenis Majlis</label>
                           <select 
                             value={customerDetails.eventType}
                             onChange={(e) => setCustomerDetails(prev => ({ ...prev, eventType: e.target.value }))}
                             className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
                           >
-                            <option>Kenduri Perkahwinan / Sanding</option>
-                            <option>Majlis Aqiqah & Kesyukuran</option>
-                            <option>Jamuan Hari Jadi / Reunion</option>
-                            <option>Acara Korporat & Syarikat</option>
-                            <option>Open House Hari Raya</option>
+                            <option>Kenduri Kahwin / Sanding</option>
+                            <option>Majlis Aqiqah</option>
+                            <option>Jamuan Hari Jadi</option>
+                            <option>Acara Korporat</option>
                           </select>
                         </div>
                         <div>
@@ -1773,7 +1393,7 @@
                         </div>
                       </div>
                       <div>
-                        <label className="block text-stone-300 font-semibold mb-1">Lokasi Majlis / Dewan / Rumah *</label>
+                        <label className="block text-stone-300 font-semibold mb-1">Lokasi Majlis *</label>
                         <textarea 
                           rows="2"
                           placeholder="Alamat dewan atau lokasi majlis..."
@@ -1782,26 +1402,14 @@
                           className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
                         ></textarea>
                       </div>
-                      <div className="flex items-center gap-2 bg-stone-900 p-3 rounded-xl border border-stone-800">
-                        <input 
-                          type="checkbox"
-                          id="liveGrillCheck"
-                          checked={customerDetails.liveGrillNeeded}
-                          onChange={(e) => setCustomerDetails(prev => ({ ...prev, liveGrillNeeded: e.target.checked }))}
-                          className="w-4 h-4 text-orange-600 rounded bg-stone-950 border-stone-700"
-                        />
-                        <label htmlFor="liveGrillCheck" className="text-xs text-stone-300">
-                          Sediakan <strong>Stesen Live Grilling</strong> bersama Tukang Bakar Nipah Satay di lokasi majlis
-                        </label>
-                      </div>
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-stone-300 font-semibold mb-1">Nota Tambahan / Permintaan Khas</label>
+                    <label className="block text-stone-300 font-semibold mb-1">Nota Tambahan</label>
                     <input 
                       type="text" 
-                      placeholder="cth: Minta kuah kacang lebih pekat, cili potong asing..."
+                      placeholder="cth: Kuah kacang asing, ekstra pedas..."
                       value={customerDetails.specialNotes}
                       onChange={(e) => setCustomerDetails(prev => ({ ...prev, specialNotes: e.target.value }))}
                       className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-white focus:outline-none focus:border-amber-500 text-xs"
@@ -1810,19 +1418,7 @@
 
                 </div>
 
-                {/* Order Summary in Modal */}
-                <div className="bg-stone-900/80 p-4 rounded-2xl border border-stone-800 text-xs space-y-2">
-                  <div className="font-bold text-white flex justify-between">
-                    <span>Ringkasan ({cart.length} item):</span>
-                    <span className="text-amber-400">Jumlah: RM {grandTotal.toFixed(2)}</span>
-                  </div>
-                  <div className="text-stone-400 text-[11px]">
-                    {cart.map(i => `${i.name} (${i.qty} ${i.unit})`).join(' • ')}
-                  </div>
-                </div>
-
-                {/* Confirm Buttons */}
-                <div className="space-y-3 pt-2">
+                <div className="pt-2">
                   <button 
                     onClick={handleConfirmOrder}
                     className="w-full bg-gradient-to-r from-emerald-600 via-orange-600 to-amber-600 hover:brightness-110 text-white font-black py-4 rounded-2xl text-sm shadow-xl transition-all flex items-center justify-center gap-2"
@@ -1830,16 +1426,13 @@
                     <span>Sahkan Tempahan & Hantar WhatsApp</span>
                     <span>📱</span>
                   </button>
-                  <p className="text-center text-[11px] text-stone-400">
-                    Setelah disahkan, ringkasan tempahan rasmi akan dijana dan dibuka terus melalui WhatsApp Nipah Satay.
-                  </p>
                 </div>
 
               </div>
             </div>
           )}
 
-          {/* ORDER CONFIRMATION / RECEIPT MODAL */}
+          {/* RECEIPT MODAL */}
           {isReceiptModalOpen && lastConfirmedOrder && (
             <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
               <div className="bg-stone-950 border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 text-center">
@@ -1849,32 +1442,22 @@
                 </div>
 
                 <div>
-                  <span className="text-xs font-bold text-amber-400 tracking-wider uppercase">Tempahan Berjaya Dijana</span>
+                  <span className="text-xs font-bold text-amber-400 uppercase">Tempahan Berjaya</span>
                   <h3 className="text-2xl font-black text-white mt-1">Resit Tempahan Rasmi</h3>
                   <p className="text-xs text-stone-400 mt-1">No. Rujukan: <strong className="text-white font-mono">{lastConfirmedOrder.orderId}</strong></p>
                 </div>
 
-                {/* Digital Receipt Card */}
                 <div className="bg-stone-900 border border-dashed border-stone-700 p-5 rounded-2xl text-left text-xs space-y-3 font-mono">
-                  
-                  <div className="flex justify-between border-b border-stone-800 pb-2">
-                    <span className="text-stone-400">Tarikh:</span>
-                    <span className="text-white">{lastConfirmedOrder.date}</span>
-                  </div>
-
                   <div className="flex justify-between border-b border-stone-800 pb-2">
                     <span className="text-stone-400">Pelanggan:</span>
                     <span className="text-white">{lastConfirmedOrder.customerDetails.name} ({lastConfirmedOrder.customerDetails.phone})</span>
                   </div>
-
                   <div className="flex justify-between border-b border-stone-800 pb-2">
-                    <span className="text-stone-400">Mod Pesanan:</span>
+                    <span className="text-stone-400">Mod:</span>
                     <span className="text-amber-400 font-bold uppercase">{lastConfirmedOrder.orderMode}</span>
                   </div>
 
-                  {/* Items */}
                   <div className="py-2 space-y-1.5 border-b border-stone-800">
-                    <div className="text-stone-400 font-bold">Item Pesanan:</div>
                     {lastConfirmedOrder.cart.map((item, idx) => (
                       <div key={idx} className="flex justify-between text-stone-200">
                         <span>{item.qty}x {item.name}</span>
@@ -1883,7 +1466,6 @@
                     ))}
                   </div>
 
-                  {/* Pricing Breakdown */}
                   <div className="space-y-1 pt-1">
                     <div className="flex justify-between text-stone-400">
                       <span>Subtotal:</span>
@@ -1904,14 +1486,12 @@
                       <span>RM {lastConfirmedOrder.grandTotal.toFixed(2)}</span>
                     </div>
                   </div>
-
                 </div>
 
-                {/* Actions */}
                 <div className="space-y-3">
                   <button 
                     onClick={sendToWhatsApp}
-                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-2xl text-sm shadow-xl shadow-emerald-950/60 transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-2xl text-sm shadow-xl transition-all flex items-center justify-center gap-2"
                   >
                     <span>Hantar WhatsApp Ke Restoran Nipah Satay</span>
                     <span>💬</span>
@@ -1920,7 +1500,7 @@
                   <button 
                     onClick={() => {
                       navigator.clipboard.writeText(lastConfirmedOrder.rawText);
-                      showToast('📋 Teks pesanan telah disalin ke papan keratan!');
+                      showToast('📋 Teks pesanan telah disalin!');
                     }}
                     className="w-full bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold py-2.5 rounded-xl text-xs transition-colors"
                   >
