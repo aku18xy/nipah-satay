@@ -1,0 +1,373 @@
+'use client';
+
+import React, { useState } from 'react';
+import { 
+  Flame, 
+  CookingPot, 
+  Clock, 
+  CheckCircle2, 
+  AlertTriangle, 
+  Volume2, 
+  RotateCcw,
+  Coffee,
+  Check
+} from 'lucide-react';
+import { INITIAL_ORDERS } from '@/lib/data';
+import { Order } from '@/lib/types';
+
+export default function KitchenKdsPage() {
+  const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
+  const [activeStation, setActiveStation] = useState<'all' | 'grill' | 'wok' | 'prep_bar'>('all');
+
+  // Skewer aggregator for the Grill Master
+  const skewerSummary = orders.reduce((acc, order) => {
+    if (order.status === 'completed' || order.status === 'cancelled') return acc;
+    order.items
+      .filter((i) => i.station === 'grill')
+      .forEach((item) => {
+        acc[item.name] = (acc[item.name] || 0) + item.quantity;
+      });
+    return acc;
+  }, {} as Record<string, number>);
+
+  const totalGrillSticks = Object.values(skewerSummary).reduce((a, b) => a + b, 0);
+
+  // Status transitions
+  const advanceStationStatus = (orderId: string, station: 'grill' | 'wok' | 'prep_bar') => {
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (order.id !== orderId) return order;
+
+        const current = order.stationStatus[station];
+        let next: 'pending' | 'grilling' | 'cooking' | 'ready' | 'done' = 'done';
+
+        if (station === 'grill') {
+          next = current === 'pending' ? 'grilling' : 'done';
+        } else if (station === 'wok') {
+          next = current === 'pending' ? 'cooking' : 'done';
+        } else {
+          next = current === 'pending' ? 'ready' : 'done';
+        }
+
+        const updatedStationStatus = {
+          ...order.stationStatus,
+          [station]: next,
+        };
+
+        // If all stations done, mark order ready
+        const allDone = Object.values(updatedStationStatus).every((st) => st === 'done');
+
+        return {
+          ...order,
+          stationStatus: updatedStationStatus,
+          status: allDone ? 'ready' : 'cooking',
+        };
+      })
+    );
+  };
+
+  const markOrderCompleted = (orderId: string) => {
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status: 'completed' } : o))
+    );
+  };
+
+  return (
+    <div className="space-y-5 pb-12">
+      {/* Top KDS Station Filter Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-900 border border-stone-800 rounded-xl p-3 sm:p-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="font-extrabold text-xl text-white">Sistem Paparan Dapur (KDS Live)</h1>
+            <span className="flex h-2.5 w-2.5 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+          </div>
+          <p className="text-xs text-stone-400 mt-0.5">
+            Pemisahan tiket automatik: Panggangan Sate Arang vs Kuali Panas / Soto vs Bar Minuman
+          </p>
+        </div>
+
+        {/* Station Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto bg-stone-950 p-1 rounded-xl border border-stone-800 text-xs font-bold">
+          {[
+            { id: 'all', label: 'Semua Tiket' },
+            { id: 'grill', label: '🔥 Stesen Sate Arang' },
+            { id: 'wok', label: '🍳 Wok & Soto' },
+            { id: 'prep_bar', label: '🥤 Minuman & Kuah' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveStation(tab.id as any)}
+              className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
+                activeStation === tab.id
+                  ? 'bg-orange-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grill Pit Live Skewer Aggregate (Only if on 'all' or 'grill') */}
+      {(activeStation === 'all' || activeStation === 'grill') && totalGrillSticks > 0 && (
+        <div className="bg-gradient-to-r from-orange-950/80 via-stone-900 to-amber-950/70 border border-orange-700/50 rounded-2xl p-4 sm:p-5 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-xl bg-orange-600 text-white animate-pulse">
+                <Flame className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-white">
+                  Ringkasan Bakaran Sate Aktif (Pitmaster Queue)
+                </h3>
+                <p className="text-xs text-stone-300">
+                  Jumlah sate yang perlu diletakkan di atas bara api sekarang
+                </p>
+              </div>
+            </div>
+            <div className="bg-orange-600/30 border border-orange-500/40 px-3 py-1 rounded-xl font-mono text-sm font-black text-orange-300">
+              Jumlah: {totalGrillSticks} Cucuk
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            {Object.entries(skewerSummary).map(([name, count]) => (
+              <div
+                key={name}
+                className="bg-stone-950/90 border border-orange-900/50 rounded-xl p-3 flex items-center justify-between"
+              >
+                <span className="text-xs font-bold text-stone-200">{name}</span>
+                <span className="font-mono text-lg font-black text-orange-400 bg-orange-950/80 px-2 py-0.5 rounded border border-orange-800/40">
+                  {count}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Ticket Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {orders
+          .filter((o) => o.status !== 'completed' && o.status !== 'cancelled')
+          .map((order) => {
+            const hasGrill = order.items.some((i) => i.station === 'grill');
+            const hasWok = order.items.some((i) => i.station === 'wok');
+            const hasPrep = order.items.some((i) => i.station === 'prep_bar');
+
+            // Skip ticket if filtered to specific station and doesn't contain items for it
+            if (activeStation === 'grill' && !hasGrill) return null;
+            if (activeStation === 'wok' && !hasWok) return null;
+            if (activeStation === 'prep_bar' && !hasPrep) return null;
+
+            return (
+              <div
+                key={order.id}
+                className={`bg-stone-900 border rounded-2xl flex flex-col justify-between overflow-hidden shadow-lg transition-all ${
+                  order.status === 'ready'
+                    ? 'border-emerald-600/80 ring-1 ring-emerald-500/30'
+                    : 'border-stone-800 hover:border-stone-700'
+                }`}
+              >
+                {/* Ticket Top */}
+                <div className="p-4 border-b border-stone-800 bg-stone-950/70">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-base font-black text-orange-400">
+                        {order.orderNumber}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                        order.type === 'dine_in'
+                          ? 'bg-amber-950 text-amber-300 border border-amber-800/50'
+                          : 'bg-blue-950 text-blue-300 border border-blue-800/50'
+                      }`}>
+                        {order.type === 'dine_in' ? `Meja ${order.tableNumber}` : 'Bungkus'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-[11px] text-stone-400 font-mono">
+                      <Clock className="w-3.5 h-3.5 text-stone-400" />
+                      <span>{order.createdAt}</span>
+                    </div>
+                  </div>
+
+                  {order.customerName && (
+                    <div className="text-xs text-stone-400 mt-1 font-medium">
+                      Pelanggan: <span className="text-stone-200">{order.customerName}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Items Section */}
+                <div className="p-4 flex-1 space-y-3">
+                  {/* Grill Station Items */}
+                  {hasGrill && (activeStation === 'all' || activeStation === 'grill') && (
+                    <div className="bg-orange-950/30 border border-orange-900/40 rounded-xl p-2.5 space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-orange-400">
+                        <span className="flex items-center gap-1">
+                          <Flame className="w-3.5 h-3.5" />
+                          Bahagian Sate Arang
+                        </span>
+                        <span className="font-mono uppercase text-[10px] px-1.5 py-0.5 rounded bg-orange-900/60">
+                          {order.stationStatus.grill}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {order.items
+                          .filter((i) => i.station === 'grill')
+                          .map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-xs font-semibold text-stone-100">
+                              <span>{item.name}</span>
+                              <span className="font-mono font-bold text-orange-400 bg-stone-900 px-2 py-0.5 rounded">
+                                {item.quantity} cucuk
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+
+                      <button
+                        onClick={() => advanceStationStatus(order.id, 'grill')}
+                        className={`w-full mt-2 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                          order.stationStatus.grill === 'done'
+                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                            : 'bg-orange-600 hover:bg-orange-500 text-white'
+                        }`}
+                      >
+                        {order.stationStatus.grill === 'done' ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" /> Sate Siap Dibakar
+                          </>
+                        ) : order.stationStatus.grill === 'grilling' ? (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Tekan Bila Selesai Bakar
+                          </>
+                        ) : (
+                          <>
+                            <Flame className="w-3.5 h-3.5" /> Mula Bakar Sekarang
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Wok Station Items (Soto, Mee Goreng, Bihun) */}
+                  {hasWok && (activeStation === 'all' || activeStation === 'wok') && (
+                    <div className="bg-amber-950/30 border border-amber-900/40 rounded-xl p-2.5 space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-amber-400">
+                        <span className="flex items-center gap-1">
+                          <CookingPot className="w-3.5 h-3.5" />
+                          Dapur Soto & Wok Kuali
+                        </span>
+                        <span className="font-mono uppercase text-[10px] px-1.5 py-0.5 rounded bg-amber-900/60">
+                          {order.stationStatus.wok}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {order.items
+                          .filter((i) => i.station === 'wok')
+                          .map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-xs font-semibold text-stone-100">
+                              <span>
+                                {item.name}
+                                {item.notes && <span className="block text-[10px] text-amber-300 italic font-normal">Nota: {item.notes}</span>}
+                              </span>
+                              <span className="font-mono font-bold text-amber-400 bg-stone-900 px-2 py-0.5 rounded">
+                                {item.quantity}x
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+
+                      <button
+                        onClick={() => advanceStationStatus(order.id, 'wok')}
+                        className={`w-full mt-2 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                          order.stationStatus.wok === 'done'
+                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                            : 'bg-amber-600 hover:bg-amber-500 text-stone-950'
+                        }`}
+                      >
+                        {order.stationStatus.wok === 'done' ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" /> Hidangan Panas Siap
+                          </>
+                        ) : order.stationStatus.wok === 'cooking' ? (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Tekan Bila Siap Masak
+                          </>
+                        ) : (
+                          <>
+                            <CookingPot className="w-3.5 h-3.5" /> Mula Memasak Wok
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Prep Bar / Drinks Items */}
+                  {hasPrep && (activeStation === 'all' || activeStation === 'prep_bar') && (
+                    <div className="bg-stone-950/70 border border-stone-800 rounded-xl p-2.5 space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-stone-300">
+                        <span className="flex items-center gap-1">
+                          <Coffee className="w-3.5 h-3.5 text-sky-400" />
+                          Bar Air & Kuah Nasi Impit
+                        </span>
+                        <span className="font-mono uppercase text-[10px] px-1.5 py-0.5 rounded bg-stone-800">
+                          {order.stationStatus.prep_bar}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {order.items
+                          .filter((i) => i.station === 'prep_bar')
+                          .map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-xs font-semibold text-stone-200">
+                              <span>{item.name}</span>
+                              <span className="font-mono font-bold text-stone-300 bg-stone-900 px-2 py-0.5 rounded">
+                                {item.quantity}x
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+
+                      <button
+                        onClick={() => advanceStationStatus(order.id, 'prep_bar')}
+                        className={`w-full mt-2 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                          order.stationStatus.prep_bar === 'done'
+                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                            : 'bg-stone-800 hover:bg-stone-700 text-stone-200'
+                        }`}
+                      >
+                        {order.stationStatus.prep_bar === 'done' ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" /> Sedia Dihidang
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Tandakan Siap
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Ticket Action Bottom */}
+                <div className="p-3 bg-stone-950 border-t border-stone-800">
+                  <button
+                    onClick={() => markOrderCompleted(order.id)}
+                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.01]"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Selesai & Hantar ke Meja / Kaunter</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+      </div>
+    </div>
+  );
+}

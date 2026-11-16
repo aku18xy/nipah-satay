@@ -1,0 +1,24 @@
+{
+  "name": "Nipah Satay™ Management & POS",
+  "short_name": "Nipah Satay",
+  "description": "Sistem Pengurusan Dapur, POS & Barisan Pengeluaran Sate Nipah Satay, Pulau Indah, Klang",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0a09",
+  "theme_color": "#ea580c",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/images/satay_skewer.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/satay_skewer.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

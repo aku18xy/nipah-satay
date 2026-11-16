@@ -4,7 +4,9 @@
   "description": "Nipah Satay™ - Charcoal Grilled Satay & Catering Web App",
   "main": "index.html",
   "scripts": {
-    "start": "python3 -m http.server 3000"
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start"
   },
   "keywords": [
     "satay",
@@ -15,5 +17,25 @@
     "vercel"
   ],
   "author": "nbef",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "canvas-confetti": "^1.9.4",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.73.0",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.6.2",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^7.0.2"
+  }
 }
