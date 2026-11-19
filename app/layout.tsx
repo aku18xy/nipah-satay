@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import NavigationHeader from '@/components/NavigationHeader';
+import { SeniorModeProvider } from '@/components/SeniorModeContext';
 
 export const metadata: Metadata = {
   title: 'Nipah Satay™ | Sistem Pengurusan Operasi & POS',
@@ -33,10 +34,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className="min-h-screen bg-[#0c0a09] text-stone-100 flex flex-col antialiased selection:bg-orange-600 selection:text-white">
-        <NavigationHeader />
-        <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4">
-          {children}
-        </main>
+        <SeniorModeProvider>
+          <NavigationHeader />
+          <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4">
+            {children}
+          </main>
+        </SeniorModeProvider>
         
         {/* PWA Service Worker Registration Script */}
         <script

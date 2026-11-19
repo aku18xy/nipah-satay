@@ -13,16 +13,44 @@
   }
 }
 
+/* Mod Mesra Warga Emas (Senior-Friendly High Contrast & Large Touch Target Mode) */
+.senior-mode {
+  font-size: 110%;
+}
+.senior-mode body {
+  color: #ffffff !important;
+}
+.senior-mode p,
+.senior-mode span,
+.senior-mode label {
+  color: #f5f5f4 !important;
+  font-weight: 500;
+}
+.senior-mode .text-stone-400,
+.senior-mode .text-stone-500 {
+  color: #d6d3d1 !important;
+}
+.senior-mode button,
+.senior-mode select,
+.senior-mode input {
+  min-height: 48px;
+  font-size: 1.05rem !important;
+}
+.senior-mode .senior-card {
+  border-width: 2px !important;
+  border-color: #f97316 !important;
+}
+
 /* Custom Scrollbar for Kitchen & POS Tablets */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: #0c0a09;
 }
 ::-webkit-scrollbar-thumb {
-  background: #332d29;
+  background: #44403c;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {

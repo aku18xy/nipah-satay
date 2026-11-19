@@ -42,6 +42,7 @@ export default function ProductionPage() {
   const [workerMeatType, setWorkerMeatType] = useState<'Sate Ayam' | 'Sate Daging' | 'Sate Kambing' | 'Sate Perut'>('Sate Ayam');
   const [sticksCut, setSticksCut] = useState(600);
   const [workerShift, setWorkerShift] = useState<'Pagi' | 'Petang'>('Pagi');
+  const [workerSaveSuccess, setWorkerSaveSuccess] = useState(false);
 
   // Dynamic piece-rate based on meat type
   const getRateForMeat = (type: string) => {
@@ -105,6 +106,9 @@ export default function ProductionPage() {
     };
 
     setSkewerLogs([newLog, ...skewerLogs]);
+    setWorkerSaveSuccess(true);
+    setTimeout(() => setWorkerSaveSuccess(false), 3500);
+
     // update corresponding chiller stock
     setStorage((prev) => {
       const added = Number(sticksCut);
@@ -294,59 +298,81 @@ export default function ProductionPage() {
         <div className="lg:col-span-5 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-orange-400" />
-              <h2 className="font-extrabold text-base text-white">
-                Gaji & Output Pekerja Cucuk
-              </h2>
+              <div className="p-2 rounded-xl bg-orange-600/20 text-orange-400">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6" />
+              </div>
+              <div>
+                <h2 className="font-extrabold text-base sm:text-lg text-white">
+                  Gaji &amp; Output Pekerja Cucuk
+                </h2>
+                <p className="text-xs text-stone-400">Kadar bayaran per cucuk mengikut jenis sate</p>
+              </div>
             </div>
-            <span className="text-xs text-amber-400 font-mono font-bold bg-amber-950/70 border border-amber-800/40 px-2 py-0.5 rounded">
-              RM {currentRate.toFixed(2)} / cucuk ({workerMeatType})
+            <span className="text-xs sm:text-sm text-amber-400 font-mono font-black bg-amber-950/80 border border-amber-800/50 px-2.5 py-1 rounded-xl">
+              RM {currentRate.toFixed(2)} / cucuk
             </span>
           </div>
 
-          {/* Quick Add Log Form */}
-          <form onSubmit={handleAddSkewerLog} className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-3.5 shadow-md">
-            <span className="text-xs font-bold text-stone-300 block">
-              + Catat Output Pencucuk Harian
-            </span>
+          {/* Senior-Friendly Quick Add Log Form */}
+          <form onSubmit={handleAddSkewerLog} className="bg-stone-900 border-2 border-stone-800 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-2.5">
+              <span className="text-sm font-black text-amber-300 flex items-center gap-1.5">
+                <span>📝</span> Catat Output Cucuk Harian
+              </span>
+              <span className="text-xs text-stone-400">
+                Syif: <strong className="text-white">{workerShift}</strong>
+              </span>
+            </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <label className="text-stone-400 block mb-1">Nama Pekerja:</label>
-                <select
-                  value={workerName}
-                  onChange={(e) => setWorkerName(e.target.value)}
-                  className="w-full bg-stone-950 border border-stone-800 rounded-lg p-2 text-white font-medium focus:outline-none"
-                >
-                  <option value="Kak Linda (Ketua Pencucuk)">Kak Linda (Ketua Pencucuk)</option>
-                  <option value="Cik Yana">Cik Yana</option>
-                  <option value="Pak Usop">Pak Usop</option>
-                  <option value="Pekerja Sambilan 1">Pekerja Sambilan 1</option>
-                </select>
+            {/* Banner Kejayaan Bila Simpan */}
+            {workerSaveSuccess && (
+              <div className="bg-emerald-950 border-2 border-emerald-500 text-emerald-200 p-3 rounded-xl flex items-center gap-3 animate-bounce">
+                <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0" />
+                <div className="text-xs sm:text-sm font-bold">
+                  Berjaya Disimpan! +{sticksCut} cucuk {workerMeatType} dimasukkan ke Chiller.
+                </div>
               </div>
+            )}
 
-              <div>
-                <label className="text-stone-400 block mb-1">Syif Kerja:</label>
-                <select
-                  value={workerShift}
-                  onChange={(e) => setWorkerShift(e.target.value as any)}
-                  className="w-full bg-stone-950 border border-stone-800 rounded-lg p-2 text-white font-medium focus:outline-none"
-                >
-                  <option value="Pagi">Pagi (8 AM - 12 PM)</option>
-                  <option value="Petang">Petang (2 PM - 6 PM)</option>
-                </select>
+            {/* 1. Pilih Nama Pekerja (Butang Besar Mesra Sentuhan) */}
+            <div>
+              <label className="text-xs sm:text-sm font-bold text-stone-200 block mb-2">
+                1. Pilih Nama Pekerja:
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { name: 'Kak Linda (Ketua Pencucuk)', label: '👩 Kak Linda', short: 'Kak Linda' },
+                  { name: 'Pak Usop', label: '👨 Pak Usop', short: 'Pak Usop' },
+                  { name: 'Cik Yana', label: '👧 Cik Yana', short: 'Cik Yana' },
+                  { name: 'Pekerja Sambilan 1', label: '🧑 Sambilan', short: 'Sambilan' },
+                ].map((w) => (
+                  <button
+                    key={w.name}
+                    type="button"
+                    onClick={() => setWorkerName(w.name)}
+                    className={`py-3 px-2 rounded-xl border text-center transition-all ${
+                      workerName === w.name
+                        ? 'bg-amber-600 text-stone-950 border-amber-400 font-black shadow-lg shadow-amber-950/60 scale-[1.02]'
+                        : 'bg-stone-950 text-stone-300 border-stone-800 hover:border-stone-700'
+                    }`}
+                  >
+                    <div className="text-sm sm:text-base font-extrabold">{w.label}</div>
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Pilihan Jenis Sate */}
+            {/* 2. Pilih Jenis Sate (Butang Besar Warna-Warni) */}
             <div>
-              <div className="flex items-center justify-between text-xs mb-1.5">
-                <label className="text-stone-400 font-semibold">Jenis Sate Yang Dicucuk:</label>
-                <span className="text-amber-400 font-mono font-bold text-[11px]">
-                  Kadar: RM {currentRate.toFixed(2)} / lidi
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs sm:text-sm font-bold text-stone-200">
+                  2. Pilih Jenis Sate:
+                </label>
+                <span className="text-xs text-amber-400 font-mono font-bold">
+                  Kadar: RM {currentRate.toFixed(2)} / cucuk
                 </span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs font-semibold">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
                   { id: 'Sate Ayam', label: '🍗 Ayam', rate: 'RM 0.08' },
                   { id: 'Sate Daging', label: '🥩 Lembu', rate: 'RM 0.09' },
@@ -357,73 +383,133 @@ export default function ProductionPage() {
                     key={satay.id}
                     type="button"
                     onClick={() => setWorkerMeatType(satay.id as any)}
-                    className={`py-2 px-1.5 rounded-lg border text-center transition-all ${
+                    className={`py-3 px-2 rounded-xl border text-center transition-all ${
                       workerMeatType === satay.id
-                        ? 'bg-orange-600 text-white border-orange-500 shadow-md shadow-orange-950/60 font-bold'
-                        : 'bg-stone-950 text-stone-300 border-stone-800 hover:border-stone-700 hover:text-white'
+                        ? 'bg-orange-600 text-white border-orange-400 shadow-lg shadow-orange-950/70 font-black scale-[1.02]'
+                        : 'bg-stone-950 text-stone-200 border-stone-800 hover:border-stone-700'
                     }`}
                   >
-                    <div className="truncate">{satay.label}</div>
-                    <div className={`text-[10px] mt-0.5 font-mono ${workerMeatType === satay.id ? 'text-orange-200 font-bold' : 'text-stone-500'}`}>
-                      {satay.rate}
+                    <div className="text-sm sm:text-base font-black">{satay.label}</div>
+                    <div className={`text-xs mt-1 font-mono font-bold ${workerMeatType === satay.id ? 'text-orange-200' : 'text-stone-400'}`}>
+                      {satay.rate} / cucuk
                     </div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div>
-              <div className="flex justify-between text-xs text-stone-400 mb-1">
-                <span>Bilangan Cucuk Berjaya Siap:</span>
-                <span className="font-bold text-amber-400 font-mono">{sticksCut} cucuk</span>
+            {/* 3. Bilangan Cucuk (Display Gergasi + Stepper & Preset) */}
+            <div className="bg-stone-950/90 border border-stone-800 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs sm:text-sm font-bold text-stone-200">
+                  3. Bilangan Cucuk Berjaya Siap:
+                </label>
+                <span className="text-xs text-stone-400">Tekan butang di bawah</span>
               </div>
-              <input
-                type="range"
-                min="100"
-                max="1500"
-                step="50"
-                value={sticksCut}
-                onChange={(e) => setSticksCut(Number(e.target.value))}
-                className="w-full accent-orange-500 cursor-pointer"
-              />
+
+              {/* Display Nombor Besar */}
+              <div className="flex items-center justify-between bg-stone-900 border-2 border-orange-500/50 rounded-2xl p-2.5 sm:p-3">
+                <button
+                  type="button"
+                  onClick={() => setSticksCut(Math.max(50, sticksCut - 50))}
+                  className="w-14 h-14 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-100 font-black text-2xl flex items-center justify-center border border-stone-700 active:scale-95"
+                  title="Tolak 50 cucuk"
+                >
+                  -50
+                </button>
+
+                <div className="text-center px-2">
+                  <div className="text-3xl sm:text-4xl font-black text-amber-400 font-mono tracking-tight">
+                    {sticksCut}
+                  </div>
+                  <div className="text-xs sm:text-sm text-stone-300 font-bold uppercase tracking-wider">
+                    Cucuk {workerMeatType}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSticksCut(sticksCut + 50)}
+                  className="w-14 h-14 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-2xl flex items-center justify-center border border-orange-500 active:scale-95 shadow-md shadow-orange-950/60"
+                  title="Tambah 50 cucuk"
+                >
+                  +50
+                </button>
+              </div>
+
+              {/* Butang Pilihan Pantas (Presets) */}
+              <div>
+                <span className="text-[11px] text-stone-400 font-medium block mb-1.5">
+                  Pilihan Pantas Bilangan Cucuk:
+                </span>
+                <div className="grid grid-cols-6 gap-1.5 font-mono text-xs sm:text-sm font-bold">
+                  {[200, 300, 500, 600, 800, 1000].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setSticksCut(num)}
+                      className={`py-2 rounded-lg border transition-all ${
+                        sticksCut === num
+                          ? 'bg-amber-600 text-stone-950 border-amber-400 font-black'
+                          : 'bg-stone-900 text-stone-300 border-stone-800 hover:bg-stone-800'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-stone-800 text-xs">
-              <span className="text-stone-400">
-                Anggaran Upah ({workerMeatType} @ RM {currentRate.toFixed(2)}):
-              </span>
-              <span className="font-mono text-base font-extrabold text-emerald-400">
-                RM {estimatedWage}
-              </span>
+            {/* 4. Kotak Anggaran Gaji Gergasi */}
+            <div className="bg-gradient-to-r from-emerald-950/70 via-stone-950 to-stone-950 border-2 border-emerald-600/60 rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <span className="text-xs sm:text-sm text-stone-300 font-semibold block">
+                  Anggaran Upah Hari Ini:
+                </span>
+                <p className="text-xs text-stone-400 mt-0.5">
+                  {sticksCut} cucuk × RM {currentRate.toFixed(2)} ({workerMeatType})
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="font-mono text-2xl sm:text-3xl font-black text-emerald-400 tracking-tight">
+                  RM {estimatedWage}
+                </span>
+              </div>
             </div>
 
+            {/* 5. Butang Simpan Gergasi (Tinggi & Terang) */}
             <button
               type="submit"
-              className="w-full py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow-md transition-all hover:scale-[1.01]"
+              className="w-full py-4 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-base sm:text-lg shadow-xl shadow-orange-950/80 transition-all hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 border-2 border-orange-400"
             >
-              Simpan & Masukkan ke Chiller (+{sticksCut} Cucuk {workerMeatType})
+              <CheckCircle2 className="w-6 h-6" />
+              <span>SIMPAN KE CHILLER (+{sticksCut} CUCUK)</span>
             </button>
           </form>
 
           {/* List of Today's Workers Output */}
           <div className="space-y-2">
+            <h3 className="text-xs font-bold text-stone-300 uppercase tracking-wider">
+              Rekod Pencucuk Hari Ini (Syif Pagi &amp; Petang):
+            </h3>
             {skewerLogs.map((log) => (
               <div
                 key={log.id}
-                className="bg-stone-900/90 border border-stone-800 rounded-xl p-3 flex items-center justify-between text-xs"
+                className="bg-stone-900/90 border border-stone-800 rounded-xl p-3.5 flex items-center justify-between text-xs sm:text-sm"
               >
                 <div>
-                  <div className="font-bold text-white">{log.workerName}</div>
-                  <div className="text-stone-400 text-[11px]">
-                    Syif {log.shift} • {log.meatType}
+                  <div className="font-extrabold text-white text-sm sm:text-base">{log.workerName}</div>
+                  <div className="text-stone-300 text-xs">
+                    Syif {log.shift} • <strong className="text-orange-400">{log.meatType}</strong>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <div className="font-mono font-bold text-amber-400">
+                  <div className="font-mono font-black text-amber-400 text-sm sm:text-base">
                     {log.sticksCompleted} cucuk
                   </div>
-                  <div className="text-[11px] text-emerald-400 font-semibold font-mono">
+                  <div className="text-xs sm:text-sm text-emerald-400 font-bold font-mono">
                     RM {log.totalEarnings.toFixed(2)}
                   </div>
                 </div>
