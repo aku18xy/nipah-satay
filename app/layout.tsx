@@ -46,6 +46,7 @@ export default function RootLayout({
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js').then(
                     function(registration) {
+                      registration.update();
                       console.log('Nipah Satay PWA SW registered successfully');
                     },
                     function(err) {

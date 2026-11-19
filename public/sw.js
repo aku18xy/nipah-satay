@@ -1,5 +1,5 @@
 // Nipah Satay Service Worker for Offline PWA Resilience
-const CACHE_NAME = 'nipah-satay-v1';
+const CACHE_NAME = 'nipah-satay-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
