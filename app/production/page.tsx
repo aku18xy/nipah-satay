@@ -33,14 +33,31 @@ export default function ProductionPage() {
 
   // Transfer to restaurant grill state
   const [transferModalOpen, setTransferModalOpen] = useState(false);
-  const [transferMeat, setTransferMeat] = useState<'ayam' | 'daging' | 'kambing'>('ayam');
+  const [transferMeat, setTransferMeat] = useState<'ayam' | 'daging' | 'kambing' | 'perut'>('ayam');
   const [transferAmount, setTransferAmount] = useState<number>(200);
   const [transferSuccess, setTransferSuccess] = useState(false);
 
   // New Skewer Log state
-  const [workerName, setWorkerName] = useState('Kak Linda');
+  const [workerName, setWorkerName] = useState('Kak Linda (Ketua Pencucuk)');
+  const [workerMeatType, setWorkerMeatType] = useState<'Sate Ayam' | 'Sate Daging' | 'Sate Kambing' | 'Sate Perut'>('Sate Ayam');
   const [sticksCut, setSticksCut] = useState(600);
   const [workerShift, setWorkerShift] = useState<'Pagi' | 'Petang'>('Pagi');
+
+  // Dynamic piece-rate based on meat type
+  const getRateForMeat = (type: string) => {
+    switch (type) {
+      case 'Sate Daging':
+        return 0.09;
+      case 'Sate Kambing':
+        return 0.10;
+      case 'Sate Perut':
+        return 0.09;
+      default:
+        return 0.08; // Sate Ayam
+    }
+  };
+  const currentRate = getRateForMeat(workerMeatType);
+  const estimatedWage = (sticksCut * currentRate).toFixed(2);
 
   // Calculations for current form
   const netWeight = Math.max(0, grossWeight - trimLoss);
@@ -74,13 +91,13 @@ export default function ProductionPage() {
 
   const handleAddSkewerLog = (e: React.FormEvent) => {
     e.preventDefault();
-    const rate = 0.08; // RM 0.08 per skewer piece-rate
+    const rate = getRateForMeat(workerMeatType);
     const newLog: SkeweringWorkerLog = {
       id: `SKW-${Date.now().toString().slice(-4)}`,
       workerName,
       date: new Date().toISOString().split('T')[0],
       shift: workerShift,
-      meatType: 'Sate Ayam',
+      meatType: workerMeatType,
       sticksCompleted: Number(sticksCut),
       ratePerStick: rate,
       totalEarnings: Number((sticksCut * rate).toFixed(2)),
@@ -88,12 +105,24 @@ export default function ProductionPage() {
     };
 
     setSkewerLogs([newLog, ...skewerLogs]);
-    // update chiller stock
-    setStorage((prev) => ({
-      ...prev,
-      ayamRawChiller: prev.ayamRawChiller + Number(sticksCut),
-      bambooSkewersLeft: prev.bambooSkewersLeft - Number(sticksCut),
-    }));
+    // update corresponding chiller stock
+    setStorage((prev) => {
+      const added = Number(sticksCut);
+      const updated = {
+        ...prev,
+        bambooSkewersLeft: Math.max(0, prev.bambooSkewersLeft - added),
+      };
+      if (workerMeatType === 'Sate Ayam') {
+        updated.ayamRawChiller = prev.ayamRawChiller + added;
+      } else if (workerMeatType === 'Sate Daging') {
+        updated.dagingRawChiller = prev.dagingRawChiller + added;
+      } else if (workerMeatType === 'Sate Kambing') {
+        updated.kambingRawChiller = prev.kambingRawChiller + added;
+      } else if (workerMeatType === 'Sate Perut') {
+        updated.perutRawChiller = prev.perutRawChiller + added;
+      }
+      return updated;
+    });
   };
 
   const handleTransferToKitchen = () => {
@@ -102,8 +131,10 @@ export default function ProductionPage() {
         return { ...prev, ayamRawChiller: Math.max(0, prev.ayamRawChiller - transferAmount) };
       } else if (transferMeat === 'daging') {
         return { ...prev, dagingRawChiller: Math.max(0, prev.dagingRawChiller - transferAmount) };
-      } else {
+      } else if (transferMeat === 'kambing') {
         return { ...prev, kambingRawChiller: Math.max(0, prev.kambingRawChiller - transferAmount) };
+      } else {
+        return { ...prev, perutRawChiller: Math.max(0, prev.perutRawChiller - transferAmount) };
       }
     });
 
@@ -268,11 +299,13 @@ export default function ProductionPage() {
                 Gaji & Output Pekerja Cucuk
               </h2>
             </div>
-            <span className="text-xs text-amber-400 font-mono">RM 0.08 / cucuk</span>
+            <span className="text-xs text-amber-400 font-mono font-bold bg-amber-950/70 border border-amber-800/40 px-2 py-0.5 rounded">
+              RM {currentRate.toFixed(2)} / cucuk ({workerMeatType})
+            </span>
           </div>
 
           {/* Quick Add Log Form */}
-          <form onSubmit={handleAddSkewerLog} className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-3 shadow-md">
+          <form onSubmit={handleAddSkewerLog} className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-3.5 shadow-md">
             <span className="text-xs font-bold text-stone-300 block">
               + Catat Output Pencucuk Harian
             </span>
@@ -285,7 +318,7 @@ export default function ProductionPage() {
                   onChange={(e) => setWorkerName(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-800 rounded-lg p-2 text-white font-medium focus:outline-none"
                 >
-                  <option value="Kak Linda (Ketua Pencucuk)">Kak Linda</option>
+                  <option value="Kak Linda (Ketua Pencucuk)">Kak Linda (Ketua Pencucuk)</option>
                   <option value="Cik Yana">Cik Yana</option>
                   <option value="Pak Usop">Pak Usop</option>
                   <option value="Pekerja Sambilan 1">Pekerja Sambilan 1</option>
@@ -305,10 +338,44 @@ export default function ProductionPage() {
               </div>
             </div>
 
+            {/* Pilihan Jenis Sate */}
+            <div>
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <label className="text-stone-400 font-semibold">Jenis Sate Yang Dicucuk:</label>
+                <span className="text-amber-400 font-mono font-bold text-[11px]">
+                  Kadar: RM {currentRate.toFixed(2)} / lidi
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs font-semibold">
+                {[
+                  { id: 'Sate Ayam', label: '🍗 Ayam', rate: 'RM 0.08' },
+                  { id: 'Sate Daging', label: '🥩 Lembu', rate: 'RM 0.09' },
+                  { id: 'Sate Kambing', label: '🐐 Kambing', rate: 'RM 0.10' },
+                  { id: 'Sate Perut', label: '🫀 Babat', rate: 'RM 0.09' },
+                ].map((satay) => (
+                  <button
+                    key={satay.id}
+                    type="button"
+                    onClick={() => setWorkerMeatType(satay.id as any)}
+                    className={`py-2 px-1.5 rounded-lg border text-center transition-all ${
+                      workerMeatType === satay.id
+                        ? 'bg-orange-600 text-white border-orange-500 shadow-md shadow-orange-950/60 font-bold'
+                        : 'bg-stone-950 text-stone-300 border-stone-800 hover:border-stone-700 hover:text-white'
+                    }`}
+                  >
+                    <div className="truncate">{satay.label}</div>
+                    <div className={`text-[10px] mt-0.5 font-mono ${workerMeatType === satay.id ? 'text-orange-200 font-bold' : 'text-stone-500'}`}>
+                      {satay.rate}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div>
               <div className="flex justify-between text-xs text-stone-400 mb-1">
                 <span>Bilangan Cucuk Berjaya Siap:</span>
-                <span className="font-bold text-amber-400">{sticksCut} cucuk</span>
+                <span className="font-bold text-amber-400 font-mono">{sticksCut} cucuk</span>
               </div>
               <input
                 type="range"
@@ -322,17 +389,19 @@ export default function ProductionPage() {
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-stone-800 text-xs">
-              <span className="text-stone-400">Anggaran Upah Hari Ini:</span>
+              <span className="text-stone-400">
+                Anggaran Upah ({workerMeatType} @ RM {currentRate.toFixed(2)}):
+              </span>
               <span className="font-mono text-base font-extrabold text-emerald-400">
-                RM {(sticksCut * 0.08).toFixed(2)}
+                RM {estimatedWage}
               </span>
             </div>
 
             <button
               type="submit"
-              className="w-full py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow-md transition-all"
+              className="w-full py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow-md transition-all hover:scale-[1.01]"
             >
-              Simpan & Masukkan ke Chiller (+{sticksCut} Cucuk)
+              Simpan & Masukkan ke Chiller (+{sticksCut} Cucuk {workerMeatType})
             </button>
           </form>
 
@@ -504,6 +573,7 @@ export default function ProductionPage() {
                   <option value="ayam">Sate Ayam (Baki Chiller: {storage.ayamRawChiller})</option>
                   <option value="daging">Sate Lembu (Baki Chiller: {storage.dagingRawChiller})</option>
                   <option value="kambing">Sate Kambing (Baki Chiller: {storage.kambingRawChiller})</option>
+                  <option value="perut">Sate Babat / Perut (Baki Chiller: {storage.perutRawChiller})</option>
                 </select>
               </div>
 
