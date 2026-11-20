@@ -1,5 +1,5 @@
-// Nipah Satay Service Worker for Offline PWA Resilience (v7 - POS Mobile Card Layout Fix)
-const CACHE_NAME = 'nipah-satay-v7';
+// Nipah Satay Service Worker for Offline PWA Resilience (v8 - Elevated Floating Bar)
+const CACHE_NAME = 'nipah-satay-v8';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',

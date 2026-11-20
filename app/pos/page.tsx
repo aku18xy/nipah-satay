@@ -169,7 +169,7 @@ export default function PosPage() {
         </div>
 
         {/* Product Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 overflow-y-auto lg:max-h-[calc(100vh-13rem)] pr-1 pb-24 lg:pb-0">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 overflow-y-auto lg:max-h-[calc(100vh-13rem)] pr-1 pb-32 lg:pb-0">
           {filteredMenu.map((item) => {
             const inCart = cart.find((i) => i.itemId === item.id);
             const isSatay = item.category === 'sate';
@@ -423,7 +423,7 @@ export default function PosPage() {
 
       {/* Floating Cart Button for Mobile View */}
       {cart.length > 0 && (
-        <div className="lg:hidden fixed bottom-16 left-3 right-3 z-40">
+        <div className="lg:hidden fixed bottom-[5.25rem] left-3 right-3 z-40">
           <button
             onClick={() => {
               const cartElem = document.getElementById('pos-cart-panel');
