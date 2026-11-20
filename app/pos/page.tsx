@@ -147,11 +147,11 @@ export default function PosPage() {
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs font-semibold">
             {[
               { id: 'all', label: 'Semua Menu' },
-              { id: 'sate', label: '🔥 Sate Arang' },
-              { id: 'soto', label: '🍲 Soto Pulau Indah' },
-              { id: 'makanan_panas', label: '🍳 Mee & Bihun Goreng' },
-              { id: 'sarapan_kuih', label: '🍙 Nasi Lemak & Karipap' },
-              { id: 'minuman', label: '🥤 Air & Dessert' },
+              { id: 'sate', label: '🔥 Sate' },
+              { id: 'istimewa', label: '🍲 Istimewa (Sup/Mee)' },
+              { id: 'santai', label: '🍙 Santai & Bungkus' },
+              { id: 'karipap', label: '🥟 Karipap & Frozen' },
+              { id: 'minuman', label: '🥤 Minuman & LCK' },
             ].map((cat) => (
               <button
                 key={cat.id}

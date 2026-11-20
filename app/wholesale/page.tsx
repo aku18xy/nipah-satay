@@ -111,7 +111,7 @@ export default function WholesalePage() {
       </div>
 
       {/* Stock Cards for Frozen Products */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 flex items-center justify-between">
           <div>
             <span className="text-xs text-stone-400 block">Stok Sedia Ada: Pek Beku 20s</span>
@@ -131,7 +131,7 @@ export default function WholesalePage() {
             <div className="text-2xl font-black text-white mt-1">
               {storage.frozenPacks50} <span className="text-xs text-stone-400 font-normal">pek</span>
             </div>
-            <span className="text-[11px] text-amber-400">Khas Kantin & Majlis: RM 58.00/pek</span>
+            <span className="text-[11px] text-amber-400">Khas Kantin &amp; Majlis: RM 58.00/pek</span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-orange-950/60 text-orange-400 flex items-center justify-center">
             <Truck className="w-6 h-6" />
@@ -144,10 +144,23 @@ export default function WholesalePage() {
             <div className="text-2xl font-black text-white mt-1">
               {storage.kuahKacangLiters} <span className="text-xs text-stone-400 font-normal">liter</span>
             </div>
-            <span className="text-[11px] text-stone-400">Pekat & tahan beku</span>
+            <span className="text-[11px] text-stone-400">Pekat &amp; tahan beku 6 bulan</span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-stone-800 text-stone-300 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="bg-stone-900 border border-amber-900/40 rounded-xl p-4 flex items-center justify-between shadow-md">
+          <div>
+            <span className="text-xs text-amber-400 font-bold block">🥟 Karipap Frozen (Inti Padat)</span>
+            <div className="text-lg font-black text-white mt-1">
+              Kentang: RM8 <span className="text-xs text-stone-400 font-normal">/pek</span>
+            </div>
+            <span className="text-[11px] text-emerald-400 font-bold">Sardin/Ayam: RM10 /pek</span>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center font-black text-sm">
+            FROZEN
           </div>
         </div>
       </div>

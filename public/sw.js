@@ -1,5 +1,5 @@
-// Nipah Satay Service Worker for Offline PWA Resilience (v5 - Universal Tablet Compatibility)
-const CACHE_NAME = 'nipah-satay-v5';
+// Nipah Satay Service Worker for Offline PWA Resilience (v6 - Authentic Menu & Pricing)
+const CACHE_NAME = 'nipah-satay-v6';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',

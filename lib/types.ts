@@ -1,4 +1,4 @@
-export type Category = 'sate' | 'makanan_panas' | 'soto' | 'sarapan_kuih' | 'minuman' | 'combo';
+export type Category = 'sate' | 'istimewa' | 'santai' | 'karipap' | 'minuman' | 'combo' | 'makanan_panas' | 'soto' | 'sarapan_kuih';
 
 export interface MenuItem {
   id: string;

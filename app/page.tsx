@@ -46,19 +46,27 @@ export default function DashboardPage() {
         <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-orange-600/10 via-transparent to-transparent pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-orange-600 text-white tracking-wide uppercase">
                 Pusat Kawalan Operasi
               </span>
-              <span className="text-xs text-stone-400 font-mono">
-                Tarikh: 16 Nov 2026 • Syif Pagi/Tengahari
+              <span className="text-xs text-amber-300 font-mono font-bold">
+                ⏰ 3.00 PM - 11.00 PM • Ahad Cuti
               </span>
+              <a 
+                href="https://wa.me/60173659302" 
+                target="_blank" 
+                rel="noreferrer"
+                className="text-xs text-emerald-400 font-mono font-bold hover:underline ml-1"
+              >
+                📞 017 365 9302
+              </a>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Nipah Satay™ @ Pulau Indah
             </h1>
             <p className="text-sm text-stone-300 mt-1 max-w-2xl">
-              Sistem integrasi dua sayap: <strong className="text-orange-400">Restoran Terbuka</strong> (Sate Bakar, Soto, Mee & Bihun Goreng) dan <strong className="text-amber-400">Kilang Pemprosesan Sate</strong> (Perap & Cucuk Sate).
+              Sistem integrasi dua sayap: <strong className="text-orange-400">Restoran Terbuka</strong> (Sate Bakar, Soto, Mee Rebus, Karipap &amp; LCK) dan <strong className="text-amber-400">Kilang Pemprosesan Sate</strong> (Perap, Cucuk &amp; Pek Beku).
             </p>
           </div>
 

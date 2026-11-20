@@ -87,8 +87,8 @@ export default function CustomerMenuPage() {
     text += `\n_Pesanan dijana melalui Nipah Satay™ Web App_`;
 
     const encoded = encodeURIComponent(text);
-    // WhatsApp En Ismail / Pn Linda / Cik Yana Nipah Satay Pulau Indah
-    window.open(`https://wa.me/60123456789?text=${encoded}`, '_blank');
+    // WhatsApp Tempahan Rasmi Nipah Satay Pulau Indah
+    window.open(`https://wa.me/60173659302?text=${encoded}`, '_blank');
   };
 
   return (
@@ -103,17 +103,31 @@ export default function CustomerMenuPage() {
             Nipah Satay™ Pulau Indah
           </h1>
           <p className="text-sm text-stone-300">
-            Daging ayam & lembu segar diperap rempah asli turun-temurun, dibakar garing berjus di atas bara arang kayu bakau. Lengkap dengan soto panas, mee goreng, nasi lemak & kuah kacang pekat.
+            Sate Ayam, Daging, Kambing, Perut berjus dibakar atas arang bakau asli. Lengkap dengan Soto herba, Mee Rebus, Mee &amp; Bihun Sup, Nasi Lemak Bungkus, Karipap Inti Padat &amp; Lai Chee Kang madu.
           </p>
           <div className="flex flex-wrap items-center gap-4 text-xs text-stone-400 pt-2">
             <span className="flex items-center gap-1.5">
               <MapPin className="w-4 h-4 text-orange-400" />
-              Laguna Park / Pulau Indah, Klang
+              Laguna Park, Pulau Indah, Klang
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 font-bold text-amber-300">
               <Clock className="w-4 h-4 text-amber-400" />
-              11:00 AM - 10:30 PM (Setiap Hari)
+              3:00 PM - 11:00 PM (Ahad Cuti)
             </span>
+            <a 
+              href="https://wa.me/60173659302" 
+              target="_blank" 
+              rel="noreferrer"
+              className="flex items-center gap-1.5 text-emerald-400 font-bold hover:underline"
+            >
+              <Phone className="w-4 h-4" />
+              017 365 9302
+            </a>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 pt-2 text-[11px] text-stone-400">
+            <span className="px-2 py-0.5 rounded bg-stone-800 border border-stone-700">FB: Nipah Satay Pulau Indah</span>
+            <span className="px-2 py-0.5 rounded bg-stone-800 border border-stone-700">IG: Nipah Satay</span>
+            <span className="px-2 py-0.5 rounded bg-stone-800 border border-stone-700">TikTok: @tok.nipah.satay</span>
           </div>
         </div>
       </div>
@@ -151,11 +165,11 @@ export default function CustomerMenuPage() {
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold">
             {[
               { id: 'all', label: 'Semua Menu' },
-              { id: 'sate', label: '🍢 Sate Arang' },
-              { id: 'soto', label: '🍲 Soto Pulau Indah' },
-              { id: 'makanan_panas', label: '🍳 Mee & Bihun' },
-              { id: 'sarapan_kuih', label: '🍙 Nasi Lemak & Karipap' },
-              { id: 'minuman', label: '🥤 Air & Dessert' },
+              { id: 'sate', label: '🍢 Sate' },
+              { id: 'istimewa', label: '🍲 Istimewa (Sup & Mee)' },
+              { id: 'santai', label: '🍙 Santai & Bungkus' },
+              { id: 'karipap', label: '🥟 Karipap & Frozen' },
+              { id: 'minuman', label: '🥤 Minuman & LCK' },
             ].map((cat) => (
               <button
                 key={cat.id}
