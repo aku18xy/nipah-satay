@@ -168,19 +168,19 @@ export default function ProductionPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full sm:w-auto">
           <button
             onClick={() => setTransferModalOpen(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-orange-400 border border-orange-900/50 font-bold text-xs flex items-center gap-2 transition-all shadow-md"
+            className="w-full justify-center px-3.5 py-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-orange-400 border border-orange-900/50 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shadow-md active:scale-95"
           >
-            <ArrowRightLeft className="w-4 h-4" />
+            <ArrowRightLeft className="w-4 h-4 flex-shrink-0" />
             <span>Pindah ke Dapur Bakar</span>
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-stone-950 font-extrabold text-xs flex items-center gap-2 transition-all shadow-lg shadow-amber-950/50"
+            className="w-full justify-center px-4 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-stone-950 font-extrabold text-xs sm:text-sm flex items-center gap-2 transition-all shadow-lg shadow-amber-950/50 active:scale-95"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 flex-shrink-0" />
             <span>Kemasukan Daging Baru</span>
           </button>
         </div>
@@ -227,8 +227,8 @@ export default function ProductionPage() {
 
       {/* Main Grid: Meat Yield Intake vs Worker Piece-Rate Log */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (7 cols): Meat Intake & Yield Table */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* Left Column (7 cols): Meat Intake & Yield Table (order-2 on mobile so worker form is first) */}
+        <div className="lg:col-span-7 space-y-4 order-2 lg:order-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Scale className="w-5 h-5 text-amber-400" />
@@ -294,8 +294,8 @@ export default function ProductionPage() {
           </div>
         </div>
 
-        {/* Right Column (5 cols): Worker Piece-Rate Payroll & Output */}
-        <div className="lg:col-span-5 space-y-4">
+        {/* Right Column (5 cols): Worker Piece-Rate Payroll & Output (order-1 on mobile for instant visibility) */}
+        <div className="lg:col-span-5 space-y-4 order-1 lg:order-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="p-2 rounded-xl bg-orange-600/20 text-orange-400">

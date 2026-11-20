@@ -15,7 +15,6 @@ import {
   Menu as MenuIcon, 
   X,
   ExternalLink,
-  Eye,
   Glasses
 } from 'lucide-react';
 import { useSeniorMode } from './SeniorModeContext';
@@ -53,24 +52,25 @@ export default function NavigationHeader() {
 
   return (
     <header className="sticky top-0 z-50 bg-[#121110]/95 backdrop-blur-md border-b border-orange-950/40 text-stone-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo & Outlet Location */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-orange-950/60 group-hover:scale-105 transition-transform">
-              <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-white animate-pulse" />
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md shadow-orange-950/60 group-hover:scale-105 transition-transform flex-shrink-0">
+              <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-pulse" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-orange-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-sm sm:text-base tracking-tight bg-gradient-to-r from-orange-400 via-amber-300 to-amber-500 bg-clip-text text-transparent truncate">
                   NIPAH SATAY™
                 </span>
-                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange-950/80 text-orange-400 border border-orange-800/40">
+                <span className="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange-950/80 text-orange-400 border border-orange-800/40">
                   Operasi
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-stone-400 font-medium">
-                Pulau Indah, Klang • Kilang & Restoran
+              <p className="text-[10px] sm:text-xs text-stone-400 font-medium truncate">
+                <span className="sm:hidden">Pulau Indah, Klang</span>
+                <span className="hidden sm:inline">Pulau Indah, Klang • Kilang & Restoran</span>
               </p>
             </div>
           </Link>
@@ -102,64 +102,53 @@ export default function NavigationHeader() {
             })}
           </nav>
 
-          {/* Status & Quick Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Senior Mode Toggle Button (Tulisan Besar) */}
+          {/* Right Mobile Status & Quick Actions */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+            {/* Senior Mode Toggle (Tulisan Besar) */}
             <button
               onClick={toggleSeniorMode}
-              className={`flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold border transition-all ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold border transition-all active:scale-95 ${
                 isSeniorMode
-                  ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-md shadow-amber-950/50 scale-105'
-                  : 'bg-stone-900 text-stone-300 border-stone-700 hover:text-white hover:border-orange-500'
+                  ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-md font-black'
+                  : 'bg-stone-900 text-stone-300 border-stone-800 hover:text-white hover:border-orange-500'
               }`}
-              title="Tukar antara mod biasa dan mod tulisan besar/mudah baca untuk warga emas"
+              title="Tukar Mod Warga Emas (A+)"
             >
-              <Glasses className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
-              <span className="hidden sm:inline">
-                {isSeniorMode ? 'Tulisan Besar (Aktif)' : 'Mod Jelas (A+)'}
-              </span>
-              <span className="sm:hidden font-mono text-xs font-black">
+              <Glasses className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isSeniorMode ? 'text-stone-950 font-black' : 'text-amber-400'}`} />
+              <span className="font-mono text-[11px] sm:text-xs">
                 {isSeniorMode ? 'A++' : 'A+'}
               </span>
             </button>
 
-            {/* Pulau Indah Connectivity Status */}
+            {/* Pulau Indah Connectivity Indicator */}
             <div
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold border ${
+              className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] sm:text-xs font-bold border ${
                 isOnline
                   ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/40'
                   : 'bg-amber-950/50 text-amber-300 border-amber-800/50 animate-pulse'
               }`}
+              title={isOnline ? 'Online' : 'Offline'}
             >
-              {isOnline ? (
-                <>
-                  <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="hidden md:inline">Online</span>
-                </>
-              ) : (
-                <>
-                  <WifiOff className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="font-semibold">Mod Offline</span>
-                </>
-              )}
+              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
             </div>
 
-            {/* Link to POS */}
+            {/* Quick POS link on desktop */}
             <Link
               href="/pos"
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs sm:text-sm font-black shadow-md shadow-orange-950/50 transition-all hover:scale-[1.02]"
+              className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-sm transition-all"
             >
-              <Store className="w-4 h-4" />
-              <span>POS Meja</span>
+              <Store className="w-3.5 h-3.5" />
+              <span>POS</span>
             </Link>
 
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-200 hover:text-white"
+              className="xl:hidden p-1.5 sm:p-2 rounded-lg bg-stone-900 border border-stone-800 text-stone-200 hover:text-white active:scale-90"
               aria-label="Menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -167,7 +156,7 @@ export default function NavigationHeader() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-[#121110] border-b border-orange-950/60 px-4 pt-2 pb-4 space-y-1.5">
+        <div className="xl:hidden bg-[#121110] border-b border-orange-950/60 px-3 pt-2 pb-4 space-y-1">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
@@ -176,18 +165,18 @@ export default function NavigationHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-base font-bold ${
+                className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold ${
                   isActive
                     ? 'bg-orange-600/25 text-orange-400 border border-orange-500/40'
                     : 'text-stone-200 hover:bg-stone-800/50'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className="w-5 h-5 text-orange-400" />
+                  <Icon className="w-4 h-4 text-orange-400" />
                   <span>{link.label}</span>
                 </div>
                 {link.badge && (
-                  <span className="text-xs bg-stone-800 text-stone-300 px-2 py-0.5 rounded font-mono">
+                  <span className="text-[10px] bg-stone-800 text-stone-300 px-1.5 py-0.5 rounded font-mono">
                     {link.badge}
                   </span>
                 )}

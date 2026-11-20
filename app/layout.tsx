@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import NavigationHeader from '@/components/NavigationHeader';
+import BottomNav from '@/components/BottomNav';
 import { SeniorModeProvider } from '@/components/SeniorModeContext';
 
 export const metadata: Metadata = {
@@ -36,12 +37,13 @@ export default function RootLayout({
       <body className="min-h-screen bg-[#0c0a09] text-stone-100 flex flex-col antialiased selection:bg-orange-600 selection:text-white">
         <SeniorModeProvider>
           <NavigationHeader />
-          <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4">
+          <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-6 pb-24 md:pb-8">
             {children}
           </main>
+          <BottomNav />
         </SeniorModeProvider>
         
-        {/* PWA Service Worker Registration Script */}
+        {/* PWA Service Worker Registration Script with Auto-Update Check */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

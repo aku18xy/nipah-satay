@@ -1,5 +1,5 @@
-// Nipah Satay Service Worker for Offline PWA Resilience
-const CACHE_NAME = 'nipah-satay-v2';
+// Nipah Satay Service Worker for Offline PWA Resilience (v4 - Network First)
+const CACHE_NAME = 'nipah-satay-v4';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
@@ -26,6 +26,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('SW: Purging old cache', key);
             return caches.delete(key);
           }
         })
@@ -36,26 +37,40 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Stale-while-revalidate for network resilience
-  if (event.request.method === 'GET') {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+
+  // Network-First for HTML navigation and Next.js build chunks
+  // Ensures mobile users always see updated UI instantly on reload
+  if (event.request.mode === 'navigate' || url.pathname.startsWith('/_next/')) {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        const fetchPromise = fetch(event.request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              const responseToCache = networkResponse.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-            }
-            return networkResponse;
-          })
-          .catch(() => {
-            // Offline fallback
-            return cachedResponse;
-          });
-        return cachedResponse || fetchPromise;
-      })
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
     );
+    return;
   }
+
+  // Cache-first with background revalidation for static assets
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
+
+      return cachedResponse || fetchPromise;
+    })
+  );
 });
