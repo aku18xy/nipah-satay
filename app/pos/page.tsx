@@ -118,7 +118,7 @@ export default function PosPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-[calc(100vh-6rem)]">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pb-20 lg:pb-0">
       {/* Left Area (7 cols): Menu Catalogue & Filter */}
       <div className="lg:col-span-7 flex flex-col space-y-4">
         {/* Category Pill Filters & Search */}
@@ -169,7 +169,7 @@ export default function PosPage() {
         </div>
 
         {/* Product Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-[calc(100vh-14rem)] pr-1">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 overflow-y-auto lg:max-h-[calc(100vh-13rem)] pr-1 pb-24 lg:pb-0">
           {filteredMenu.map((item) => {
             const inCart = cart.find((i) => i.itemId === item.id);
             const isSatay = item.category === 'sate';
@@ -178,12 +178,12 @@ export default function PosPage() {
               <div
                 key={item.id}
                 onClick={() => addToCart(item, isSatay ? 5 : 1)}
-                className={`group relative bg-stone-900 border rounded-xl overflow-hidden cursor-pointer select-none transition-all flex flex-col justify-between hover:border-orange-500/80 hover:shadow-lg hover:shadow-orange-950/40 ${
-                  inCart ? 'border-orange-500 ring-1 ring-orange-500/40' : 'border-stone-800'
+                className={`group relative bg-stone-900 border rounded-2xl overflow-hidden cursor-pointer select-none transition-all flex flex-col justify-between hover:border-orange-500/80 hover:shadow-lg hover:shadow-orange-950/40 min-h-[185px] sm:min-h-[220px] ${
+                  inCart ? 'border-orange-500 ring-2 ring-orange-500/50 shadow-md' : 'border-stone-800'
                 }`}
               >
                 {/* Photo & Badge */}
-                <div className="h-28 sm:h-32 w-full relative bg-stone-950 overflow-hidden">
+                <div className="h-24 sm:h-28 w-full relative bg-stone-950 overflow-hidden flex-shrink-0">
                   {item.image ? (
                     <Image
                       src={item.image}
@@ -192,11 +192,16 @@ export default function PosPage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-stone-600">
-                      <Flame className="w-8 h-8 opacity-30" />
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-900 via-stone-850 to-stone-950 p-2 text-center">
+                      <span className="text-2xl mb-0.5 select-none">
+                        {item.category === 'minuman' ? '🥤' : item.category === 'karipap' ? '🥟' : item.category === 'santai' ? '🍙' : '🍲'}
+                      </span>
+                      <span className="text-[11px] font-extrabold text-stone-200 line-clamp-1 max-w-full px-1">
+                        {item.name}
+                      </span>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none" />
                   
                   {/* Category Pill Tag */}
                   <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-900/90 text-stone-300 backdrop-blur-sm border border-stone-700/50">
@@ -212,18 +217,18 @@ export default function PosPage() {
                 </div>
 
                 {/* Details */}
-                <div className="p-2.5 flex-1 flex flex-col justify-between">
+                <div className="p-2 sm:p-2.5 flex-1 flex flex-col justify-between flex-shrink-0 min-h-[85px]">
                   <div>
                     <h3 className="font-bold text-xs sm:text-sm text-stone-100 group-hover:text-orange-400 line-clamp-1">
                       {item.name}
                     </h3>
-                    <p className="text-[11px] text-stone-400 line-clamp-1 mt-0.5">
+                    <p className="text-[10px] sm:text-[11px] text-stone-400 line-clamp-1 mt-0.5">
                       {item.description}
                     </p>
                   </div>
 
-                  <div className="mt-2.5 flex items-center justify-between pt-2 border-t border-stone-800/80">
-                    <span className="font-mono font-bold text-sm text-orange-400">
+                  <div className="mt-2 flex items-center justify-between pt-1.5 border-t border-stone-800/80">
+                    <span className="font-mono font-bold text-xs sm:text-sm text-orange-400">
                       RM {item.price.toFixed(2)}
                       <span className="text-[10px] text-stone-400 font-normal ml-0.5">/{item.unit}</span>
                     </span>
@@ -234,7 +239,7 @@ export default function PosPage() {
                         e.stopPropagation();
                         addToCart(item, isSatay ? 5 : 1);
                       }}
-                      className="p-1 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all"
+                      className="p-1 sm:p-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all active:scale-95 shadow-sm"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -247,7 +252,7 @@ export default function PosPage() {
       </div>
 
       {/* Right Area (5 cols): Active Cart & Checkout Panel */}
-      <div className="lg:col-span-5 bg-stone-900 border border-stone-800 rounded-xl flex flex-col justify-between overflow-hidden shadow-xl">
+      <div id="pos-cart-panel" className="lg:col-span-5 bg-stone-900 border border-stone-800 rounded-xl flex flex-col justify-between overflow-hidden shadow-xl scroll-mt-20">
         {/* Cart Header */}
         <div className="p-4 border-b border-stone-800 space-y-3">
           <div className="flex items-center justify-between">
@@ -415,6 +420,28 @@ export default function PosPage() {
           </button>
         </div>
       </div>
+
+      {/* Floating Cart Button for Mobile View */}
+      {cart.length > 0 && (
+        <div className="lg:hidden fixed bottom-16 left-3 right-3 z-40">
+          <button
+            onClick={() => {
+              const cartElem = document.getElementById('pos-cart-panel');
+              cartElem?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center justify-between font-black border border-orange-400 active:scale-95 animate-pulse"
+          >
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5" />
+              <span>{cart.reduce((a, b) => a + b.quantity, 0)} Item Dipilih</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-base font-extrabold">RM {subtotal.toFixed(2)}</span>
+              <span className="text-xs bg-black/30 px-2.5 py-1 rounded-xl">Troli Pesanan ↓</span>
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* Payment Modal */}
       {paymentModalOpen && (
