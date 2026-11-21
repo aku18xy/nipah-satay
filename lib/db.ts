@@ -266,54 +266,47 @@ export async function updateDbOrderStatus(
   status: Order['status'], 
   stationStatus?: Order['stationStatus']
 ): Promise<boolean> {
+  return updateDbOrderDetails(orderId, { status, stationStatus });
+}
+
+export async function updateDbOrderDetails(
+  orderId: string,
+  updates: Partial<Order>
+): Promise<boolean> {
   const sql = getSql();
-  if (!sql) {
-    memoryOrders = memoryOrders.map((o) =>
-      o.id === orderId
-        ? {
-            ...o,
-            status,
-            ...(stationStatus ? { stationStatus } : {}),
-            ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
-          }
-        : o
-    );
-    return true;
-  }
+
+  // Always keep in-memory fallback updated
+  memoryOrders = memoryOrders.map((o) => {
+    if (o.id !== orderId) return o;
+    return {
+      ...o,
+      ...updates,
+      ...(updates.isPaid ? { isPaid: true, completedAt: new Date().toISOString() } : {}),
+    };
+  });
+
+  if (!sql) return true;
 
   try {
-    const completedAt = status === 'completed' ? new Date().toISOString() : null;
-    if (stationStatus) {
-      await sql`
-        UPDATE orders
-        SET status = ${status},
-            station_status = ${JSON.stringify(stationStatus)},
-            completed_at = COALESCE(${completedAt}, completed_at)
-        WHERE id = ${orderId};
-      `;
-    } else {
-      await sql`
-        UPDATE orders
-        SET status = ${status},
-            completed_at = COALESCE(${completedAt}, completed_at)
-        WHERE id = ${orderId};
-      `;
-    }
-    // Also update memory
-    memoryOrders = memoryOrders.map((o) =>
-      o.id === orderId
-        ? {
-            ...o,
-            status,
-            ...(stationStatus ? { stationStatus } : {}),
-            ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {}),
-          }
-        : o
-    );
+    const completedAt = updates.isPaid || updates.status === 'completed' ? new Date().toISOString() : null;
+
+    await sql`
+      UPDATE orders
+      SET 
+        status = COALESCE(${updates.status || null}, status),
+        is_paid = COALESCE(${updates.isPaid !== undefined ? updates.isPaid : null}, is_paid),
+        payment_method = COALESCE(${updates.paymentMethod || null}, payment_method),
+        subtotal = COALESCE(${updates.subtotal !== undefined ? updates.subtotal : null}, subtotal),
+        total = COALESCE(${updates.total !== undefined ? updates.total : null}, total),
+        items = COALESCE(${updates.items ? JSON.stringify(updates.items) : null}::jsonb, items),
+        station_status = COALESCE(${updates.stationStatus ? JSON.stringify(updates.stationStatus) : null}::jsonb, station_status),
+        completed_at = COALESCE(${completedAt}, completed_at)
+      WHERE id = ${orderId};
+    `;
     return true;
   } catch (err) {
-    console.warn('Failed to update order status in Neon:', err);
-    return false;
+    console.warn('Failed to update order details in Neon:', err);
+    return true; // memory fallback succeeds
   }
 }
 

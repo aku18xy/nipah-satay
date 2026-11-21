@@ -245,9 +245,18 @@ export default function KitchenKdsPage() {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1 text-[11px] text-stone-400 font-mono">
-                      <Clock className="w-3.5 h-3.5 text-stone-400" />
-                      <span>{order.createdAt}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        order.isPaid
+                          ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800/60'
+                          : 'bg-amber-950/90 text-amber-300 border-amber-700/80 font-black'
+                      }`}>
+                        {order.isPaid ? 'Lunas' : 'Makan Dulu'}
+                      </span>
+                      <div className="flex items-center gap-1 text-[11px] text-stone-400 font-mono">
+                        <Clock className="w-3.5 h-3.5 text-stone-400" />
+                        <span>{order.createdAt}</span>
+                      </div>
                     </div>
                   </div>
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateDbOrderStatus } from '@/lib/db';
+import { updateDbOrderDetails } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,13 +10,12 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
-    const { status, stationStatus } = body;
 
-    const ok = await updateDbOrderStatus(id, status, stationStatus);
+    const ok = await updateDbOrderDetails(id, body);
     return NextResponse.json({ success: ok, orderId: id });
   } catch (error: any) {
     return NextResponse.json(
-      { error: 'Failed to update order status', detail: error.message },
+      { error: 'Failed to update order', detail: error.message },
       { status: 500 }
     );
   }
