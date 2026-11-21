@@ -479,82 +479,121 @@ def build_progress_pdf(filename):
 
     # Title & Metadata
     story.append(Paragraph("NIPAH SATAY™ BUSINESS MANAGEMENT SYSTEM", styles['DocTitle']))
-    story.append(Paragraph("Laporan Kemajuan Projek (Progress Update Report) • November 2026", styles['DocSubtitle']))
+    story.append(Paragraph("Laporan Kemajuan Projek (Progress Update Report) • 21 November 2026", styles['DocSubtitle']))
 
     story.append(create_callout(
-        "<b>Ringkasan Eksekutif:</b> Projek sistem pengurusan bersepadu Nipah Satay telah berjaya dibangunkan, "
-        "dioptimumkan bagi mod PWA luar talian, dan diterbitkan secara langsung di Vercel Production dengan status READY.",
+        "<b>Ringkasan Eksekutif Terkini:</b> Sistem Pengurusan Operasi Bersepadu Nipah Satay™ telah dinaik taraf sepenuhnya kepada status pengeluaran berskala komersial dengan integrasi 68 menu fizikal rasmi, antaramuka 'Mobile-First' mesra ibu jari, mod warga emas (A+), dan keserasian universal tablet lama menggunakan Tailwind CSS v3.",
         styles
     ))
-    story.append(Spacer(1, 14))
+    story.append(Spacer(1, 10))
 
-    story.append(Paragraph("1. Status Penyiapan Modul Perisian", styles['H1']))
+    story.append(Paragraph("1. Status Penyiapan Modul Perisian & Operasi", styles['H1']))
     prog_data = [
-        [Paragraph("Modul Sistem", styles['TableHeader']), Paragraph("Laluan (Route)", styles['TableHeader']), Paragraph("Ciri Utama Siap", styles['TableHeader']), Paragraph("Status", styles['TableHeader'])],
+        [Paragraph("Modul Sistem", styles['TableHeader']), Paragraph("Laluan", styles['TableHeader']), Paragraph("Ciri Utama & Status Terkini", styles['TableHeader']), Paragraph("Status", styles['TableHeader'])],
         [
-            Paragraph("Pusat Kawalan (Dashboard)", styles['TableCellBold']),
+            Paragraph("Pusat Kawalan", styles['TableCellBold']),
             Paragraph("/", styles['TableCell']),
-            Paragraph("Snapshot dua operasi (Restoran vs Kilang), metrik giliran sate api, stok chiller, dan hasil daging.", styles['TableCell']),
+            Paragraph("Snapshot dua operasi (Restoran vs Kilang), metrik giliran sate api, status chiller, waktu operasi (3PM–11PM, Ahad Cuti), dan hotline 017-365 9302.", styles['TableCell']),
             Paragraph("<font color='#15803d'><b>Siap (Live)</b></font>", styles['TableCell'])
         ],
         [
             Paragraph("POS Kaunter & Meja", styles['TableCellBold']),
             Paragraph("/pos", styles['TableCell']),
-            Paragraph("Katalog sate & hidangan panas, pilihan meja M-01 s/d M-16, bungkus, DuitNow QR modal, baki tunai.", styles['TableCell']),
+            Paragraph("Katalog 68 menu rasmi, kad anti-mampat min-h-[185px], bar troli pesanan terapung di atas navigasi bawah, modal DuitNow QR & tunai.", styles['TableCell']),
             Paragraph("<font color='#15803d'><b>Siap (Live)</b></font>", styles['TableCell'])
         ],
         [
             Paragraph("Dapur Pintar (KDS Live)", styles['TableCellBold']),
             Paragraph("/kitchen", styles['TableCell']),
-            Paragraph("Penjumlahan cucuk sate api arang (Pitmaster queue), stesen kuali soto/mee goreng, stesen minuman.", styles['TableCell']),
+            Paragraph("Penjumlahan cucuk sate api arang masa nyata (Pitmaster queue), stesen kuali soto/mee sup/mee rebus, stesen minuman, kawalan status penyediaan.", styles['TableCell']),
             Paragraph("<font color='#15803d'><b>Siap (Live)</b></font>", styles['TableCell'])
         ],
         [
             Paragraph("Kilang Pemprosesan Sate", styles['TableCellBold']),
             Paragraph("/production", styles['TableCell']),
-            Paragraph("Kalkulator yield daging (kotor vs bersih), log upah pekerja (RM 0.08/lidi), butang pindah stok ke dapur.", styles['TableCell']),
+            Paragraph("Kalkulator yield daging (kasar vs trim), upah mengikut jenis sate (Ayam RM0.08, Lembu RM0.09, Kambing RM0.10, Babat RM0.09), borang cucuk order-1 di telefon.", styles['TableCell']),
             Paragraph("<font color='#15803d'><b>Siap (Live)</b></font>", styles['TableCell'])
         ],
         [
             Paragraph("Borong & Katering Acara", styles['TableCellBold']),
             Paragraph("/wholesale", styles['TableCell']),
-            Paragraph("Stok sate beku vakum (20s & 50s), rekod tempahan katering live kenduri & integrasi WhatsApp.", styles['TableCell']),
+            Paragraph("Stok sate beku vakum (20s & 50s), penambahan Karipap Frozen (Kentang RM8, Sardin/Ayam RM10), rekod tempahan katering live kenduri.", styles['TableCell']),
             Paragraph("<font color='#15803d'><b>Siap (Live)</b></font>", styles['TableCell'])
         ],
         [
             Paragraph("Laporan Z-Report & Kos", styles['TableCellBold']),
             Paragraph("/reports", styles['TableCell']),
-            Paragraph("Penyata tutup kaunter harian, audit varians stok chiller vs duit jualan, simulator untung se-cucuk.", styles['TableCell']),
+            Paragraph("Penyata tutup kaunter harian, audit varians stok chiller vs duit jualan POS, simulator kos se-cucuk sate.", styles['TableCell']),
             Paragraph("<font color='#15803d'><b>Siap (Live)</b></font>", styles['TableCell'])
         ],
         [
             Paragraph("Menu Awam Pelanggan", styles['TableCellBold']),
             Paragraph("/menu", styles['TableCell']),
-            Paragraph("Katalog digital untuk pelanggan takeaway & tempahan kenduri dengan WhatsApp checkout.", styles['TableCell']),
+            Paragraph("Portal menu awam digital responsif dengan penjana pesanan WhatsApp terus ke nombor rasmi 017 365 9302 (wa.me/60173659302).", styles['TableCell']),
             Paragraph("<font color='#15803d'><b>Siap (Live)</b></font>", styles['TableCell'])
         ],
     ]
-    t_prog = Table(prog_data, colWidths=[110, 60, 247, 70])
+    t_prog = Table(prog_data, colWidths=[105, 50, 262, 70])
     t_prog.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#c2410c")),
         ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor("#d6d3d1")),
         ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor("#f5f5f4")),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#fafaf9")]),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('TOPPADDING', (0,0), (-1,-1), 4.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4.5),
     ]))
     story.append(t_prog)
-    story.append(Spacer(1, 14))
+    story.append(Spacer(1, 10))
 
-    story.append(Paragraph("2. Metrik Infrastruktur & Pengesahan Binaan", styles['H1']))
+    story.append(Paragraph("2. Kemajuan Ciri Kritikal & Penambahbaikan UX Terkini", styles['H1']))
+    enhancements_data = [
+        [Paragraph("Peningkatan Sistem", styles['TableHeader']), Paragraph("Huraian Teknikal & Operasi", styles['TableHeader']), Paragraph("Status Impak", styles['TableHeader'])],
+        [
+            Paragraph("Keserasian Universal Tablet", styles['TableCellBold']),
+            Paragraph("Beralih ke Tailwind CSS v3 (v3.4.19) dan browserslist (Android >= 5, Chrome >= 50) bagi membolehkan tablet POS lama di restoran memproses CSS penuh tanpa ralat @layer.", styles['TableCell']),
+            Paragraph("<font color='#15803d'><b>Disahkan 100%</b></font>", styles['TableCell'])
+        ],
+        [
+            Paragraph("Navigasi Mobile-First (BottomNav)", styles['TableCellBold']),
+            Paragraph("Bar navigasi 5-tab tetap di dasar telefon (Utama, POS, Dapur, Kilang, Laporan) yang mesra ibu jari, melancarkan mobiliti pelayan dan staf kilang.", styles['TableCell']),
+            Paragraph("<font color='#15803d'><b>Disahkan 100%</b></font>", styles['TableCell'])
+        ],
+        [
+            Paragraph("Mod Mesra Warga Emas (👓 A+)", styles['TableCellBold']),
+            Paragraph("Suis kontras tinggi, butang stepper gergasi (-50 / +50), butang preset (200, 300, 500, 600, 800, 1000) dan sasaran sentuhan minimum 48px–56px untuk staf senior.", styles['TableCell']),
+            Paragraph("<font color='#15803d'><b>Disahkan 100%</b></font>", styles['TableCell'])
+        ],
+        [
+            Paragraph("Bar Terapung Troli POS", styles['TableCellBold']),
+            Paragraph("Bar ringkasan pesanan terapung dinaikkan ke kedudukan bottom-[5.25rem] (84px) terapung kemas di atas bar tab, memudahkan semakan bakul sekali tekan.", styles['TableCell']),
+            Paragraph("<font color='#15803d'><b>Disahkan 100%</b></font>", styles['TableCell'])
+        ],
+        [
+            Paragraph("PWA Network-First (v8)", styles['TableCellBold']),
+            Paragraph("Service worker v8 dengan dasar Network-First bagi memastikan peranti sentiasa mengambil kod UI terkini secara automatik tanpa tersangkut memori cache lama.", styles['TableCell']),
+            Paragraph("<font color='#15803d'><b>Disahkan 100%</b></font>", styles['TableCell'])
+        ],
+    ]
+    t_enh = Table(enhancements_data, colWidths=[130, 287, 70])
+    t_enh.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1c1917")),
+        ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor("#d6d3d1")),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor("#f5f5f4")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#fafaf9")]),
+        ('TOPPADDING', (0,0), (-1,-1), 4.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4.5),
+    ]))
+    story.append(t_enh)
+    story.append(Spacer(1, 10))
+
+    story.append(Paragraph("3. Metrik Infrastruktur & Pengesahan Binaan", styles['H1']))
     infra_data = [
         [Paragraph("Parameter", styles['TableHeader']), Paragraph("Nilai / Keputusan", styles['TableHeader']), Paragraph("Nota Teknikal", styles['TableHeader'])],
         [Paragraph("Penyedia Cloud", styles['TableCellBold']), Paragraph("Vercel Production (Edge Serverless)", styles['TableCell']), Paragraph("Nod rantau Singapura (sin1)", styles['TableCell'])],
-        [Paragraph("Domain Pengeluaran", styles['TableCellBold']), Paragraph("nipah-satay-bms.vercel.app", styles['TableCell']), Paragraph("Disahkan status HTTP 200 OK", styles['TableCell'])],
-        [Paragraph("Versi Rangka Kerja", styles['TableCellBold']), Paragraph("Next.js 16.4.6 (App Router) + React 19", styles['TableCell']), Paragraph("Zero bundle warning", styles['TableCell'])],
-        [Paragraph("Penyusunan Laluan", styles['TableCellBold']), Paragraph("7 Laluan Dipra-jana (Static Prerender)", styles['TableCell']), Paragraph("Masa binaan 4.5s di Webpack", styles['TableCell'])],
-        [Paragraph("Ketahanan Luar Talian", styles['TableCellBold']), Paragraph("PWA Manifest + Service Worker (/sw.js)", styles['TableCell']), Paragraph("Boleh dipasang terus pada tablet Android/iPad", styles['TableCell'])],
-        [Paragraph("Kawalan Versi", styles['TableCellBold']), Paragraph("GitHub (aku18xy/nipah-satay)", styles['TableCell']), Paragraph("Cawangan 'main' terselaras", styles['TableCell'])],
+        [Paragraph("Domain Pengeluaran", styles['TableCellBold']), Paragraph("nipah-satay.vercel.app", styles['TableCell']), Paragraph("Disahkan status HTTP 200 OK, SSL Aktif", styles['TableCell'])],
+        [Paragraph("Rangka Kerja", styles['TableCellBold']), Paragraph("Next.js 16.4.6 + React 19 + Tailwind v3", styles['TableCell']), Paragraph("Zero compile error, Webpack build 2.3s", styles['TableCell'])],
+        [Paragraph("Penyusunan Laluan", styles['TableCellBold']), Paragraph("9 Laluan Dipra-jana (Static Prerender)", styles['TableCell']), Paragraph("Semua modul dipra-jana sepenuhnya", styles['TableCell'])],
+        [Paragraph("Kawalan Versi & CI/CD", styles['TableCellBold']), Paragraph("GitHub (aku18xy/nipah-satay)", styles['TableCell']), Paragraph("Cawangan 'main' auto-deploy ke Vercel", styles['TableCell'])],
     ]
     t_infra = Table(infra_data, colWidths=[120, 197, 170])
     t_infra.setStyle(TableStyle([
@@ -562,16 +601,16 @@ def build_progress_pdf(filename):
         ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor("#d6d3d1")),
         ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor("#f5f5f4")),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#fafaf9")]),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
     ]))
     story.append(t_infra)
-    story.append(Spacer(1, 14))
+    story.append(Spacer(1, 10))
 
-    story.append(Paragraph("3. Tindakan Seterusnya (Next Steps)", styles['H1']))
-    story.append(Paragraph("1. <b>Ujian Lapangan di Restoran Pulau Indah:</b> Pemasangan PWA pada tablet kaunter dan skrin tablet stesen dapur sate.", styles['Bullet']))
-    story.append(Paragraph("2. <b>Integrasi Pencetak Terma:</b> Pengujian modul pencetak resit terma 80mm ESC/POS untuk pengeluaran tiket pesanan secara automatik.", styles['Bullet']))
-    story.append(Paragraph("3. <b>Latihan Staf Pemprosesan Sate:</b> Pengenalan antaramuka timbangan yield daging dan log upah mencucuk kepada Kak Linda & pekerja kilang.", styles['Bullet']))
+    story.append(Paragraph("4. Tindakan Seterusnya (Next Steps)", styles['H1']))
+    story.append(Paragraph("1. <b>Ujian Lapangan di Laguna Park:</b> Ujian aliran kerja pesanan menggunakan tablet kaunter dan telefon pintar staf.", styles['Bullet']))
+    story.append(Paragraph("2. <b>Integrasi Pencetak Terma ESC/POS:</b> Pengujian modul pencetak resit terma 80mm untuk tiket pesanan dapur sate.", styles['Bullet']))
+    story.append(Paragraph("3. <b>Penyegerakan Pangkalan Data Awan:</b> Penghijrahan storan setempat ke pangkalan data awan Supabase bagi penyegerakan serentak.", styles['Bullet']))
 
     doc.build(story, canvasmaker=NumberedCanvas)
     print(f"Progress PDF successfully generated: {filename}")

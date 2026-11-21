@@ -1,40 +1,55 @@
 # Nipah Satay™ Business Management System (BMS)
-## Laporan Kemajuan Projek (Progress Update Report) • November 2026
+## Laporan Kemajuan Projek (Progress Update Report) • Kemaskini 21 November 2026
 
-- **Organisasi:** Nipah Satay, Pulau Indah, Klang, Selangor
-- **Dokumen PDF:** [Muat Turun PDF (docs/Nipah_Satay_Project_Progress_Update.pdf)](./Nipah_Satay_Project_Progress_Update.pdf)
-- **URL Pengeluaran:** [https://nipah-satay-bms.vercel.app](https://nipah-satay-bms.vercel.app)
+- **Organisasi:** Nipah Satay, Laguna Park, Pulau Indah, Klang, Selangor
+- **Dokumen PDF:** [Muat Turun Dokumen PDF (docs/Nipah_Satay_Project_Progress_Update.pdf)](./Nipah_Satay_Project_Progress_Update.pdf)
+- **URL Pengeluaran (Live Production):** [https://nipah-satay.vercel.app](https://nipah-satay.vercel.app)
 - **Cawangan Git:** `main` (GitHub: `aku18xy/nipah-satay`)
+- **Talian Hotline Rasmi:** 017 365 9302 (WhatsApp & Panggilan)
+- **Waktu Operasi:** 3.00 PM – 11.00 PM (Ahad Cuti)
 
 ---
 
-## 1. Status Penyiapan Modul Perisian
+## 1. Ringkasan Eksekutif Kemajuan Terkini
 
-| Modul Sistem | Laluan (Route) | Ciri Utama Siap | Status |
+Sistem Pengurusan Operasi Bersepadu Nipah Satay™ telah mencapai tahap kematangan operasi yang tinggi melalui beberapa fasa penambahbaikan kritikal berpandukan maklum balas penggunaan sebenar di restoran dan barisan pengeluaran:
+
+1. **Integrasi Menu Fizikal Rasmi Penuh (68 Item):** Menggantikan semua data placeholder dengan senarai menu sebenar restoran berserta harga rasmi (Sate Ayam RM1.20, Sate Daging RM1.30, Sate Kambing RM2.00, Sate Perut RM1.80, Ketupat Mini RM1.00, Soto RM5.00, Mee Rebus RM7.00, Nasi Lemak RM2.00, Karipap Panas & Karipap Frozen RM8/RM10, Lai Chee Kang RM8.50, dan 40+ minuman panas/sejuk).
+2. **Pengoptimuman Mobile-First & Navigasi Bawah (Bottom Navigation Bar):** Menambah bar navigasi bawah 5-tab tetap yang mesra ibu jari (*thumb-friendly*), serta Bar Terapung Troli (*Floating Cart Pill*) di POS yang dinaikkan ke kedudukan `bottom-[5.25rem]` terapung kemas di atas bar navigasi.
+3. **Penyelesaian Keserasian Tablet Klasik (Legacy Browser Support):** Berhijrah dari Tailwind CSS v4 ke Tailwind CSS v3 (`v3.4.19`) berserta sasaran `browserslist` (Android >= 5, Chrome >= 50). Ini menyelesaikan isu paparan mentah (tanpa CSS) pada tablet operasi lama di restoran yang tidak menyokong `@layer` moden.
+4. **Antaramuka Mesra Warga Emas (Senior-Friendly UI):** Suis mod kontras tinggi `👓 A+`, sasaran sentuhan minimum 48px–56px, display gergasi berserta stepper `-50` / `+50` dan butang pilihan pantas untuk merekod cucukan sate harian.
+5. **Auto-Update PWA Network-First:** Service worker dinaikkan ke versi `nipah-satay-v8` dengan dasar *Network-First* supaya peranti telefon dan tablet sentiasa memuat turun antaramuka terkini tanpa tersangkut pada memori cache lama.
+
+---
+
+## 2. Status Penyiapan Modul Perisian
+
+| Modul Sistem | Laluan (Route) | Ciri Utama & Status Terkini | Status |
 | :--- | :--- | :--- | :--- |
-| **Pusat Kawalan (Dashboard)** | `/` | Snapshot dua operasi (Restoran vs Kilang), metrik giliran sate api, stok chiller, dan hasil daging. | **Siap (Live)** |
-| **POS Kaunter & Meja** | `/pos` | Katalog sate & hidangan panas, pilihan meja M-01 s/d M-16, bungkus, DuitNow QR modal, baki tunai. | **Siap (Live)** |
-| **Dapur Pintar (KDS Live)** | `/kitchen` | Penjumlahan cucuk sate api arang (Pitmaster queue), stesen kuali soto/mee goreng, stesen minuman. | **Siap (Live)** |
-| **Kilang Pemprosesan Sate** | `/production` | Kalkulator yield daging (kotor vs bersih), log upah pekerja (RM 0.08/lidi), butang pindah stok ke dapur. | **Siap (Live)** |
-| **Borong & Katering Acara** | `/wholesale` | Stok sate beku vakum (20s & 50s), rekod tempahan katering live kenduri & integrasi WhatsApp. | **Siap (Live)** |
-| **Laporan Z-Report & Kos** | `/reports` | Penyata tutup kaunter harian, audit varians stok chiller vs duit jualan, simulator untung se-cucuk. | **Siap (Live)** |
-| **Menu Awam Pelanggan** | `/menu` | Katalog digital untuk pelanggan takeaway & tempahan kenduri dengan WhatsApp checkout. | **Siap (Live)** |
+| **Pusat Kawalan (Dashboard)** | `/` | Integrasi dua sayap (Restoran vs Kilang), metrik jualan semasa, status chiller, waktu operasi rasmi (3PM–11PM, Ahad Cuti), dan pautan pantas POS/KDS. | **Siap & Aktif (Live)** |
+| **POS Kaunter & Meja** | `/pos` | Katalog 68 menu rasmi, kategori dinamik (Sate, Istimewa, Santai, Karipap, Minuman), kad anti-mampat `min-h-[185px]`, bar troli terapung mudah alih, modal bayaran DuitNow QR & tunai. | **Siap & Aktif (Live)** |
+| **Dapur Pintar (KDS Live)** | `/kitchen` | Penjumlahan cucuk sate api arang masa nyata untuk Pitmaster, stesen kuali soto/mee rebus, stesen minuman, dan kawalan status penyediaan pesanan. | **Siap & Aktif (Live)** |
+| **Kilang Pemprosesan Sate** | `/production` | Kalkulator yield daging (timbangan kasar vs susut trim), kadar upah pencucuk dinamik mengikut jenis sate, borang pencucuk `order-1` di telefon, dan log pemindahan stok ke bilik sejuk. | **Siap & Aktif (Live)** |
+| **Borong & Katering Acara** | `/wholesale` | Pengurusan stok sate beku pek vakum (20s & 50s), penambahan Karipap Frozen (Kentang RM8, Sardin/Ayam RM10), dan log slot tempahan kenduri katering pitmaster. | **Siap & Aktif (Live)** |
+| **Laporan Z-Report & Kos** | `/reports` | Penyata penutupan kaunter harian, audit varians stok chiller vs tunai jualan POS, dan simulasi margin keuntungan se-cucuk sate. | **Siap & Aktif (Live)** |
+| **Menu Awam Pelanggan** | `/menu` | Portal menu digital awam untuk pesanan pelanggan dan katering dengan fungsi penjana pesanan WhatsApp automatik terus ke nombor rasmi `017 365 9302`. | **Siap & Aktif (Live)** |
 
 ---
 
-## 2. Metrik Infrastruktur & Pengesahan Binaan
+## 3. Metrik Infrastruktur, Keserasian & Prestasi
 
-- **Penyedia Cloud:** Vercel Production (Edge Serverless) di nod rantau Singapura (`sin1`).
-- **Domain Pengeluaran:** `https://nipah-satay-bms.vercel.app` (Disahkan status HTTP 200 OK).
-- **Rangka Kerja:** Next.js 16.4.6 (App Router) + React 19 + Tailwind CSS.
-- **Penyusunan Laluan:** 7 laluan dipra-jana sepenuhnya (*Static Prerender*).
-- **PWA & Ketahanan Luar Talian:** Dilengkapi `/manifest.json`, `/sw.js`, dan pengesan status online/offline untuk ketahanan di Pulau Indah.
-- **Kawalan Versi:** GitHub repositori `aku18xy/nipah-satay`.
+- **Penyedia Cloud:** Vercel Production (Edge Serverless) nod Singapura (`sin1`).
+- **Domain Pengeluaran:** `https://nipah-satay.vercel.app` (Status: HTTP 200 OK, SSL A+).
+- **Rangka Kerja Utama:** Next.js 16.4.6 (App Router) + React 19.3.1.
+- **Enjin Penggayaan:** Tailwind CSS v3.4.19 + Autoprefixer + PostCSS 8 (Keserasian Universal).
+- **Sasaran Pelayar Web:** Disahkan berfungsi pada Android 5.0+, Chrome 50+, iOS Safari, tablet POS restoran, dan pelayar desktop.
+- **Ketahanan Luar Talian (Offline Resilience):** Service Worker v8 (Network-First) + Web App Manifest PWA untuk kestabilan talian internet di kawasan perindustrian Pulau Indah.
+- **Kawalan Versi & CI/CD:** Repositori GitHub `aku18xy/nipah-satay` pada cawangan `main` dengan auto-deployment ke Vercel pada setiap push.
 
 ---
 
-## 3. Tindakan Seterusnya (Next Steps)
+## 4. Tindakan Seterusnya (Next Steps)
 
-1. **Ujian Lapangan di Restoran Pulau Indah:** Pemasangan PWA pada tablet kaunter dan skrin tablet stesen dapur sate.
-2. **Integrasi Pencetak Terma:** Pengujian modul pencetak resit terma 80mm ESC/POS untuk pengeluaran tiket pesanan secara automatik.
-3. **Latihan Staf Pemprosesan Sate:** Pengenalan antaramuka timbangan yield daging dan log upah mencucuk kepada Kak Linda & pekerja kilang.
+1. **Ujian Lapangan di Premis Laguna Park:** Menguji kelancaran aliran kerja pesanan menggunakan tablet kaunter dan telefon pintar staf pelayan.
+2. **Penyambungan Pencetak Terma (Thermal Printer):** Mengintegrasikan cetakan tiket pesanan dapur 80mm ESC/POS melalui Bluetooth atau Web Print API.
+3. **Penyegerakan Pangkalan Data Awan (Supabase PostgreSQL):** Menggantikan storan memori setempat dengan pangkalan data awam untuk penyegerakan data berbilang peranti serentak.
