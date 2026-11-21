@@ -18,7 +18,8 @@ Sistem Pengurusan Operasi Bersepadu Nipah Satay™ telah mencapai tahap kematang
 2. **Pengoptimuman Mobile-First & Navigasi Bawah (Bottom Navigation Bar):** Menambah bar navigasi bawah 5-tab tetap yang mesra ibu jari (*thumb-friendly*), serta Bar Terapung Troli (*Floating Cart Pill*) di POS yang dinaikkan ke kedudukan `bottom-[5.25rem]` terapung kemas di atas bar navigasi.
 3. **Penyelesaian Keserasian Tablet Klasik (Legacy Browser Support):** Berhijrah dari Tailwind CSS v4 ke Tailwind CSS v3 (`v3.4.19`) berserta sasaran `browserslist` (Android >= 5, Chrome >= 50). Ini menyelesaikan isu paparan mentah (tanpa CSS) pada tablet operasi lama di restoran yang tidak menyokong `@layer` moden.
 4. **Antaramuka Mesra Warga Emas (Senior-Friendly UI):** Suis mod kontras tinggi `👓 A+`, sasaran sentuhan minimum 48px–56px, display gergasi berserta stepper `-50` / `+50` dan butang pilihan pantas untuk merekod cucukan sate harian.
-5. **Auto-Update PWA Network-First:** Service worker dinaikkan ke versi `nipah-satay-v8` dengan dasar *Network-First* supaya peranti telefon dan tablet sentiasa memuat turun antaramuka terkini tanpa tersangkut pada memori cache lama.
+5. **Penyepaduan Pangkalan Data Awan (Neon PostgreSQL di Vercel Storage):** Pangkalan data SQL awan serverless diintegrasikan sepenuhnya menggunakan `@neondatabase/serverless` dengan sokongan jadual `orders`, `meat_intake`, `worker_skewer_logs`, dan `chiller_inventory`. Sistem dilengkapi penyesuaian auto-migrasi, laluan API REST (`/api/orders`, `/api/orders/[id]`, `/api/production`, `/api/db/status`), penyegerakan berterusan Dapur KDS (auto-poll 4 saat), dan seni bina sandaran luar talian (*graceful offline fallback*).
+6. **Auto-Update PWA Network-First:** Service worker dinaikkan ke versi `nipah-satay-v8` dengan dasar *Network-First* supaya peranti telefon dan tablet sentiasa memuat turun antaramuka terkini tanpa tersangkut pada memori cache lama.
 
 ---
 
@@ -50,6 +51,6 @@ Sistem Pengurusan Operasi Bersepadu Nipah Satay™ telah mencapai tahap kematang
 
 ## 4. Tindakan Seterusnya (Next Steps)
 
-1. **Ujian Lapangan di Premis Laguna Park:** Menguji kelancaran aliran kerja pesanan menggunakan tablet kaunter dan telefon pintar staf pelayan.
+1. **Ujian Lapangan di Premis Laguna Park:** Menguji kelancaran aliran kerja pesanan menggunakan tablet kaunter dan telefon pintar staf pelayan secara langsung dengan Neon PostgreSQL.
 2. **Penyambungan Pencetak Terma (Thermal Printer):** Mengintegrasikan cetakan tiket pesanan dapur 80mm ESC/POS melalui Bluetooth atau Web Print API.
-3. **Penyegerakan Pangkalan Data Awan (Supabase PostgreSQL):** Menggantikan storan memori setempat dengan pangkalan data awam untuk penyegerakan data berbilang peranti serentak.
+3. **Penyegerakan Webhook / SMS / WhatsApp Notifikasi:** Notifikasi automatik kepada pelanggan apabila pesanan sate siap dibakar di pit arang.

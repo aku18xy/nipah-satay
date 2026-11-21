@@ -19,6 +19,7 @@
   "author": "nbef",
   "license": "MIT",
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.1",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "lucide-react": "^1.73.0",

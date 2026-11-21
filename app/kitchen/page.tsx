@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Flame, 
   CookingPot, 
@@ -10,7 +10,8 @@ import {
   Volume2, 
   RotateCcw,
   Coffee,
-  Check
+  Check,
+  Database
 } from 'lucide-react';
 import { INITIAL_ORDERS } from '@/lib/data';
 import { Order } from '@/lib/types';
@@ -18,6 +19,30 @@ import { Order } from '@/lib/types';
 export default function KitchenKdsPage() {
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [activeStation, setActiveStation] = useState<'all' | 'grill' | 'wok' | 'prep_bar'>('all');
+  const [isDbLive, setIsDbLive] = useState(false);
+  const [lastSynced, setLastSynced] = useState<string>('');
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      const res = await fetch('/api/orders', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.orders)) {
+          setOrders(data.orders);
+        }
+        setIsDbLive(Boolean(data.isDbConnected));
+        setLastSynced(new Date().toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      }
+    } catch (e) {
+      // Keep displaying current orders on network hiccup
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 4000);
+    return () => clearInterval(interval);
+  }, [fetchOrders]);
 
   // Skewer aggregator for the Grill Master
   const skewerSummary = orders.reduce((acc, order) => {
@@ -33,43 +58,69 @@ export default function KitchenKdsPage() {
   const totalGrillSticks = Object.values(skewerSummary).reduce((a, b) => a + b, 0);
 
   // Status transitions
-  const advanceStationStatus = (orderId: string, station: 'grill' | 'wok' | 'prep_bar') => {
+  const advanceStationStatus = async (orderId: string, station: 'grill' | 'wok' | 'prep_bar') => {
+    const targetOrder = orders.find((o) => o.id === orderId);
+    if (!targetOrder) return;
+
+    const current = targetOrder.stationStatus[station];
+    let next: 'pending' | 'grilling' | 'cooking' | 'ready' | 'done' = 'done';
+
+    if (station === 'grill') {
+      next = current === 'pending' ? 'grilling' : 'done';
+    } else if (station === 'wok') {
+      next = current === 'pending' ? 'cooking' : 'done';
+    } else {
+      next = current === 'pending' ? 'ready' : 'done';
+    }
+
+    const updatedStationStatus = {
+      ...targetOrder.stationStatus,
+      [station]: next,
+    };
+
+    const allDone = Object.values(updatedStationStatus).every((st) => st === 'done');
+    const newStatus: Order['status'] = allDone ? 'ready' : 'cooking';
+
+    // Optimistic UI update
     setOrders((prev) =>
-      prev.map((order) => {
-        if (order.id !== orderId) return order;
-
-        const current = order.stationStatus[station];
-        let next: 'pending' | 'grilling' | 'cooking' | 'ready' | 'done' = 'done';
-
-        if (station === 'grill') {
-          next = current === 'pending' ? 'grilling' : 'done';
-        } else if (station === 'wok') {
-          next = current === 'pending' ? 'cooking' : 'done';
-        } else {
-          next = current === 'pending' ? 'ready' : 'done';
-        }
-
-        const updatedStationStatus = {
-          ...order.stationStatus,
-          [station]: next,
-        };
-
-        // If all stations done, mark order ready
-        const allDone = Object.values(updatedStationStatus).every((st) => st === 'done');
-
-        return {
-          ...order,
-          stationStatus: updatedStationStatus,
-          status: allDone ? 'ready' : 'cooking',
-        };
-      })
+      prev.map((order) =>
+        order.id === orderId
+          ? { ...order, stationStatus: updatedStationStatus, status: newStatus }
+          : order
+      )
     );
+
+    // Persist to Neon DB API
+    try {
+      await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: newStatus,
+          stationStatus: updatedStationStatus,
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to sync station status:', e);
+    }
   };
 
-  const markOrderCompleted = (orderId: string) => {
+  const markOrderCompleted = async (orderId: string) => {
+    // Optimistic UI update
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: 'completed' } : o))
     );
+
+    // Persist to Neon DB API
+    try {
+      await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'completed' }),
+      });
+    } catch (e) {
+      console.error('Failed to mark order completed:', e);
+    }
   };
 
   return (
@@ -82,6 +133,11 @@ export default function KitchenKdsPage() {
             <span className="flex h-2.5 w-2.5 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-800 flex items-center gap-1">
+              <Database className="w-3 h-3" />
+              {isDbLive ? 'Neon Postgres Live' : 'Live Sync'}
+              {lastSynced && <span className="opacity-70 font-mono text-[9px]">• {lastSynced}</span>}
             </span>
           </div>
           <p className="text-xs text-stone-400 mt-0.5">

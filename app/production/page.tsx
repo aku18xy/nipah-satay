@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Factory, 
   Scale, 
@@ -13,7 +13,8 @@ import {
   ShieldCheck, 
   Sparkles,
   Calculator,
-  Calendar
+  Calendar,
+  Database
 } from 'lucide-react';
 import { INITIAL_MEAT_INTAKE, INITIAL_SKEWER_LOGS, INITIAL_STORAGE } from '@/lib/data';
 import { MeatIntakeRecord, SkeweringWorkerLog, ColdStorageInventory } from '@/lib/types';
@@ -22,6 +23,25 @@ export default function ProductionPage() {
   const [intakeRecords, setIntakeRecords] = useState<MeatIntakeRecord[]>(INITIAL_MEAT_INTAKE);
   const [skewerLogs, setSkewerLogs] = useState<SkeweringWorkerLog[]>(INITIAL_SKEWER_LOGS);
   const [storage, setStorage] = useState<ColdStorageInventory>(INITIAL_STORAGE);
+  const [isDbLive, setIsDbLive] = useState(false);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/production', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.intakeRecords) setIntakeRecords(data.intakeRecords);
+          if (data.skewerLogs) setSkewerLogs(data.skewerLogs);
+          if (data.storage) setStorage(data.storage);
+          setIsDbLive(Boolean(data.isDbConnected));
+        }
+      } catch (err) {
+        // Fallback to local state
+      }
+    }
+    loadData();
+  }, []);
 
   // Modal / Form state for new Meat Intake
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,6 +108,16 @@ export default function ProductionPage() {
 
     setIntakeRecords([newRecord, ...intakeRecords]);
     setIsModalOpen(false);
+
+    try {
+      fetch('/api/production', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'intake', data: newRecord }),
+      });
+    } catch (e) {
+      console.error('Failed to save intake record:', e);
+    }
   };
 
   const handleAddSkewerLog = (e: React.FormEvent) => {
@@ -109,6 +139,16 @@ export default function ProductionPage() {
     setWorkerSaveSuccess(true);
     setTimeout(() => setWorkerSaveSuccess(false), 3500);
 
+    try {
+      fetch('/api/production', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'skewer_log', data: newLog }),
+      });
+    } catch (e) {
+      console.error('Failed to save skewer log:', e);
+    }
+
     // update corresponding chiller stock
     setStorage((prev) => {
       const added = Number(sticksCut);
@@ -125,21 +165,37 @@ export default function ProductionPage() {
       } else if (workerMeatType === 'Sate Perut') {
         updated.perutRawChiller = prev.perutRawChiller + added;
       }
+
+      fetch('/api/production', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'storage', data: updated }),
+      }).catch(console.error);
+
       return updated;
     });
   };
 
   const handleTransferToKitchen = () => {
     setStorage((prev) => {
+      let updated: ColdStorageInventory;
       if (transferMeat === 'ayam') {
-        return { ...prev, ayamRawChiller: Math.max(0, prev.ayamRawChiller - transferAmount) };
+        updated = { ...prev, ayamRawChiller: Math.max(0, prev.ayamRawChiller - transferAmount) };
       } else if (transferMeat === 'daging') {
-        return { ...prev, dagingRawChiller: Math.max(0, prev.dagingRawChiller - transferAmount) };
+        updated = { ...prev, dagingRawChiller: Math.max(0, prev.dagingRawChiller - transferAmount) };
       } else if (transferMeat === 'kambing') {
-        return { ...prev, kambingRawChiller: Math.max(0, prev.kambingRawChiller - transferAmount) };
+        updated = { ...prev, kambingRawChiller: Math.max(0, prev.kambingRawChiller - transferAmount) };
       } else {
-        return { ...prev, perutRawChiller: Math.max(0, prev.perutRawChiller - transferAmount) };
+        updated = { ...prev, perutRawChiller: Math.max(0, prev.perutRawChiller - transferAmount) };
       }
+
+      fetch('/api/production', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'storage', data: updated }),
+      }).catch(console.error);
+
+      return updated;
     });
 
     setTransferSuccess(true);
@@ -159,6 +215,10 @@ export default function ProductionPage() {
               Kilang Sate Sebelah Restoran
             </span>
             <span className="text-xs text-stone-400 font-mono">Bilik Suhu Terkawal & HACCP</span>
+            <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-800 flex items-center gap-1">
+              <Database className="w-3 h-3" />
+              {isDbLive ? 'Neon Postgres Live' : 'Live Sync'}
+            </span>
           </div>
           <h1 className="text-2xl font-extrabold text-white">
             Pengurusan Barisan Pengeluaran Sate (Factory Line)

@@ -108,8 +108,39 @@ export default function PosPage() {
     setPaymentModalOpen(true);
   };
 
-  const completePayment = () => {
+  const completePayment = async () => {
     setPaymentSuccess(true);
+    try {
+      const newOrder = {
+        id: `ord-${Date.now()}`,
+        orderNumber: `#NS-${Math.floor(1000 + Math.random() * 9000)}`,
+        type: orderType,
+        tableNumber: orderType === 'dine_in' ? tableNumber : undefined,
+        customerName: customerName.trim() || (orderType === 'dine_in' ? `Meja ${tableNumber}` : 'Bungkus Walk-in'),
+        items: cart,
+        status: 'pending',
+        stationStatus: {
+          grill: cart.some(i => i.station === 'grill') ? 'pending' : 'done',
+          wok: cart.some(i => i.station === 'wok') ? 'pending' : 'done',
+          prep_bar: cart.some(i => i.station === 'prep_bar') ? 'pending' : 'done',
+        },
+        paymentMethod,
+        isPaid: true,
+        subtotal,
+        discount: 0,
+        total: subtotal,
+        createdAt: new Date().toISOString(),
+      };
+
+      await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOrder),
+      });
+    } catch (e) {
+      console.error('Failed to submit order to API:', e);
+    }
+
     setTimeout(() => {
       setPaymentSuccess(false);
       setPaymentModalOpen(false);
