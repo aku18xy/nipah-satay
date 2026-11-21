@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { 
   Flame, 
@@ -17,15 +17,90 @@ import {
   ShoppingBag,
   RotateCcw,
   Search,
-  CheckCircle2
+  CheckCircle2,
+  SlidersHorizontal,
+  Grid
 } from 'lucide-react';
 import { INITIAL_MENU_ITEMS, INITIAL_ORDERS } from '@/lib/data';
 import { MenuItem, Category, OrderItem } from '@/lib/types';
+
+// Helper pemetaan ikon khas mengikut menu Nipah Satay (seperti lakaran)
+function getItemDisplayIcon(item: MenuItem): { emoji: string; accentColor: string } {
+  const name = item.name.toLowerCase();
+  
+  if (name.includes('ayam')) {
+    return { emoji: '🐔', accentColor: 'text-amber-400' };
+  }
+  if (name.includes('daging') || name.includes('lembu')) {
+    return { emoji: '🥩', accentColor: 'text-red-400' };
+  }
+  if (name.includes('kambing')) {
+    return { emoji: '🐐', accentColor: 'text-orange-400' };
+  }
+  if (name.includes('perut') || name.includes('babat')) {
+    return { emoji: '🍢', accentColor: 'text-yellow-400' };
+  }
+  if (name.includes('ketupat')) {
+    return { emoji: '🍙', accentColor: 'text-emerald-400' };
+  }
+  if (name.includes('soto') || name.includes('sup')) {
+    return { emoji: '🍲', accentColor: 'text-amber-400' };
+  }
+  if (name.includes('mee') || name.includes('mihun') || name.includes('bihun')) {
+    return { emoji: '🍜', accentColor: 'text-yellow-400' };
+  }
+  if (name.includes('nasi lemak') || name.includes('set santai')) {
+    return { emoji: '🍛', accentColor: 'text-emerald-400' };
+  }
+  if (name.includes('karipap')) {
+    return { emoji: '🥟', accentColor: 'text-amber-400' };
+  }
+  if (name.includes('lai chee kang') || name.includes('lck')) {
+    return { emoji: '🍧', accentColor: 'text-rose-400' };
+  }
+  if (name.includes('teh')) {
+    return { emoji: '🫖', accentColor: 'text-amber-400' };
+  }
+  if (name.includes('kopi') || name.includes('nescafe')) {
+    return { emoji: '☕', accentColor: 'text-amber-600' };
+  }
+  if (name.includes('milo') || name.includes('horlicks') || name.includes('neslo')) {
+    return { emoji: '🍫', accentColor: 'text-amber-500' };
+  }
+  if (name.includes('limau') || name.includes('lemon')) {
+    return { emoji: '🍋', accentColor: 'text-yellow-400' };
+  }
+  if (name.includes('laici')) {
+    return { emoji: '🍒', accentColor: 'text-pink-400' };
+  }
+  if (name.includes('barli')) {
+    return { emoji: '🌾', accentColor: 'text-amber-300' };
+  }
+  if (name.includes('sirap')) {
+    return { emoji: '🧃', accentColor: 'text-rose-400' };
+  }
+  if (name.includes('coke') || name.includes('100 plus') || name.includes('soya')) {
+    return { emoji: '🥫', accentColor: 'text-blue-400' };
+  }
+  if (name.includes('ais') || name.includes('mineral')) {
+    return { emoji: '🧊', accentColor: 'text-cyan-400' };
+  }
+  if (item.category === 'minuman') {
+    return { emoji: '🥤', accentColor: 'text-sky-400' };
+  }
+  return { emoji: '🍢', accentColor: 'text-orange-400' };
+}
 
 export default function PosPage() {
   const [menu] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Kawalan Saiz Ikon & Teks Boleh Ubah (Minima 3 sebaris melintang)
+  const [columnsCount, setColumnsCount] = useState<3 | 4>(3); // 3 sebaris (minima) atau 4 sebaris
+  const [iconSize, setIconSize] = useState<'sm' | 'md' | 'lg'>('md'); // Saiz kotak ikon
+  const [textSize, setTextSize] = useState<'sm' | 'md' | 'lg'>('md'); // Saiz teks nama & harga
+  const [cardDisplayType, setCardDisplayType] = useState<'icon' | 'photo'>('icon'); // Lakaran Ikon vs Foto
   
   // Cart state
   const [cart, setCart] = useState<OrderItem[]>([]);
@@ -39,6 +114,37 @@ export default function PosPage() {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'duitnow_qr' | 'card'>('duitnow_qr');
   const [cashTendered, setCashTendered] = useState<number>(0);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  // Muat tetapan saiz dari localStorage
+  useEffect(() => {
+    try {
+      const savedCols = localStorage.getItem('pos_cols');
+      if (savedCols === '3' || savedCols === '4') setColumnsCount(Number(savedCols) as 3 | 4);
+      const savedIcon = localStorage.getItem('pos_icon_size');
+      if (savedIcon === 'sm' || savedIcon === 'md' || savedIcon === 'lg') setIconSize(savedIcon);
+      const savedText = localStorage.getItem('pos_text_size');
+      if (savedText === 'sm' || savedText === 'md' || savedText === 'lg') setTextSize(savedText);
+      const savedType = localStorage.getItem('pos_card_type');
+      if (savedType === 'icon' || savedType === 'photo') setCardDisplayType(savedType);
+    } catch (e) {}
+  }, []);
+
+  const handleSetColumns = (val: 3 | 4) => {
+    setColumnsCount(val);
+    try { localStorage.setItem('pos_cols', String(val)); } catch (e) {}
+  };
+  const handleSetIconSize = (val: 'sm' | 'md' | 'lg') => {
+    setIconSize(val);
+    try { localStorage.setItem('pos_icon_size', val); } catch (e) {}
+  };
+  const handleSetTextSize = (val: 'sm' | 'md' | 'lg') => {
+    setTextSize(val);
+    try { localStorage.setItem('pos_text_size', val); } catch (e) {}
+  };
+  const handleSetCardType = (val: 'icon' | 'photo') => {
+    setCardDisplayType(val);
+    try { localStorage.setItem('pos_card_type', val); } catch (e) {}
+  };
 
   // Filtered menu
   const filteredMenu = menu.filter((item) => {
@@ -197,25 +303,163 @@ export default function PosPage() {
               </button>
             ))}
           </div>
+
+          {/* Bar Pelaras Saiz & Susunan Grid (Boleh Ubah Minima 3 Sebaris) */}
+          <div className="bg-stone-950/80 border border-stone-800/80 rounded-xl p-2 sm:p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+            {/* Pilihan Kolum (Minima 3 Sebaris Melintang) */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-stone-400 text-[10px] font-bold uppercase tracking-wider">Susunan:</span>
+              <div className="flex items-center bg-stone-900 p-0.5 rounded-lg border border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => handleSetColumns(3)}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all ${
+                    columnsCount === 3
+                      ? 'bg-orange-600 text-white shadow-sm'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
+                  title="Papar Minima 3 Ikon Sebaris Melintang"
+                >
+                  3 Sebaris
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSetColumns(4)}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all ${
+                    columnsCount === 4
+                      ? 'bg-orange-600 text-white shadow-sm'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
+                  title="Papar 4 Ikon Sebaris Melintang (Kompak)"
+                >
+                  4 Sebaris
+                </button>
+              </div>
+            </div>
+
+            {/* Pilihan Saiz Ikon (sm / md / lg) */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-stone-400 text-[10px] font-bold uppercase tracking-wider">Saiz Ikon:</span>
+              <div className="flex items-center bg-stone-900 p-0.5 rounded-lg border border-stone-800">
+                {(['sm', 'md', 'lg'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => handleSetIconSize(sz)}
+                    className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
+                      iconSize === sz
+                        ? 'bg-amber-600 text-white shadow-sm'
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    {sz === 'sm' ? 'Kecil' : sz === 'md' ? 'Sedang' : 'Besar'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Pilihan Saiz Teks (sm / md / lg) */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-stone-400 text-[10px] font-bold uppercase tracking-wider">Saiz Teks:</span>
+              <div className="flex items-center bg-stone-900 p-0.5 rounded-lg border border-stone-800">
+                {(['sm', 'md', 'lg'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => handleSetTextSize(sz)}
+                    className={`px-2 py-1 rounded-md text-[10px] font-black transition-all ${
+                      textSize === sz
+                        ? 'bg-amber-500 text-stone-950 shadow-sm'
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    {sz === 'sm' ? 'A-' : sz === 'md' ? 'A' : 'A+'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Pilihan Mod Paparan: Ikon vs Foto */}
+            <div className="flex items-center bg-stone-900 p-0.5 rounded-lg border border-stone-800">
+              <button
+                type="button"
+                onClick={() => handleSetCardType('icon')}
+                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
+                  cardDisplayType === 'icon'
+                    ? 'bg-orange-600 text-white shadow-sm'
+                    : 'text-stone-400 hover:text-white'
+                }`}
+                title="Paparan Ikon Bersih Mengikut Lakaran"
+              >
+                🎨 Ikon
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetCardType('photo')}
+                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
+                  cardDisplayType === 'photo'
+                    ? 'bg-orange-600 text-white shadow-sm'
+                    : 'text-stone-400 hover:text-white'
+                }`}
+                title="Paparan Foto Sebenar"
+              >
+                📷 Foto
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Product Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 overflow-y-auto lg:max-h-[calc(100vh-13rem)] pr-1 pb-32 lg:pb-0">
+        {/* Product Cards Grid (Minima 3 Sebaris Melintang & Format Lakaran: [Icon Box] + [Name]) */}
+        <div
+          className={`${
+            columnsCount === 3
+              ? 'grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-2.5'
+              : 'grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 sm:gap-2'
+          } overflow-y-auto lg:max-h-[calc(100vh-14rem)] pr-1 pb-32 lg:pb-0`}
+        >
           {filteredMenu.map((item) => {
             const inCart = cart.find((i) => i.itemId === item.id);
             const isSatay = item.category === 'sate';
+            const displayIcon = getItemDisplayIcon(item);
+
+            // Kelas dinamik saiz kotak ikon
+            const iconBoxClass = {
+              sm: 'h-14 sm:h-16 text-2xl sm:text-3xl',
+              md: 'h-18 sm:h-20 text-3xl sm:text-4xl',
+              lg: 'h-24 sm:h-26 text-4xl sm:text-5xl',
+            }[iconSize];
+
+            // Kelas dinamik saiz teks nama
+            const titleTextClass = {
+              sm: 'text-[11px] sm:text-xs leading-tight font-black',
+              md: 'text-xs sm:text-sm leading-snug font-black',
+              lg: 'text-sm sm:text-base leading-snug font-black',
+            }[textSize];
+
+            // Kelas dinamik saiz harga
+            const priceTextClass = {
+              sm: 'text-[10px] sm:text-xs font-bold',
+              md: 'text-xs sm:text-sm font-extrabold',
+              lg: 'text-sm sm:text-base font-extrabold',
+            }[textSize];
 
             return (
               <div
                 key={item.id}
                 onClick={() => addToCart(item, isSatay ? 5 : 1)}
-                className={`group relative bg-stone-900 border rounded-2xl overflow-hidden cursor-pointer select-none transition-all flex flex-col justify-between hover:border-orange-500/80 hover:shadow-lg hover:shadow-orange-950/40 min-h-[185px] sm:min-h-[220px] ${
-                  inCart ? 'border-orange-500 ring-2 ring-orange-500/50 shadow-md' : 'border-stone-800'
+                className={`group relative bg-stone-900 border rounded-2xl p-2 sm:p-2.5 cursor-pointer select-none transition-all flex flex-col justify-between hover:border-orange-500 hover:shadow-lg hover:shadow-orange-950/40 active:scale-95 ${
+                  inCart ? 'border-orange-500 ring-2 ring-orange-500/60 shadow-md bg-stone-900/90' : 'border-stone-800'
                 }`}
               >
-                {/* Photo & Badge */}
-                <div className="h-24 sm:h-28 w-full relative bg-stone-950 overflow-hidden flex-shrink-0">
-                  {item.image ? (
+                {/* 1. ATAS: Kotak Berbingkai Ikon / Gambar (Format Lakaran Pengguna) */}
+                <div
+                  className={`w-full ${iconBoxClass} rounded-xl border-2 flex items-center justify-center relative overflow-hidden transition-all ${
+                    inCart
+                      ? 'border-orange-500 bg-orange-950/20'
+                      : 'border-stone-700/80 bg-stone-950/90 group-hover:border-stone-500'
+                  }`}
+                >
+                  {cardDisplayType === 'photo' && item.image ? (
                     <Image
                       src={item.image}
                       alt={item.name}
@@ -223,57 +467,68 @@ export default function PosPage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-900 via-stone-850 to-stone-950 p-2 text-center">
-                      <span className="text-2xl mb-0.5 select-none">
-                        {item.category === 'minuman' ? '🥤' : item.category === 'karipap' ? '🥟' : item.category === 'santai' ? '🍙' : '🍲'}
-                      </span>
-                      <span className="text-[11px] font-extrabold text-stone-200 line-clamp-1 max-w-full px-1">
-                        {item.name}
+                    <div className="flex flex-col items-center justify-center select-none">
+                      <span className="filter drop-shadow-md transform group-hover:scale-110 transition-transform">
+                        {displayIcon.emoji}
                       </span>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none" />
-                  
-                  {/* Category Pill Tag */}
-                  <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-900/90 text-stone-300 backdrop-blur-sm border border-stone-700/50">
-                    {item.station === 'grill' ? '🔥 Panggangan' : item.station === 'wok' ? '🍳 Wok' : '🥤 Bar/Prep'}
-                  </span>
 
-                  {/* Selected count badge */}
+                  {/* Lencana Bilangan Dipilih di Bucu Kotak */}
                   {inCart && (
-                    <span className="absolute top-2 right-2 text-xs font-black px-2 py-0.5 rounded-full bg-orange-600 text-white shadow-md animate-pulse">
+                    <span className="absolute top-1 right-1 text-[10px] sm:text-xs font-black px-1.5 py-0.5 rounded-md bg-orange-600 text-white shadow-md animate-pulse border border-orange-400">
                       {inCart.quantity}x
                     </span>
                   )}
+
+                  {/* Simbol Stesen di Bucu Bawah Kiri */}
+                  <span className="absolute bottom-1 left-1 text-[8px] font-bold px-1 rounded bg-stone-950/80 text-stone-400 border border-stone-800">
+                    {item.station === 'grill' ? '🔥' : item.station === 'wok' ? '🍳' : '🥤'}
+                  </span>
                 </div>
 
-                {/* Details */}
-                <div className="p-2 sm:p-2.5 flex-1 flex flex-col justify-between flex-shrink-0 min-h-[85px]">
-                  <div>
-                    <h3 className="font-bold text-xs sm:text-sm text-stone-100 group-hover:text-orange-400 line-clamp-1">
-                      {item.name}
-                    </h3>
-                    <p className="text-[10px] sm:text-[11px] text-stone-400 line-clamp-1 mt-0.5">
-                      {item.description}
-                    </p>
-                  </div>
+                {/* 2. BAWAH: Nama Menu (Format Lakaran: 'Satay ayam' + Harga) */}
+                <div className="mt-1.5 flex-1 flex flex-col justify-between text-center">
+                  <h3 className={`${titleTextClass} text-stone-100 group-hover:text-orange-400 line-clamp-2`}>
+                    {item.name}
+                  </h3>
 
-                  <div className="mt-2 flex items-center justify-between pt-1.5 border-t border-stone-800/80">
-                    <span className="font-mono font-bold text-xs sm:text-sm text-orange-400">
+                  {/* Harga & Kawalan Kuantiti Pantas */}
+                  <div className="mt-1 pt-1 border-t border-stone-800/80 flex flex-col items-center">
+                    <span className={`font-mono ${priceTextClass} text-orange-400`}>
                       RM {item.price.toFixed(2)}
-                      <span className="text-[10px] text-stone-400 font-normal ml-0.5">/{item.unit}</span>
                     </span>
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(item, isSatay ? 5 : 1);
-                      }}
-                      className="p-1 sm:p-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all active:scale-95 shadow-sm"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
+                    {inCart ? (
+                      <div
+                        className="flex items-center justify-between w-full mt-1 bg-orange-950/80 border border-orange-600/70 rounded-lg p-0.5 text-xs font-bold"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.id, isSatay ? -5 : -1)}
+                          className="w-5 h-5 flex items-center justify-center rounded bg-stone-900 text-orange-400 hover:bg-orange-600 hover:text-white"
+                          title="Tolak kuantiti"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono font-black text-[11px] text-white">
+                          {inCart.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => addToCart(item, isSatay ? 5 : 1)}
+                          className="w-5 h-5 flex items-center justify-center rounded bg-orange-600 text-white hover:bg-orange-500"
+                          title="Tambah kuantiti"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-[9px] text-stone-400 font-medium mt-0.5">
+                        /{item.unit}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
