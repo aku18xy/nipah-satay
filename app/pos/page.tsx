@@ -79,6 +79,7 @@ export default function PosPage() {
   
   // Navigasi POS Dipermudahkan: 'tables' (Page 1) vs 'menu' (Page 2)
   const [posView, setPosView] = useState<'tables' | 'menu'>('tables');
+  const [tableFilterTab, setTableFilterTab] = useState<'all' | 'tables' | 'takeaway'>('all');
 
   // Tetapan Diperbaharui: 4 Sebaris, Ikon Sederhana, Font Besar
   const [columnsCount, setColumnsCount] = useState<3 | 4>(4); // Lalai: 4 sebaris
@@ -86,9 +87,10 @@ export default function PosPage() {
   const [textSize, setTextSize] = useState<'sm' | 'md' | 'lg'>('lg'); // Lalai: Font Besar
   const [showSettingsDrawer, setShowSettingsDrawer] = useState(false);
   
-  // Pilihan Meja & Troli
+  // Pilihan Meja, Bungkus & Troli
   const [orderType, setOrderType] = useState<'dine_in' | 'takeaway'>('dine_in');
   const [tableNumber, setTableNumber] = useState('M-01');
+  const [selectedTakeawayOrder, setSelectedTakeawayOrder] = useState<Order | null>(null);
   const [customerName, setCustomerName] = useState('');
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [liveOrders, setLiveOrders] = useState<Order[]>(INITIAL_ORDERS);
@@ -215,19 +217,33 @@ export default function PosPage() {
 
   // Navigasi: Pilih Meja -> Masuk ke Menu
   const handleSelectTableAndNavigate = (tblId: string) => {
+    setSelectedTakeawayOrder(null);
     setOrderType('dine_in');
     setTableNumber(tblId);
     setCart([]);
+    setCustomerName('');
     setPosView('menu');
   };
 
+  // Navigasi: Buka Menu Bungkus Baru
   const handleSelectTakeawayAndNavigate = () => {
+    setSelectedTakeawayOrder(null);
     setOrderType('takeaway');
+    setCart([]);
+    setCustomerName('');
+    setPosView('menu');
+  };
+
+  // Navigasi: Tambah Menu ke Pesanan Bungkus Sedia Ada
+  const handleSelectExistingTakeawayAndNavigate = (ord: Order) => {
+    setSelectedTakeawayOrder(ord);
+    setOrderType('takeaway');
+    setCustomerName(ord.customerName || '');
     setCart([]);
     setPosView('menu');
   };
 
-  // 1. MAKAN DULU: Hantar Pesanan Baru Meja ke Dapur
+  // 1. MAKAN DULU / BUNGKUS: Hantar Pesanan Baru ke Dapur
   const handleSendToKitchen = async () => {
     if (cart.length === 0) return;
 
@@ -249,7 +265,7 @@ export default function PosPage() {
           prep_bar: cart.some((i) => i.station === 'prep_bar') ? 'pending' : 'done',
         },
         paymentMethod: 'online_unpaid',
-        isPaid: false, // MAKAN DULU!
+        isPaid: false, // MAKAN DULU / BAYAR BILA AMBIL!
         subtotal,
         discount: 0,
         total: subtotal,
@@ -268,7 +284,7 @@ export default function PosPage() {
       showToast(
         orderType === 'dine_in'
           ? `🍽️ Pesanan Meja ${tableNumber} dihantar ke Dapur! Sedia makan dulu.`
-          : `🛍️ Pesanan bungkus dihantar ke dapur!`
+          : `🛍️ Pesanan bungkus (${newOrder.orderNumber}) dihantar ke Dapur! Boleh dibayar bila siap/ambil.`
       );
       // Kembali ke skrin pilihan meja untuk layan pelanggan seterusnya
       setPosView('tables');
@@ -278,12 +294,13 @@ export default function PosPage() {
     }
   };
 
-  // 2. TAMBAH PESANAN: Tambah Makanan Semasa Sedang Makan
+  // 2. TAMBAH PESANAN: Tambah Makanan Semasa Sedang Makan / Bungkus
   const handleAppendOrder = async () => {
-    if (!activeTableOrder || cart.length === 0) return;
+    const targetOrder = orderType === 'dine_in' ? activeTableOrder : selectedTakeawayOrder;
+    if (!targetOrder || cart.length === 0) return;
 
     try {
-      const mergedItems = [...activeTableOrder.items];
+      const mergedItems = [...targetOrder.items];
       for (const newItem of cart) {
         const existing = mergedItems.find((i) => i.itemId === newItem.itemId);
         if (existing) {
@@ -295,12 +312,12 @@ export default function PosPage() {
 
       const newSubtotal = mergedItems.reduce((acc, i) => acc + i.price * i.quantity, 0);
 
-      const newStationStatus = { ...activeTableOrder.stationStatus };
+      const newStationStatus = { ...targetOrder.stationStatus };
       if (cart.some((i) => i.station === 'grill')) newStationStatus.grill = 'pending';
       if (cart.some((i) => i.station === 'wok')) newStationStatus.wok = 'pending';
       if (cart.some((i) => i.station === 'prep_bar')) newStationStatus.prep_bar = 'pending';
 
-      await fetch(`/api/orders/${activeTableOrder.id}`, {
+      await fetch(`/api/orders/${targetOrder.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -314,7 +331,7 @@ export default function PosPage() {
 
       setLiveOrders((prev) =>
         prev.map((o) =>
-          o.id === activeTableOrder.id
+          o.id === targetOrder.id
             ? { ...o, items: mergedItems, subtotal: newSubtotal, total: newSubtotal, stationStatus: newStationStatus, status: 'cooking' }
             : o
         )
@@ -322,43 +339,105 @@ export default function PosPage() {
 
       clearCart();
       setCartModalOpen(false);
-      showToast(`➕ Pesanan tambahan Meja ${tableNumber} dihantar ke Dapur!`);
-      // Kembali ke skrin meja
+      setSelectedTakeawayOrder(null);
+      showToast(
+        orderType === 'dine_in'
+          ? `➕ Pesanan tambahan Meja ${tableNumber} dihantar ke Dapur!`
+          : `➕ Pesanan tambahan Bungkus (${targetOrder.orderNumber}) dihantar ke Dapur!`
+      );
       setPosView('tables');
     } catch (e) {
-      showToast('Gagal menambah pesanan meja');
+      showToast('Gagal menambah pesanan');
     }
   };
 
-  // 3. BAYAR KEMUDIAN: Buka Modal Kira Bil Meja
+  // 3. BAYAR TERUS DI KAUNTER (Untuk Pesanan Bungkus Baru)
+  const handlePayNowDirectly = () => {
+    if (cart.length === 0) return;
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+
+    const tempOrder: Order = {
+      id: `ord-${Date.now()}`,
+      orderNumber: `#NS-${Math.floor(1000 + Math.random() * 9000)}`,
+      type: 'takeaway',
+      customerName: customerName.trim() || 'Bungkus Walk-in',
+      items: cart,
+      status: 'cooking',
+      stationStatus: {
+        grill: cart.some((i) => i.station === 'grill') ? 'pending' : 'done',
+        wok: cart.some((i) => i.station === 'wok') ? 'pending' : 'done',
+        prep_bar: cart.some((i) => i.station === 'prep_bar') ? 'pending' : 'done',
+      },
+      paymentMethod: 'cash',
+      isPaid: false,
+      subtotal,
+      discount: 0,
+      total: subtotal,
+      createdAt: timeStr,
+    };
+
+    setSettlingOrder(tempOrder);
+    setCashTendered(Math.ceil(subtotal / 5) * 5);
+    setPaymentModalOpen(true);
+  };
+
+  // 4. BUKA MODAL KIRA BIL (Meja Makan Dulu atau Bungkus Belum Bayar)
   const handleOpenSettleModal = (orderToSettle: Order) => {
     setSettlingOrder(orderToSettle);
     setCashTendered(Math.ceil(orderToSettle.total / 5) * 5);
     setPaymentModalOpen(true);
   };
 
+  // 5. SAHKAN BAYARAN & SELESAIKAN BIL
   const handleConfirmSettlement = async () => {
     if (!settlingOrder) return;
     setPaymentSuccess(true);
 
     try {
-      await fetch(`/api/orders/${settlingOrder.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const isNewUnsavedOrder = !liveOrders.some((o) => o.id === settlingOrder.id);
+      
+      if (isNewUnsavedOrder) {
+        // Pesanan Bungkus baru yang dibayar terus
+        const finalOrder: Order = {
+          ...settlingOrder,
           isPaid: true,
-          status: 'completed',
+          status: 'cooking',
           paymentMethod,
-        }),
-      });
+        };
+        await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(finalOrder),
+        });
+        setLiveOrders((prev) => [finalOrder, ...prev]);
+        clearCart();
+        setCartModalOpen(false);
+      } else {
+        // Pesanan sedia ada (Meja Makan Dulu atau Bungkus)
+        await fetch(`/api/orders/${settlingOrder.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isPaid: true,
+            status: settlingOrder.type === 'dine_in' ? 'completed' : settlingOrder.status,
+            paymentMethod,
+          }),
+        });
 
-      setLiveOrders((prev) =>
-        prev.map((o) =>
-          o.id === settlingOrder.id
-            ? { ...o, isPaid: true, status: 'completed', paymentMethod }
-            : o
-        )
-      );
+        setLiveOrders((prev) =>
+          prev.map((o) =>
+            o.id === settlingOrder.id
+              ? {
+                  ...o,
+                  isPaid: true,
+                  status: settlingOrder.type === 'dine_in' ? 'completed' : o.status,
+                  paymentMethod,
+                }
+              : o
+          )
+        );
+      }
     } catch (e) {
       console.error('Failed to settle payment:', e);
     }
@@ -366,11 +445,34 @@ export default function PosPage() {
     setTimeout(() => {
       setPaymentSuccess(false);
       setPaymentModalOpen(false);
-      const tblName = settlingOrder.tableNumber ? `Meja ${settlingOrder.tableNumber}` : 'Pesanan';
-      showToast(`✅ Bayaran ${tblName} (RM ${settlingOrder.total.toFixed(2)}) selesai! Meja kini kosong.`);
+      const title = settlingOrder.tableNumber
+        ? `Meja ${settlingOrder.tableNumber}`
+        : `${settlingOrder.customerName || 'Pesanan Bungkus'} (${settlingOrder.orderNumber})`;
+      showToast(`✅ Bayaran ${title} (RM ${settlingOrder.total.toFixed(2)}) selesai!`);
       setSettlingOrder(null);
       setPosView('tables');
     }, 1500);
+  };
+
+  // 6. SERAH MAKANAN BUNGKUS KEPADA PELANGGAN (ARKIBKAN)
+  const handleCompleteTakeawayHandover = async (ord: Order) => {
+    try {
+      await fetch(`/api/orders/${ord.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'completed',
+        }),
+      });
+
+      setLiveOrders((prev) =>
+        prev.map((o) => (o.id === ord.id ? { ...o, status: 'completed' } : o))
+      );
+
+      showToast(`📦 Pesanan Bungkus ${ord.orderNumber} telah diserahkan & selesai!`);
+    } catch (e) {
+      showToast('Gagal mengemas kini status');
+    }
   };
 
   return (
@@ -398,13 +500,13 @@ export default function PosPage() {
                 </h1>
               </div>
               <p className="text-xs sm:text-sm text-stone-300 mt-1">
-                Konsep: <strong className="text-amber-400">Makan Dulu, Bayar Kemudian</strong>. Pilih meja untuk ambil pesanan baru atau selesaikan bayaran bil.
+                Konsep: <strong className="text-amber-400">Makan Dulu, Bayar Kemudian</strong>. Pilih meja atau urus pesanan bungkus yang sedang aktif.
               </p>
             </div>
 
-            {/* Statistik Meja */}
-            <div className="flex items-center gap-3">
-              <div className="bg-stone-950 border border-stone-800 px-3.5 py-2 rounded-xl text-center">
+            {/* Statistik Meja & Bungkus */}
+            <div className="flex items-center gap-2.5 sm:gap-3 overflow-x-auto pb-1 sm:pb-0">
+              <div className="bg-stone-950 border border-stone-800 px-3 py-2 rounded-xl text-center min-w-[70px]">
                 <span className="text-[10px] text-stone-400 uppercase font-bold block">Meja Kosong</span>
                 <span className="text-lg font-black text-emerald-400">
                   {RESTAURANT_TABLES.filter(
@@ -412,143 +514,315 @@ export default function PosPage() {
                   ).length}
                 </span>
               </div>
-              <div className="bg-stone-950 border border-amber-900/50 px-3.5 py-2 rounded-xl text-center">
-                <span className="text-[10px] text-amber-400 uppercase font-bold block">Sedang Makan</span>
+              <div className="bg-stone-950 border border-amber-900/50 px-3 py-2 rounded-xl text-center min-w-[70px]">
+                <span className="text-[10px] text-amber-400 uppercase font-bold block">Makan Dulu</span>
                 <span className="text-lg font-black text-amber-400 animate-pulse">
                   {liveOrders.filter((o) => o.type === 'dine_in' && !o.isPaid && o.status !== 'cancelled').length}
+                </span>
+              </div>
+              <div className="bg-stone-950 border border-orange-900/50 px-3 py-2 rounded-xl text-center min-w-[70px]">
+                <span className="text-[10px] text-orange-400 uppercase font-bold block">Bungkus Aktif</span>
+                <span className="text-lg font-black text-orange-400">
+                  {liveOrders.filter((o) => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Kad Utama Pilihan Bungkus (Takeaway) */}
-          <div className="bg-gradient-to-r from-orange-950/40 via-stone-900 to-stone-900 border border-orange-800/60 rounded-2xl p-4 sm:p-5 shadow-md flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-orange-600 flex items-center justify-center text-2xl shadow-md">
-                🛍️
-              </div>
-              <div>
-                <h2 className="text-base sm:text-lg font-black text-white">Pesanan Bungkus / Takeaway</h2>
-                <p className="text-xs text-stone-300">Ambil pesanan pelanggan yang bawa pulang / bungkus</p>
-              </div>
-            </div>
-            <button
-              onClick={handleSelectTakeawayAndNavigate}
-              className="px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xs sm:text-sm shadow-lg active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>Buka Menu Bungkus</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
+          {/* Tab Pemilihan Kategori Paparan */}
+          <div className="flex items-center gap-2 border-b border-stone-800 pb-2">
+            {[
+              { id: 'all', label: 'Semua (Meja & Bungkus)' },
+              { id: 'tables', label: '🍽️ Meja Makan (4 Sebaris)' },
+              { 
+                id: 'takeaway', 
+                label: `🛍️ Bungkus (${liveOrders.filter((o) => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length})` 
+              },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setTableFilterTab(tab.id as any)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all ${
+                  tableFilterTab === tab.id
+                    ? 'bg-orange-600 text-white shadow-md'
+                    : 'bg-stone-900 text-stone-400 hover:text-white border border-stone-800'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          {/* Grid Meja Restoran (Meja 1 hingga Meja 12 & VIP) */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-black text-white flex items-center gap-2">
-                <span>Pilih Meja Restoran:</span>
-                <span className="text-xs text-stone-400 font-normal">(Tekan meja untuk mula atau urus pesanan)</span>
-              </h2>
-            </div>
+          {/* ======================================================== */}
+          {/* SEKSYEN 1: PESANAN BUNGKUS (TAKEAWAY) AKTIF & BAYARAN    */}
+          {/* ======================================================== */}
+          {(tableFilterTab === 'all' || tableFilterTab === 'takeaway') && (
+            <div className="space-y-3 bg-stone-900/60 border border-orange-900/40 rounded-2xl p-4 shadow-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center text-xl shadow-md">
+                    🛍️
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-base sm:text-lg font-black text-white">Pesanan Bungkus / Takeaway</h2>
+                      {liveOrders.filter((o) => o.type === 'takeaway' && !o.isPaid && o.status !== 'cancelled').length > 0 && (
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-600 text-white animate-pulse">
+                          {liveOrders.filter((o) => o.type === 'takeaway' && !o.isPaid && o.status !== 'cancelled').length} Menunggu Bayaran
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-stone-300">
+                      Pesanan yang dihantar ke dapur. Selesaikan bayaran bil bila pelanggan datang ambil makanan.
+                    </p>
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-3.5">
-              {RESTAURANT_TABLES.map((tbl) => {
-                const activeOrd = liveOrders.find(
-                  (o) => o.type === 'dine_in' && o.tableNumber === tbl.id && !o.isPaid && o.status !== 'cancelled'
+                <button
+                  type="button"
+                  onClick={handleSelectTakeawayAndNavigate}
+                  className="px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xs sm:text-sm shadow-lg active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer self-start sm:self-auto"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Buka Pesanan Bungkus Baru</span>
+                </button>
+              </div>
+
+              {/* Senarai Kad Pesanan Bungkus Aktif */}
+              {(() => {
+                const activeTakeaways = liveOrders.filter(
+                  (o) => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))
                 );
+
+                if (activeTakeaways.length === 0) {
+                  return (
+                    <div className="py-6 text-center text-stone-400 bg-stone-950/60 rounded-xl border border-stone-800/80">
+                      <ShoppingBag className="w-8 h-8 text-stone-500 mx-auto mb-1.5 opacity-60" />
+                      <p className="text-xs font-bold text-stone-300">Tiada pesanan bungkus aktif buat masa ini</p>
+                      <p className="text-[11px] text-stone-400 mt-0.5">
+                        Tekan butang &quot;Buka Pesanan Bungkus Baru&quot; di atas untuk mengambil pesanan pelanggan bawa pulang.
+                      </p>
+                    </div>
+                  );
+                }
 
                 return (
-                  <div
-                    key={tbl.id}
-                    className={`rounded-2xl p-3.5 sm:p-4 border-2 transition-all flex flex-col justify-between select-none shadow-md ${
-                      activeOrd
-                        ? 'bg-gradient-to-b from-amber-950/60 to-stone-900 border-amber-600/90 hover:border-amber-500'
-                        : 'bg-stone-900/90 border-stone-800 hover:border-orange-500 hover:bg-stone-850 cursor-pointer active:scale-98'
-                    }`}
-                    onClick={() => {
-                      if (!activeOrd) {
-                        handleSelectTableAndNavigate(tbl.id);
-                      }
-                    }}
-                  >
-                    {/* Header Meja & Status Badge */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-black text-white">{tbl.name}</span>
-                      {activeOrd ? (
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-stone-950 uppercase tracking-wider animate-pulse">
-                          Sedang Makan
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800">
-                          Kosong
-                        </span>
-                      )}
-                    </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                    {activeTakeaways.map((ord) => (
+                      <div
+                        key={ord.id}
+                        className={`rounded-2xl p-3.5 border-2 transition-all flex flex-col justify-between shadow-md ${
+                          !ord.isPaid
+                            ? 'bg-gradient-to-b from-rose-950/40 via-stone-900 to-stone-950 border-rose-600/80'
+                            : 'bg-stone-900/90 border-emerald-600/70'
+                        }`}
+                      >
+                        <div>
+                          {/* Header Kad Bungkus */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono text-xs font-black text-orange-400">{ord.orderNumber}</span>
+                                <span className="text-[10px] text-stone-400 font-bold">• Jam {ord.createdAt}</span>
+                              </div>
+                              <h3 className="text-sm font-black text-white mt-0.5">
+                                {ord.customerName || 'Bungkus Walk-in'}
+                              </h3>
+                            </div>
 
-                    {/* Maklumat Status Meja */}
-                    <div className="my-3">
-                      {activeOrd ? (
-                        <div className="space-y-1">
-                          <div className="flex items-baseline justify-between">
-                            <span className="text-xs text-stone-400">Jumlah Bil:</span>
-                            <span className="font-mono text-xl font-black text-orange-400">
-                              RM {activeOrd.total.toFixed(2)}
+                            {/* Status Bayaran Badge */}
+                            {!ord.isPaid ? (
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-600 text-white uppercase tracking-wider animate-pulse whitespace-nowrap">
+                                Belum Bayar
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-600 text-white uppercase tracking-wider whitespace-nowrap">
+                                Lunas ({ord.paymentMethod})
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Ringkasan Item Makanan */}
+                          <div className="my-2.5 bg-stone-950/80 rounded-xl p-2.5 border border-stone-800 space-y-1 text-xs">
+                            <div className="max-h-24 overflow-y-auto space-y-1 pr-1">
+                              {ord.items.map((it, idx) => (
+                                <div key={idx} className="flex justify-between text-stone-300 text-[11px]">
+                                  <span className="font-medium truncate mr-2">{it.name} × {it.quantity}</span>
+                                  <span className="font-mono font-bold text-stone-200">
+                                    RM {(it.price * it.quantity).toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="pt-1.5 border-t border-stone-800 flex justify-between items-baseline font-black">
+                              <span className="text-stone-400 text-[11px]">Jumlah Bil:</span>
+                              <span className="font-mono text-base text-orange-400">
+                                RM {ord.total.toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Status Dapur */}
+                          <div className="flex items-center gap-1.5 text-[11px] text-stone-400 mb-2">
+                            <span>Status Dapur:</span>
+                            <span className="font-bold text-amber-400">
+                              {ord.status === 'cooking' ? '🔥 Sedang Dimasak' : ord.status === 'ready' ? '✅ Siap di Dapur' : '✔️ Sedia'}
                             </span>
                           </div>
-                          <div className="text-[11px] text-stone-300 font-medium">
-                            {activeOrd.items.reduce((a, b) => a + b.quantity, 0)} item • Jam {activeOrd.createdAt}
-                          </div>
                         </div>
-                      ) : (
-                        <div className="text-center py-2 text-stone-400">
-                          <p className="text-xs text-stone-300 font-bold">Meja Tersedia</p>
-                          <p className="text-[10px] text-stone-400">Tekan untuk buka meja baru</p>
-                        </div>
-                      )}
-                    </div>
 
-                    {/* Tindakan Mengikut Status Meja */}
-                    <div className="pt-2 border-t border-stone-800/80">
-                      {activeOrd ? (
-                        <div className="grid grid-cols-2 gap-2">
+                        {/* Butang Tindakan: Kira Bil & Bayar */}
+                        <div className="pt-2 border-t border-stone-800/80 flex items-center gap-2">
+                          {!ord.isPaid ? (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenSettleModal(ord)}
+                              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/80 active:scale-95 cursor-pointer"
+                            >
+                              <Banknote className="w-4 h-4" />
+                              <span>Kira Bil &amp; Terima Bayaran</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleCompleteTakeawayHandover(ord)}
+                              className="flex-1 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95"
+                            >
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                              <span>Serah Makanan &amp; Arkib</span>
+                            </button>
+                          )}
+
+                          {/* Tambah Item ke Pesanan Bungkus ini */}
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectTableAndNavigate(tbl.id);
-                            }}
-                            className="py-2 rounded-xl bg-stone-950 border border-stone-700 hover:border-orange-500 text-orange-400 font-bold text-xs flex items-center justify-center gap-1 active:scale-95"
+                            onClick={() => handleSelectExistingTakeawayAndNavigate(ord)}
+                            className="px-2.5 py-2 rounded-xl bg-stone-950 border border-stone-700 hover:border-orange-500 text-orange-400 font-bold text-xs flex items-center gap-1 active:scale-95"
+                            title="Tambah menu ke pesanan bungkus ini"
                           >
                             <Plus className="w-3.5 h-3.5" />
-                            <span>Tambah</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenSettleModal(activeOrd);
-                            }}
-                            className="py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md active:scale-95"
-                          >
-                            <Banknote className="w-3.5 h-3.5" />
-                            <span>Kira Bil</span>
+                            <span className="hidden sm:inline">Tambah</span>
                           </button>
                         </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleSelectTableAndNavigate(tbl.id)}
-                          className="w-full py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow"
-                        >
-                          <Utensils className="w-3.5 h-3.5" />
-                          <span>Ambil Pesanan Meja</span>
-                        </button>
-                      )}
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 );
-              })}
+              })()}
             </div>
-          </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* SEKSYEN 2: GRID MEJA RESTORAN (4 SEBARIS MELINTANG)       */}
+          {/* ======================================================== */}
+          {(tableFilterTab === 'all' || tableFilterTab === 'tables') && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black text-white flex items-center gap-2">
+                  <span>Pilih Meja Restoran:</span>
+                  <span className="text-xs text-orange-400 font-bold">(4 Sebaris Melintang)</span>
+                </h2>
+              </div>
+
+              {/* GRID 4 SEBARIS MELINTANG (grid-cols-4) */}
+              <div className="grid grid-cols-4 gap-2 sm:gap-3">
+                {RESTAURANT_TABLES.map((tbl) => {
+                  const activeOrd = liveOrders.find(
+                    (o) => o.type === 'dine_in' && o.tableNumber === tbl.id && !o.isPaid && o.status !== 'cancelled'
+                  );
+
+                  return (
+                    <div
+                      key={tbl.id}
+                      className={`rounded-2xl p-2.5 sm:p-3 border-2 transition-all flex flex-col justify-between select-none shadow-md ${
+                        activeOrd
+                          ? 'bg-gradient-to-b from-amber-950/70 via-stone-900 to-stone-950 border-amber-500/90 hover:border-amber-400'
+                          : 'bg-stone-900/90 border-stone-800 hover:border-orange-500 hover:bg-stone-850 cursor-pointer active:scale-95'
+                      }`}
+                      onClick={() => {
+                        if (!activeOrd) {
+                          handleSelectTableAndNavigate(tbl.id);
+                        }
+                      }}
+                    >
+                      {/* Header Meja & Status Badge */}
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-xs sm:text-sm font-black text-white truncate">{tbl.name}</span>
+                        {activeOrd ? (
+                          <span className="text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-500 text-stone-950 uppercase tracking-wider animate-pulse whitespace-nowrap">
+                            Makan
+                          </span>
+                        ) : (
+                          <span className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 whitespace-nowrap">
+                            Kosong
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Maklumat Status Meja */}
+                      <div className="my-1.5 sm:my-2">
+                        {activeOrd ? (
+                          <div className="space-y-0.5">
+                            <div className="font-mono text-xs sm:text-base font-black text-orange-400 truncate">
+                              RM {activeOrd.total.toFixed(2)}
+                            </div>
+                            <div className="text-[9px] sm:text-[11px] text-stone-300 font-medium truncate">
+                              {activeOrd.items.reduce((a, b) => a + b.quantity, 0)} item
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center py-1 sm:py-2 text-stone-400">
+                            <span className="text-[10px] sm:text-xs text-stone-300 font-bold block">+ Pesan</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Tindakan Meja */}
+                      <div className="pt-1.5 border-t border-stone-800/80">
+                        {activeOrd ? (
+                          <div className="grid grid-cols-2 gap-1 sm:gap-1.5">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSelectTableAndNavigate(tbl.id);
+                              }}
+                              className="py-1.5 rounded-lg bg-stone-950 border border-stone-700 hover:border-orange-500 text-orange-400 font-bold text-[10px] sm:text-xs flex items-center justify-center gap-0.5 active:scale-95"
+                              title="Tambah Pesanan Meja"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span className="hidden sm:inline">Tambah</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenSettleModal(activeOrd);
+                              }}
+                              className="py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white font-black text-[10px] sm:text-xs flex items-center justify-center gap-0.5 shadow-md active:scale-95"
+                              title="Kira Bil & Bayar"
+                            >
+                              <Banknote className="w-3 h-3" />
+                              <span>Bil</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleSelectTableAndNavigate(tbl.id)}
+                            className="w-full py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-[10px] sm:text-xs flex items-center justify-center gap-1 shadow"
+                          >
+                            <Utensils className="w-3 h-3" />
+                            <span>Buka</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -870,19 +1144,42 @@ export default function PosPage() {
                 </div>
               </button>
 
-              {/* Butang Utama: Hantar Order ke Dapur (Makan Dulu) */}
+              {/* Butang Utama: Hantar Order ke Dapur (Makan Dulu / Bungkus) */}
               <div className="flex items-center gap-2">
                 {cart.length > 0 ? (
-                  <button
-                    type="button"
-                    onClick={activeTableOrder ? handleAppendOrder : handleSendToKitchen}
-                    className="px-5 py-3 rounded-xl font-black text-sm bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-lg shadow-orange-950/80 active:scale-95 flex items-center gap-2 cursor-pointer border border-orange-400"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>
-                      {activeTableOrder ? 'Hantar Tambahan' : 'Hantar Order (Makan Dulu)'}
-                    </span>
-                  </button>
+                  orderType === 'takeaway' && !selectedTakeawayOrder ? (
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <button
+                        type="button"
+                        onClick={handleSendToKitchen}
+                        className="px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 text-white shadow-lg active:scale-95 flex items-center gap-1.5 cursor-pointer border border-orange-400"
+                        title="Hantar dapur dulu, pelanggan bayar bila ambil"
+                      >
+                        <Send className="w-4 h-4" />
+                        <span className="whitespace-nowrap">Hantar (Bayar Nanti)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handlePayNowDirectly}
+                        className="px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white shadow-lg active:scale-95 flex items-center gap-1.5 cursor-pointer border border-emerald-400"
+                        title="Pelanggan bayar terus di kaunter sekarang"
+                      >
+                        <Banknote className="w-4 h-4" />
+                        <span className="whitespace-nowrap">Bayar Terus 💳</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(activeTableOrder || selectedTakeawayOrder) ? handleAppendOrder : handleSendToKitchen}
+                      className="px-4 sm:px-5 py-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-lg shadow-orange-950/80 active:scale-95 flex items-center gap-2 cursor-pointer border border-orange-400"
+                    >
+                      <Send className="w-4 h-4" />
+                      <span>
+                        {(activeTableOrder || selectedTakeawayOrder) ? 'Hantar Tambahan' : 'Hantar Order (Makan Dulu)'}
+                      </span>
+                    </button>
+                  )
                 ) : (
                   activeTableOrder && (
                     <button
@@ -957,19 +1254,44 @@ export default function PosPage() {
               <span className="font-mono text-lg text-orange-400">RM {subtotal.toFixed(2)}</span>
             </div>
 
-            <button
-              onClick={activeTableOrder ? handleAppendOrder : handleSendToKitchen}
-              className="w-full py-3 rounded-xl font-black text-sm bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg active:scale-95 flex items-center justify-center gap-2"
-            >
-              <Send className="w-4 h-4" />
-              <span>Hantar ke Dapur Sekarang (Makan Dulu)</span>
-            </button>
+            {/* Butang Tindakan Semakan Troli */}
+            {orderType === 'takeaway' && !selectedTakeawayOrder ? (
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleSendToKitchen}
+                  className="py-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Hantar (Bayar Nanti)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePayNowDirectly}
+                  className="py-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <Banknote className="w-4 h-4" />
+                  <span>Bayar Sekarang 💳</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={(activeTableOrder || selectedTakeawayOrder) ? handleAppendOrder : handleSendToKitchen}
+                className="w-full py-3 rounded-xl font-black text-sm bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg active:scale-95 flex items-center justify-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                <span>
+                  {(activeTableOrder || selectedTakeawayOrder) ? 'Hantar Tambahan ke Dapur' : 'Hantar ke Dapur (Makan Dulu)'}
+                </span>
+              </button>
+            )}
           </div>
         </div>
       )}
 
       {/* ======================================================== */}
-      {/* MODAL KIRA BIL & BAYARAN MEJA (SELESAI MAKAN)             */}
+      {/* MODAL KIRA BIL & BAYARAN MEJA / BUNGKUS                   */}
       {/* ======================================================== */}
       {paymentModalOpen && settlingOrder && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -977,10 +1299,10 @@ export default function PosPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-extrabold text-xl text-white">
-                  Kira Bil &amp; Bayaran (Selesai Makan)
+                  {settlingOrder.tableNumber ? 'Kira Bil & Bayaran Meja' : 'Kira Bil & Bayaran Bungkus'}
                 </h3>
                 <p className="text-xs text-stone-400 mt-0.5">
-                  {settlingOrder.tableNumber ? `Meja ${settlingOrder.tableNumber}` : 'Pesanan Bungkus'} • Tiket: {settlingOrder.orderNumber}
+                  {settlingOrder.tableNumber ? `Meja ${settlingOrder.tableNumber}` : `🛍️ ${settlingOrder.customerName || 'Bungkus'}`} • Tiket: {settlingOrder.orderNumber}
                 </p>
               </div>
               <button onClick={() => setPaymentModalOpen(false)} className="text-stone-400 hover:text-white text-sm">
@@ -988,7 +1310,7 @@ export default function PosPage() {
               </button>
             </div>
 
-            {/* Ringkasan Makanan yang Dimakan */}
+            {/* Ringkasan Makanan yang Dimakan / Dipesan */}
             <div className="max-h-40 overflow-y-auto bg-stone-950 p-3 rounded-xl border border-stone-800 space-y-1.5 text-xs">
               {settlingOrder.items.map((it, i) => (
                 <div key={i} className="flex justify-between text-stone-300">
@@ -1072,7 +1394,7 @@ export default function PosPage() {
               </div>
             )}
 
-            {/* Butang Sahkan Bayaran & Kosongkan Meja */}
+            {/* Butang Sahkan Bayaran & Selesai */}
             <button
               onClick={handleConfirmSettlement}
               disabled={paymentSuccess}
@@ -1085,12 +1407,16 @@ export default function PosPage() {
               {paymentSuccess ? (
                 <>
                   <CheckCircle2 className="w-5 h-5 animate-bounce" />
-                  <span>Bayaran Selesai! Meja Telah Dikosongkan</span>
+                  <span>
+                    {settlingOrder.tableNumber ? 'Bayaran Selesai! Meja Telah Dikosongkan' : 'Bayaran Bungkus Selesai & Lunas!'}
+                  </span>
                 </>
               ) : (
                 <>
                   <Printer className="w-4 h-4" />
-                  <span>Terima Bayaran &amp; Kosongkan Meja</span>
+                  <span>
+                    {settlingOrder.tableNumber ? 'Terima Bayaran & Kosongkan Meja' : 'Terima Bayaran Bungkus & Sahkan'}
+                  </span>
                 </>
               )}
             </button>
