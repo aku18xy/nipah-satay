@@ -1,24 +1,62 @@
 {
-  "name": "Nipah Satay™ Management & POS",
+  "id": "/",
+  "name": "Nipah Satay™ | Pengurusan & POS",
   "short_name": "Nipah Satay",
-  "description": "Sistem Pengurusan Dapur, POS & Barisan Pengeluaran Sate Nipah Satay, Pulau Indah, Klang",
-  "start_url": "/",
+  "description": "Sistem Pengurusan Komprehensif: Barisan Pengeluaran Sate, POS Meja & Dapur Pintar (KDS) Nipah Satay, Pulau Indah Klang",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0c0a09",
   "theme_color": "#ea580c",
   "orientation": "any",
   "icons": [
     {
-      "src": "/images/satay_skewer.jpg",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/images/satay_skewer.jpg",
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["food", "business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "POS Kaunter",
+      "short_name": "POS",
+      "description": "Buka skrin POS Kaunter & Meja",
+      "url": "/pos?source=pwa",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dapur KDS Live",
+      "short_name": "KDS",
+      "description": "Buka skrin Dapur Pit Sate & Kuali",
+      "url": "/kitchen?source=pwa",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Kilang Sate",
+      "short_name": "Kilang",
+      "description": "Buka skrin Pengeluaran Kilang Sate",
+      "url": "/production?source=pwa",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

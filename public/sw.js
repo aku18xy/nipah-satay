@@ -1,8 +1,13 @@
-// Nipah Satay Service Worker for Offline PWA Resilience (v8 - Elevated Floating Bar)
-const CACHE_NAME = 'nipah-satay-v8';
+// Nipah Satay Service Worker for Offline PWA Resilience (v9 - PNG PWA Icons & In-App Install)
+const CACHE_NAME = 'nipah-satay-v9';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/icon-maskable-192.png',
+  '/icons/icon-maskable-512.png',
+  '/icons/apple-touch-icon.png',
   '/images/satay_skewer.jpg',
   '/images/soto.jpg',
   '/images/set_nasi_lemak.jpg',

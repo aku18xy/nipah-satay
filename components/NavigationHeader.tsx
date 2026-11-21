@@ -15,7 +15,8 @@ import {
   Menu as MenuIcon, 
   X,
   ExternalLink,
-  Glasses
+  Glasses,
+  Download
 } from 'lucide-react';
 import { useSeniorMode } from './SeniorModeContext';
 
@@ -183,6 +184,29 @@ export default function NavigationHeader() {
               </Link>
             );
           })}
+
+          <div className="pt-2 border-t border-stone-800 mt-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                // Trigger PWA install if available or alert guide
+                const event = new CustomEvent('nipah:install-pwa');
+                window.dispatchEvent(event);
+                alert(
+                  'Cara Pasang PWA Nipah Satay™:\n\n1. Tekan butang menu 3 titik (⋮) di bucu atas kanan Chrome.\n2. Pilih "Install app" atau "Add to Home screen" (Tambah ke Skrin Utama).\n3. Tekan "Install" untuk muat turun ke desktop/tablet anda!'
+                );
+              }}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md active:scale-95"
+            >
+              <div className="flex items-center gap-3">
+                <Download className="w-4 h-4 text-white" />
+                <span>Pasang Aplikasi Nipah Satay (PWA)</span>
+              </div>
+              <span className="text-[10px] bg-black/30 px-2 py-0.5 rounded-lg text-amber-200">
+                Install App
+              </span>
+            </button>
+          </div>
         </div>
       )}
     </header>
