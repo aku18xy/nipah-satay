@@ -58,10 +58,14 @@ export async function initDatabase() {
         subtotal NUMERIC(10, 2) NOT NULL,
         discount NUMERIC(10, 2) NOT NULL DEFAULT 0,
         total NUMERIC(10, 2) NOT NULL,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        completed_at TIMESTAMPTZ
+        created_at TEXT NOT NULL,
+        completed_at TEXT
       );
     `;
+
+    // Ensure created_at / completed_at can accept flexible string formats
+    await sql`ALTER TABLE orders ALTER COLUMN created_at TYPE TEXT;`.catch(() => {});
+    await sql`ALTER TABLE orders ALTER COLUMN completed_at TYPE TEXT;`.catch(() => {});
 
     // 2. Create meat_intake table
     await sql`
