@@ -620,70 +620,55 @@ export default function PosPage() {
             );
           })()}
 
-          {/* Grid Meja 4 Sebaris Melintang (Minimalis) */}
+          {/* Grid Meja 4 Sebaris Melintang (Minimalis - Klik Terus ke Menu) */}
           <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
             {RESTAURANT_TABLES.map((tbl) => {
               const activeOrd = liveOrders.find(
                 (o) => o.type === 'dine_in' && o.tableNumber === tbl.id && !o.isPaid && o.status !== 'cancelled'
               );
+              const itemCount = activeOrd
+                ? activeOrd.items.reduce((a, b) => a + b.quantity, 0)
+                : 0;
 
               return (
-                <div
+                <button
                   key={tbl.id}
-                  onClick={() => {
-                    if (!activeOrd) handleSelectTableAndNavigate(tbl.id);
-                  }}
-                  className={`rounded-xl p-2 border transition-all flex flex-col justify-between select-none ${
+                  type="button"
+                  onClick={() => handleSelectTableAndNavigate(tbl.id)}
+                  className={`rounded-xl sm:rounded-2xl p-2 sm:p-2.5 border text-left transition-all flex flex-col justify-between select-none cursor-pointer active:scale-95 shadow-sm h-18 sm:h-20 ${
                     activeOrd
-                      ? 'bg-amber-950/40 border-amber-500/80 shadow-sm'
-                      : 'bg-stone-900/80 border-stone-800 hover:border-orange-500 cursor-pointer active:scale-95'
+                      ? 'bg-amber-950/30 border-amber-500/80 hover:border-amber-400 ring-1 ring-amber-500/50'
+                      : 'bg-stone-900/90 border-stone-800 hover:border-orange-500 hover:bg-stone-850'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
+                  {/* Baris Atas: Label Meja (M1, M2...) + Indicator Dot */}
+                  <div className="flex items-center justify-between w-full">
                     <span className="text-xs sm:text-sm font-black text-white">{tbl.short}</span>
-                    <span className={`w-2 h-2 rounded-full ${activeOrd ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        activeOrd
+                          ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]'
+                          : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]'
+                      }`}
+                    />
                   </div>
 
-                  <div className="my-1">
+                  {/* Bawah: Harga & Jumlah Item jika diduduki */}
+                  <div className="w-full">
                     {activeOrd ? (
                       <div>
-                        <div className="font-mono text-xs sm:text-sm font-black text-orange-400">
-                          RM {activeOrd.total.toFixed(0)}
+                        <div className="font-mono text-xs sm:text-sm font-black text-orange-400 leading-tight">
+                          RM {activeOrd.total.toFixed(activeOrd.total % 1 === 0 ? 0 : 2)}
                         </div>
-                        <div className="text-[10px] text-stone-400">
-                          {activeOrd.items.reduce((a, b) => a + b.quantity, 0)} itm
+                        <div className="text-[10px] text-stone-400 font-bold leading-tight mt-0.5">
+                          {itemCount} itm
                         </div>
                       </div>
                     ) : (
-                      <div className="text-[11px] text-stone-400 py-1">+ Pesan</div>
+                      <div className="h-3" />
                     )}
                   </div>
-
-                  {activeOrd && (
-                    <div className="grid grid-cols-2 gap-1 pt-1 border-t border-stone-800">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectTableAndNavigate(tbl.id);
-                        }}
-                        className="py-1 rounded bg-stone-950 text-orange-400 font-bold text-[10px] flex items-center justify-center border border-stone-700 active:scale-95"
-                      >
-                        +
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenSettleModal(activeOrd);
-                        }}
-                        className="py-1 rounded bg-emerald-600 text-white font-bold text-[10px] flex items-center justify-center shadow active:scale-95"
-                      >
-                        Bil
-                      </button>
-                    </div>
-                  )}
-                </div>
+                </button>
               );
             })}
           </div>
@@ -1004,15 +989,20 @@ export default function PosPage() {
                 onClick={() => setCartModalOpen(true)}
                 className="flex items-center gap-2 text-left active:scale-95"
               >
-                <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white shadow">
-                  <ShoppingBag className="w-4 h-4" />
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow ${activeTableOrder && cart.length === 0 ? 'bg-emerald-600' : 'bg-orange-600'}`}>
+                  {activeTableOrder && cart.length === 0 ? <Banknote className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
                 </div>
                 <div>
                   <div className="text-[10px] font-bold text-stone-300">
-                    {orderType === 'dine_in' ? `M${tableNumber}` : 'Bungkus'} • {cart.reduce((a, b) => a + b.quantity, 0)} item
+                    {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `M${tableNumber}`) : 'Bungkus'} •{' '}
+                    {cart.length > 0
+                      ? `${cart.reduce((a, b) => a + b.quantity, 0)} item baru`
+                      : activeTableOrder
+                      ? `${activeTableOrder.items.reduce((a, b) => a + b.quantity, 0)} itm aktif`
+                      : '0 item'}
                   </div>
-                  <div className="font-mono text-sm font-black text-white">
-                    RM {subtotal.toFixed(2)}
+                  <div className={`font-mono text-sm font-black ${activeTableOrder && cart.length === 0 ? 'text-emerald-400' : 'text-white'}`}>
+                    RM {(cart.length > 0 ? subtotal : activeTableOrder ? activeTableOrder.total : 0).toFixed(2)}
                   </div>
                 </div>
               </button>
@@ -1053,10 +1043,10 @@ export default function PosPage() {
                     <button
                       type="button"
                       onClick={() => handleOpenSettleModal(activeTableOrder)}
-                      className="px-3 py-2 rounded-lg font-black text-xs bg-emerald-600 text-white shadow active:scale-95 flex items-center gap-1"
+                      className="px-3.5 py-2 rounded-lg font-black text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white shadow-lg active:scale-95 flex items-center gap-1.5 border border-emerald-400"
                     >
                       <Banknote className="w-3.5 h-3.5" />
-                      <span>Bil RM {activeTableOrder.total.toFixed(2)}</span>
+                      <span>Kira Bil RM {activeTableOrder.total.toFixed(activeTableOrder.total % 1 === 0 ? 0 : 2)}</span>
                     </button>
                   )
                 )}
