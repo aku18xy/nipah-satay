@@ -661,7 +661,7 @@ export default function PosPage() {
                           RM {activeOrd.total.toFixed(activeOrd.total % 1 === 0 ? 0 : 2)}
                         </div>
                         <div className="text-[10px] text-stone-400 font-bold leading-tight mt-0.5">
-                          {itemCount} itm
+                          {itemCount} item
                         </div>
                       </div>
                     ) : (
@@ -998,7 +998,7 @@ export default function PosPage() {
                     {cart.length > 0
                       ? `${cart.reduce((a, b) => a + b.quantity, 0)} item baru`
                       : activeTableOrder
-                      ? `${activeTableOrder.items.reduce((a, b) => a + b.quantity, 0)} itm aktif`
+                      ? `${activeTableOrder.items.reduce((a, b) => a + b.quantity, 0)} item`
                       : '0 item'}
                   </div>
                   <div className={`font-mono text-sm font-black ${activeTableOrder && cart.length === 0 ? 'text-emerald-400' : 'text-white'}`}>
