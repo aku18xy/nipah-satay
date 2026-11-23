@@ -620,8 +620,8 @@ export default function PosPage() {
             );
           })()}
 
-          {/* Grid Meja 4 Sebaris Melintang (Minimalis - Klik Terus ke Menu) */}
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+          {/* Grid Meja 4 Sebaris Melintang (Konsisten Segi Empat / Square) */}
+          <div className="grid grid-cols-4 gap-2 sm:gap-2.5">
             {RESTAURANT_TABLES.map((tbl) => {
               const activeOrd = liveOrders.find(
                 (o) => o.type === 'dine_in' && o.tableNumber === tbl.id && !o.isPaid && o.status !== 'cancelled'
@@ -635,7 +635,7 @@ export default function PosPage() {
                   key={tbl.id}
                   type="button"
                   onClick={() => handleSelectTableAndNavigate(tbl.id)}
-                  className={`rounded-xl sm:rounded-2xl p-2 sm:p-2.5 border text-left transition-all flex flex-col justify-between select-none cursor-pointer active:scale-95 shadow-sm h-18 sm:h-20 ${
+                  className={`aspect-square rounded-2xl p-2.5 sm:p-3 border text-left transition-all flex flex-col justify-between select-none cursor-pointer active:scale-95 shadow-sm ${
                     activeOrd
                       ? 'bg-amber-950/30 border-amber-500/80 hover:border-amber-400 ring-1 ring-amber-500/50'
                       : 'bg-stone-900/90 border-stone-800 hover:border-orange-500 hover:bg-stone-850'
@@ -643,7 +643,7 @@ export default function PosPage() {
                 >
                   {/* Baris Atas: Label Meja (M1, M2...) + Indicator Dot */}
                   <div className="flex items-center justify-between w-full">
-                    <span className="text-xs sm:text-sm font-black text-white">{tbl.short}</span>
+                    <span className="text-sm sm:text-base font-black text-white">{tbl.short}</span>
                     <span
                       className={`w-2.5 h-2.5 rounded-full ${
                         activeOrd
@@ -655,7 +655,7 @@ export default function PosPage() {
 
                   {/* Bawah: Harga & Jumlah Item jika diduduki */}
                   <div className="w-full">
-                    {activeOrd ? (
+                    {activeOrd && (
                       <div>
                         <div className="font-mono text-xs sm:text-sm font-black text-orange-400 leading-tight">
                           RM {activeOrd.total.toFixed(activeOrd.total % 1 === 0 ? 0 : 2)}
@@ -664,8 +664,6 @@ export default function PosPage() {
                           {itemCount} item
                         </div>
                       </div>
-                    ) : (
-                      <div className="h-3" />
                     )}
                   </div>
                 </button>
