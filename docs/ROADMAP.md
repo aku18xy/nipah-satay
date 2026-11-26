@@ -3,7 +3,7 @@
 
 - **Organisasi:** Nipah Satay, Pulau Indah, Klang, Selangor
 - **Dokumen PDF:** [Muat Turun PDF (docs/Nipah_Satay_Implementation_Roadmap.pdf)](./Nipah_Satay_Implementation_Roadmap.pdf)
-- **URL Pengeluaran:** [https://nipah-satay-bms.vercel.app](https://nipah-satay-bms.vercel.app)
+- **URL Pengeluaran:** [https://nipah-satay.vercel.app](https://nipah-satay.vercel.app)
 
 ---
 
@@ -11,10 +11,14 @@
 
 ### FASA 1: Teras POS, KDS & Penyahpepijatan Cloud
 - **Status:** **SELESAI & AKTIF (LIVE)** • *Nov 2026*
-- Pembangunan seni bina Next.js 16 (App Router) & Tailwind CSS.
-- Penyediaan modul POS Meja Dinamik (M-01–M-16) & Pesanan Bungkus.
+- Pembangunan seni bina Next.js 16 (App Router) & Tailwind CSS v3.
+- Konsep POS Dinamik: Aliran kerja "Makan Dulu, Bayar Kemudian" (Table Tab Management).
+- Susunan Meja Konsisten: Grid 4 sebaris melintang dengan bentuk segi empat sama (*aspect-square*) dan lampu penunjuk status.
+- Drawer Kategori Kiosk (KFC Style): Navigasi vertikal sebelah kiri dengan ciri *auto-hide*.
+- Antaramuka Minimalis: Pengoptimuman ruang skrin, pengurangan perkataan, dan kad menu mengikut lakaran asal.
 - Pemisahan tiket KDS: Stesen Arang Pitmaster vs Wok Soto vs Bar Minuman.
-- Penerbitan ke Vercel Edge Serverless ([https://nipah-satay-bms.vercel.app](https://nipah-satay-bms.vercel.app)).
+- Integrasi Pangkalan Data Awan: Neon PostgreSQL serverless di Vercel Storage.
+- Penerbitan ke Vercel Edge Serverless ([https://nipah-satay.vercel.app](https://nipah-satay.vercel.app)).
 - Integrasi Web App Manifest & Service Worker untuk PWA Pulau Indah.
 
 ### FASA 2: Barisan Pengeluaran Kilang & Timbangan Daging

@@ -382,10 +382,14 @@ def build_roadmap_pdf(filename):
             "status": "SELESAI & AKTIF (LIVE)",
             "timeline": "Nov 2026",
             "items": [
-                "Pembangunan seni bina Next.js 16 (App Router) & Tailwind CSS.",
-                "Penyediaan modul POS Meja Dinamik (M-01–M-16) & Pesanan Bungkus.",
+                "Pembangunan seni bina Next.js 16 (App Router) & Tailwind CSS v3.",
+                "Konsep POS Dinamik: Aliran kerja 'Makan Dulu, Bayar Kemudian' (Table Tab).",
+                "Susunan Meja Konsisten: Grid 4 sebaris segi empat sama (aspect-square) & indikator.",
+                "Drawer Kategori Vertikal Kiosk (KFC Style) dengan fungsi auto-hide.",
+                "Antaramuka POS Minimalis: Penjimatan ruang skrin & pengurangan perkataan.",
                 "Pemisahan tiket KDS: Stesen Arang Pitmaster vs Wok Soto vs Bar Minuman.",
-                "Penerbitan ke Vercel Edge Serverless (https://nipah-satay-bms.vercel.app).",
+                "Integrasi Pangkalan Data Awan: Neon PostgreSQL serverless di Vercel Storage.",
+                "Penerbitan ke Vercel Edge Serverless (https://nipah-satay.vercel.app).",
                 "Integrasi Web App Manifest & Service Worker untuk PWA Pulau Indah."
             ]
         },
