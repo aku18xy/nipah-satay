@@ -240,7 +240,7 @@ def build_srs_pdf(filename):
             Paragraph("<b>Status:</b> Diluluskan / Aktif di Pengeluaran", styles['MetaBox']),
         ],
         [
-            Paragraph("<b>URL Pengeluaran:</b> https://nipah-satay-bms.vercel.app", styles['MetaBox']),
+            Paragraph("<b>URL Pengeluaran:</b> https://nipah-satay.vercel.app", styles['MetaBox']),
             Paragraph("<b>Repositori:</b> github.com/aku18xy/nipah-satay", styles['MetaBox']),
         ]
     ]
@@ -274,18 +274,21 @@ def build_srs_pdf(filename):
     ))
     story.append(Spacer(1, 10))
 
-    # 2. Skop Produk & Pengguna Sasaran
-    story.append(Paragraph("2. Skop Produk & Pengguna Sasaran (User Roles)", styles['H1']))
+    # 2. Skop Produk & Pengguna Sasaran (RBAC)
+    story.append(Paragraph("2. Skop Produk & Model Keselamatan Peranan (RBAC)", styles['H1']))
+    story.append(Paragraph(
+        "Sistem menguatkuasakan kawalan capaian berasaskan peranan secara automatik sejak permulaan sistem. "
+        "Hanya pengguna dengan peranan yang sah dibenarkan melihat modul berkaitan, dan Laporan Eksekutif dilindungi oleh PIN keselamatan.",
+        styles['Body']
+    ))
     roles_data = [
-        [Paragraph("Peranan (Role)", styles['TableHeader']), Paragraph("Akses & Tanggungjawab Utama", styles['TableHeader']), Paragraph("Modul Terlibat", styles['TableHeader'])],
-        [Paragraph("Juruwang / Floor Staff", styles['TableCellBold']), Paragraph("Mengambil pesanan meja (M-01–M-16), bungkus, mengutip bayaran DuitNow/Tunai, kiraan kuah percuma.", styles['TableCell']), Paragraph("POS Kaunter (/pos)", styles['TableCell'])],
-        [Paragraph("Pitmaster (Bakar Sate)", styles['TableCellBold']), Paragraph("Melihat penjumlahan cucuk aktif di atas bara arang secara masa nyata, menukar status siap bakar.", styles['TableCell']), Paragraph("KDS Grill (/kitchen)", styles['TableCell'])],
-        [Paragraph("Tukang Masak Wok/Soto", styles['TableCellBold']), Paragraph("Menyediakan hidangan panas (soto, mee goreng, bihun goreng) mengikut nota khas pesanan.", styles['TableCell']), Paragraph("KDS Wok (/kitchen)", styles['TableCell'])],
-        [Paragraph("Pengurus Kilang Sate", styles['TableCellBold']), Paragraph("Merekod timbangan daging kasar vs susut urat (yield %), menguruskan formula perap & stok chiller.", styles['TableCell']), Paragraph("Kilang Sate (/production)", styles['TableCell'])],
-        [Paragraph("Pekerja Mencucuk", styles['TableCellBold']), Paragraph("Mencatat output cucuk sate harian untuk pengiraan gaji 'piece-rate' (RM 0.08 / cucuk).", styles['TableCell']), Paragraph("Kilang Sate (/production)", styles['TableCell'])],
-        [Paragraph("Pemilik / Pengurusan", styles['TableCellBold']), Paragraph("Memantau penyata Z-Report harian, audit varians stok chiller vs duit jualan, simulasi kos se-cucuk.", styles['TableCell']), Paragraph("Laporan & Kos (/reports)", styles['TableCell'])],
+        [Paragraph("Peranan (Role)", styles['TableHeader']), Paragraph("Kod & Akses Tab", styles['TableHeader']), Paragraph("Kawalan Keselamatan & Modul", styles['TableHeader'])],
+        [Paragraph("Pengurus / Eksekutif", styles['TableCellBold']), Paragraph("<b>executive</b><br/>Semua 5 Tab: Utama, POS, Dapur, Kilang, Laporan", styles['TableCell']), Paragraph("<b>Dilindungi PIN 4-Digit (1990/1234)</b><br/>Akses penuh Z-Report, Kos Se-Cucuk, POS, KDS & Kilang.", styles['TableCell'])],
+        [Paragraph("Juruwang & Kaunter", styles['TableCellBold']), Paragraph("<b>cashier</b><br/>3 Tab: Utama, POS, Dapur", styles['TableCell']), Paragraph("Akses POS Kaunter & Meja Dinamik, Status Dapur & Borong. <i>Disekat daripada Laporan & Kilang.</i>", styles['TableCell'])],
+        [Paragraph("Pitmaster & Dapur KDS", styles['TableCellBold']), Paragraph("<b>kitchen</b><br/>2 Tab: Utama, Dapur", styles['TableCell']), Paragraph("Akses terus Skrin KDS Dapur Pintar untuk giliran bakar arang. <i>Disekat daripada POS, Kilang & Laporan.</i>", styles['TableCell'])],
+        [Paragraph("Pekerja Kilang Sate", styles['TableCellBold']), Paragraph("<b>production</b><br/>2 Tab: Utama, Kilang", styles['TableCell']), Paragraph("Akses borang timbangan daging kasar, yield %, dan log upah mencucuk. <i>Disekat daripada POS, Dapur & Laporan.</i>", styles['TableCell'])],
     ]
-    t_roles = Table(roles_data, colWidths=[110, 267, 110])
+    t_roles = Table(roles_data, colWidths=[100, 160, 227])
     t_roles.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#c2410c")),
         ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor("#d6d3d1")),
@@ -297,30 +300,51 @@ def build_srs_pdf(filename):
     story.append(t_roles)
     story.append(Spacer(1, 12))
 
-    # 3. Keperluan Fungsi (Functional Requirements)
-    story.append(Paragraph("3. Keperluan Fungsian Sistem (Functional Requirements)", styles['H1']))
+    # 3. Spesifikasi Terperinci Setiap Modul Sistem
+    story.append(Paragraph("3. Spesifikasi Terperinci Setiap Modul Sistem", styles['H1']))
     
     fr_items = [
-        ("FR-1: Barisan Pengeluaran Sate & Hasil Timbangan Daging",
-         "Sistem mestilah membenarkan input berat kasar (kg) daging ayam/lembu/kambing, merekod susut potongan lemak/tulang (trim loss), "
-         "dan mengira kadar hasil bersih (Yield %) secara automatik. Sistem wajib mengira anggaran bilangan cucuk (25g/lidi) dan menjana kod perap kelompok."),
-        ("FR-2: Pengurusan Upah Mencucuk Sate (Piece-Rate Wage)",
-         "Sistem wajib merekod output cucuk setiap pekerja mengikut syif (pagi/petang) dan mengira bayaran upah secara automatik pada kadar standard "
-         "(cth. RM 0.08 / cucuk sate ayam; RM 0.09 / cucuk daging), serta mengemaskini baki stok sedia ada di bilik sejuk."),
-        ("FR-3: Pemindahan Stok Chiller ke Dapur Bakar",
-         "Sistem mesti menyediakan fungsi 'Internal Requisition' untuk memindahkan stok sate siap dari Chiller Kilang ke Stesen Dapur Bakar "
-         "dengan sekali klik, memastikan audit varians harian tepat."),
-        ("FR-4: POS Kaunter Sentuh Laju & Meja Makan",
-         "Antara muka POS mesti mesra tablet dengan butang sentuh bersaiz minimum 48px, menyokong pemilihan meja (M-01 s/d M-16) dan pesanan Bungkus. "
-         "Sistem wajib mengira kuah kacang & timun percuma secara automatik (1 set bagi setiap gandaan 10 cucuk)."),
-        ("FR-5: Pemisahan Tiket Automatik Dapur Pintar (Multi-Station KDS)",
-         "Pesanan yang dibayar mesti dipecahkan secara automatik ke stesen berkaitan: Stesen Sate Arang (mengagregatkan jumlah cucuk aktif), "
-         "Stesen Wok & Soto (hidangan goreng kuali dan sup), dan Bar Minuman/Kuah."),
-        ("FR-6: Modul Borong Sate Beku (B2B) & Katering Acara",
-         "Menguruskan inventori sate beku pek vakum (20s & 50s) untuk kantin kilang Pelabuhan Klang dan merekod jadual katering pitmaster bakar live di majlis kenduri."),
-        ("FR-7: Penyata Tutup Kaunter (Z-Report) & Kos Se-Cucuk",
-         "Menyediakan laporan rekonsiliasi tunai laci vs DuitNow QR vs Kad, perbandingan stok keluar vs jualan duit (varians audit), "
-         "dan simulasi kos sebenar se-cucuk sate (daging mentah + yield + lidi + rempah + upah + arang).")
+        ("Modul 1: Pusat Kawalan Eksekutif & Ringkasan Operasi (/)",
+         "Menyediakan pemantauan 360 darjah operasi restoran dan kilang: metrik jualan POS masa nyata (+18.4%), "
+         "giliran cucuk sate aktif Pitmaster di atas arang, baki inventori chiller sedia bakar (Ayam: 1,850, Lembu: 940 cucuk), "
+         "kadar hasil trimming kilang (Yield 91.6%), dan pautan pantas bertindak ke POS serta KDS."),
+        ("Modul 2: POS Kaunter & Pengurusan Meja Dinamik (/pos)",
+         "Menguatkuasakan konsep aliran kerja <b>'Makan Dulu, Bayar Kemudian'</b> (Table Tab Management). "
+         "<b>Skrin 1:</b> Grid Meja 4-sebaris konsisten segi empat sama (aspect-square 1:1) M1-M12 dan VIP, indikator lampu status hijau (kosong) "
+         "dan kuning/oren (makan aktif) berserta harga dan bilangan item. Klik mana-mana meja terus ke menu. "
+         "Jalur pesanan bungkus aktif dengan butang pantas bayar/selesai. "
+         "<b>Skrin 2:</b> Header sebaris padat, drawer kategori vertikal Kiosk KFC auto-hide sebelah kiri (w-60), kad menu 4-sebaris melintang mengikut lakaran asal "
+         "(ikon segi empat di atas, nama dan harga di bawah, stepper kuantiti), bar bawah terapung padat, dan modal bayaran pelbagai kaedah (Tunai, QR, Kad)."),
+        ("Modul 3: Dapur Pintar (Kitchen Display System - KDS Live /kitchen)",
+         "Mengagregatkan cucuk sate aktif untuk Pitmaster di atas bara api arang kayu bakau. Pemisahan tiket automatik kepada 3 stesen kerja: "
+         "1) <b>Stesen Bakar Sate</b> (penjumlahan cucuk sate arang), 2) <b>Stesen Wok & Soto</b> (soto, mee rebus, mee/bihun goreng, kuah kacang), "
+         "dan 3) <b>Bar Minuman & Karipap</b>. Dilengkapi penjejak masa pesanan (kod warna hijau/kuning/merah), status aliran kerja (Mula, Siap, Selesai), "
+         "dan auto-polling 4 saat ke pangkalan data Neon PostgreSQL."),
+        ("Modul 4: Kilang Pemprosesan Sate & Bilik Sejuk (/production)",
+         "Mengendalikan 3 fungsi teras barisan pengeluaran: "
+         "1) <b>Kalkulator Kadar Hasil Timbangan Daging (Trimming Yield %):</b> Merekod berat kasar daging ayam/lembu/kambing, susut potongan urat/tulang (trim waste), "
+         "berat bersih, peratusan hasil (Yield %), dan anggaran bilangan cucuk (25g/lidi) dengan amaran susut > 10%. "
+         "2) <b>Log Upah Pekerja Mencucuk (Piece-Rate):</b> Borang mesra telefon dengan stepper gergasi -50/+50 mengira upah automatik "
+         "(Ayam RM0.08, Daging RM0.09, Kambing RM0.10, Perut RM0.10). "
+         "3) <b>Pengurusan Bilik Sejuk (Chiller):</b> Baki stok sate siap dan fungsi pemindahan stok dalaman (Internal Requisition) dari kilang ke dapur bakar."),
+        ("Modul 5: Borong B2B & Tempahan Katering Pitmaster (/wholesale)",
+         "Menguruskan katalog produk sate beku pek vakum (20s & 50s berserta kuah beku), Karipap Frozen (Kentang RM8, Sardin/Ayam RM10 pek 10 biji), "
+         "serta kalkulator sebut harga katering kenduri pitmaster bakar live di lokasi (pakej 300, 800, 1500+ cucuk, deposit 50%, dan teks tempahan WhatsApp automatik)."),
+        ("Modul 6: Laporan Eksekutif, Z-Report & Analisis Kos (/reports)",
+         "<b>Dilindungi sepenuhnya oleh PIN Eksekutif (1990).</b> Menyediakan: "
+         "1) <b>Penyata Penutupan Kaunter Harian (Z-Report):</b> Jualan kasar, jualan bersih, pecahan mod bayaran (Tunai laci, QR Pay, Kad Bank), dan varians audit. "
+         "2) <b>Simulasi Kos Se-Cucuk Interaktif:</b> Analisis dinamik daging mentah, kadar yield %, perapan, lidi, upah piece-rate, dan arang untuk menghasilkan kos bersih se-cucuk, untung kasar, dan margin keuntungan %. "
+         "3) <b>Audit Varians Stok Chiller vs Jualan POS:</b> Mengesan perbezaan fizikal sate keluar dari bilik sejuk berbanding jualan yang direkod."),
+        ("Modul 7: Menu Awam Pelanggan & Pesanan WhatsApp (/menu)",
+         "Portal menu digital moden untuk pelanggan melalui imbasan kod QR meja. Memaparkan 68 hidangan rasmi berserta harga terkini, "
+         "bakul pesanan interaktif, dan penjanaan pesanan WhatsApp automatik terus ke nombor rasmi restoran (017 365 9302)."),
+        ("Modul 8: Seni Bina Data & API REST (/api/* & Neon PostgreSQL)",
+         "Penyimpanan awan serverless di Vercel Storage menggunakan @neondatabase/serverless. Mengandungi jadual data orders, meat_intake, "
+         "worker_skewer_logs, dan chiller_inventory. Disokong oleh laluan API REST (/api/orders, /api/production, /api/db/status) "
+         "dan mekanisme sandaran luar talian (Offline-First Graceful Fallback) menggunakan storan tempatan sekiranya internet terputus."),
+        ("Modul 9: Antaramuka Mesra Warga Emas & Keserasian PWA",
+         "Menyediakan suis mod warga emas A++ (font besar & kontras tinggi), sokongan pelayar legasi melalui Tailwind CSS v3 (v3.4.19) "
+         "untuk tablet Android 5.0+ lama di restoran, serta PWA WebAPK PNG berserta Service Worker Network-First untuk keupayaan pasang terus (Add to Home Screen).")
     ]
     for code_title, desc in fr_items:
         story.append(Paragraph(f"<b>{code_title}</b>", styles['H2']))
@@ -334,8 +358,9 @@ def build_srs_pdf(filename):
         [Paragraph("Kategori NFR", styles['TableHeader']), Paragraph("Spesifikasi & Standard Pelaksanaan", styles['TableHeader'])],
         [Paragraph("Ketahanan Luar Talian (Offline)", styles['TableCellBold']), Paragraph("Sistem dilengkapi PWA Service Worker (/sw.js) dan cache IndexedDB tempatan bagi membolehkan staf kaunter meneruskan pesanan semasa talian telekomunikasi Pulau Indah terputus.", styles['TableCell'])],
         [Paragraph("Prestasi & Latensi", styles['TableCellBold']), Paragraph("Masa muat turun muka surat < 1.0 saat, dihoskan di nod pinggir Vercel rantau Singapura (sin1) untuk latensi < 25ms di Semenanjung Malaysia.", styles['TableCell'])],
-        [Paragraph("Kebolehsambungan Peranti", styles['TableCellBold']), Paragraph("Responsif pada pelbagai peranti: Tablet Android 10 inci di dapur, iPad kaunter, dan telefon pintar pemilik.", styles['TableCell'])],
-        [Paragraph("Ketahanan Persekitaran Dapur", styles['TableCellBold']), Paragraph("Paparan kontras tinggi (Dark Theme) dengan zon sentuh besar untuk memudahkan staf dengan sarung tangan atau tangan berkuah/minyak.", styles['TableCell'])],
+        [Paragraph("Kebolehsambungan Peranti", styles['TableCellBold']), Paragraph("Responsif pada pelbagai peranti: Tablet Android 10 inci di dapur, iPad kaunter, dan telefon pintar staf.", styles['TableCell'])],
+        [Paragraph("Ketahanan Persekitaran Dapur", styles['TableCellBold']), Paragraph("Paparan kontras tinggi (Dark Theme) dengan zon sentuh minimum 48px-56px untuk memudahkan staf dengan sarung tangan atau jari berminyak.", styles['TableCell'])],
+        [Paragraph("Keselamatan Data & RBAC", styles['TableCellBold']), Paragraph("Penguatkuasaan RBAC semasa pemulaan sistem, sekatan akses laporan eksekutif berasaskan PIN 1990, dan transaksi disulitkan melalui HTTPS/TLS 1.3.", styles['TableCell'])],
     ]
     t_nfr = Table(nfr_data, colWidths=[140, 347])
     t_nfr.setStyle(TableStyle([
