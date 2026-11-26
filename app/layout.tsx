@@ -4,6 +4,8 @@ import NavigationHeader from '@/components/NavigationHeader';
 import BottomNav from '@/components/BottomNav';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 import { SeniorModeProvider } from '@/components/SeniorModeContext';
+import { AuthRoleProvider } from '@/components/AuthRoleContext';
+import RoleAuthModal from '@/components/RoleAuthModal';
 
 export const metadata: Metadata = {
   title: 'Nipah Satay™ | Sistem Pengurusan Operasi & POS',
@@ -47,12 +49,15 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-[#0c0a09] text-stone-100 flex flex-col antialiased selection:bg-orange-600 selection:text-white">
         <SeniorModeProvider>
-          <PwaInstallPrompt />
-          <NavigationHeader />
-          <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-6 pb-24 md:pb-8">
-            {children}
-          </main>
-          <BottomNav />
+          <AuthRoleProvider>
+            <RoleAuthModal />
+            <PwaInstallPrompt />
+            <NavigationHeader />
+            <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-6 pb-24 md:pb-8">
+              {children}
+            </main>
+            <BottomNav />
+          </AuthRoleProvider>
         </SeniorModeProvider>
         
         {/* PWA Service Worker Registration Script with Auto-Update Check */}

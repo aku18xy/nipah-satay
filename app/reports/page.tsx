@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   BarChart3, 
   DollarSign, 
@@ -12,10 +13,13 @@ import {
   CheckCircle2, 
   Layers,
   ArrowUpRight,
-  ShieldAlert
+  ShieldAlert,
+  Lock
 } from 'lucide-react';
+import { useAuthRole } from '@/components/AuthRoleContext';
 
 export default function ReportsPage() {
+  const { role, isInitialized, setShowAuthModal } = useAuthRole();
   const [selectedMeat, setSelectedMeat] = useState<'ayam' | 'daging' | 'kambing'>('ayam');
 
   // Interactive Cost Breakdown state
@@ -42,6 +46,41 @@ export default function ReportsPage() {
   const sellingPrice = selectedMeat === 'ayam' ? 1.30 : selectedMeat === 'daging' ? 1.60 : 2.00;
   const grossProfitPerStick = sellingPrice - totalCostPerStick;
   const marginPercent = sellingPrice > 0 ? ((grossProfitPerStick / sellingPrice) * 100).toFixed(1) : '0';
+
+  // Role Access Guard: Only Executive / Manager can see Executive Reports
+  if (isInitialized && role !== 'executive') {
+    return (
+      <div className="min-h-[65vh] flex items-center justify-center p-4">
+        <div className="bg-stone-900 border-2 border-rose-600/70 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl animate-fadeIn">
+          <div className="w-16 h-16 rounded-2xl bg-rose-950/90 border border-rose-500/50 flex items-center justify-center text-rose-400 mx-auto shadow-inner">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white">Laporan Eksekutif Terhad</h2>
+            <p className="text-xs sm:text-sm text-stone-300 mt-1.5 leading-relaxed">
+              Hanya <strong>Pengurus / Eksekutif</strong> dengan kebenaran khas yang dibenarkan melihat Laporan Jualan Z-Report, margin keuntungan, dan kos sulit se-cucuk sate.
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(true)}
+              className="w-full py-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:from-orange-500 text-white shadow-lg active:scale-95 flex items-center justify-center gap-2 border border-orange-400 cursor-pointer"
+            >
+              <Lock className="w-4 h-4" />
+              <span>Log Masuk Eksekutif (PIN: 1990)</span>
+            </button>
+            <Link
+              href="/pos"
+              className="w-full py-2.5 rounded-xl font-bold text-xs bg-stone-950 hover:bg-stone-850 text-stone-300 border border-stone-800 text-center block active:scale-95"
+            >
+              Kembali ke POS Kaunter
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-12">

@@ -11,11 +11,13 @@ import {
   BarChart3,
   Package
 } from 'lucide-react';
+import { useAuthRole } from './AuthRoleContext';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { canAccess, isInitialized } = useAuthRole();
 
-  const tabs = [
+  const allTabs = [
     { href: '/', label: 'Utama', icon: Flame },
     { href: '/pos', label: 'POS', icon: Store },
     { href: '/kitchen', label: 'Dapur', icon: CookingPot },
@@ -23,12 +25,20 @@ export default function BottomNav() {
     { href: '/reports', label: 'Laporan', icon: BarChart3 },
   ];
 
+  // Filter tabs strictly based on role permissions
+  const tabs = allTabs.filter((tab) => canAccess(tab.href));
+
+  if (!isInitialized || tabs.length === 0) return null;
+
   return (
     <nav 
       aria-label="Navigasi Mudah Alih"
       className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#121110]/98 backdrop-blur-lg border-t border-orange-950/60 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1.5 px-2 shadow-2xl"
     >
-      <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
+      <div 
+        className="grid gap-1 max-w-md mx-auto"
+        style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
+      >
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = pathname === tab.href;

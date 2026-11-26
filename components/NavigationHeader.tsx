@@ -16,15 +16,18 @@ import {
   X,
   ExternalLink,
   Glasses,
-  Download
+  Download,
+  UserCheck
 } from 'lucide-react';
 import { useSeniorMode } from './SeniorModeContext';
+import { useAuthRole } from './AuthRoleContext';
 
 export default function NavigationHeader() {
   const pathname = usePathname();
   const [isOnline, setIsOnline] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isSeniorMode, toggleSeniorMode } = useSeniorMode();
+  const { roleConfig, canAccess, setShowAuthModal } = useAuthRole();
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
@@ -41,7 +44,7 @@ export default function NavigationHeader() {
     };
   }, []);
 
-  const navLinks = [
+  const allNavLinks = [
     { href: '/', label: 'Ringkasan', icon: Flame },
     { href: '/pos', label: 'POS Kaunter', icon: Store, badge: 'Meja' },
     { href: '/kitchen', label: 'Dapur KDS', icon: CookingPot, badge: 'Live' },
@@ -50,6 +53,9 @@ export default function NavigationHeader() {
     { href: '/reports', label: 'Laporan & Kos', icon: BarChart3 },
     { href: '/menu', label: 'Menu Pelanggan', icon: ExternalLink },
   ];
+
+  // Filter links dynamically based on role permissions
+  const navLinks = allNavLinks.filter((link) => canAccess(link.href));
 
   return (
     <header className="sticky top-0 z-50 bg-[#121110]/95 backdrop-blur-md border-b border-orange-950/40 text-stone-100">
@@ -134,14 +140,29 @@ export default function NavigationHeader() {
               <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
             </div>
 
-            {/* Quick POS link on desktop */}
-            <Link
-              href="/pos"
-              className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-sm transition-all"
+            {/* Role Authentication Badge & Switch Button */}
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(true)}
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-stone-900 border border-stone-800 hover:border-orange-500 text-stone-200 text-xs font-bold transition-all active:scale-95"
+              title="Tukar Peranan Petugas (Role-Based Auth)"
             >
-              <Store className="w-3.5 h-3.5" />
-              <span>POS</span>
-            </Link>
+              <span>{roleConfig ? roleConfig.icon : '👤'}</span>
+              <span className="text-[10px] sm:text-xs font-black text-amber-300">
+                {roleConfig ? roleConfig.shortLabel : 'Pilih Peranan'}
+              </span>
+            </button>
+
+            {/* Quick POS link on desktop (only if permitted) */}
+            {canAccess('/pos') && (
+              <Link
+                href="/pos"
+                className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-sm transition-all"
+              >
+                <Store className="w-3.5 h-3.5" />
+                <span>POS</span>
+              </Link>
+            )}
 
             {/* Mobile Menu Toggle */}
             <button
@@ -158,6 +179,29 @@ export default function NavigationHeader() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="xl:hidden bg-[#121110] border-b border-orange-950/60 px-3 pt-2 pb-4 space-y-1">
+          {/* Peranan Semasa */}
+          <div className="mb-2 p-2.5 rounded-xl bg-stone-900 border border-stone-800 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">{roleConfig ? roleConfig.icon : '👤'}</span>
+              <div>
+                <span className="text-[10px] text-stone-400 block font-bold uppercase">Peranan Petugas</span>
+                <span className="text-xs font-black text-amber-300">
+                  {roleConfig ? roleConfig.label : 'Belum Dipilih'}
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setShowAuthModal(true);
+              }}
+              className="px-2.5 py-1 rounded-lg bg-orange-600 text-white font-bold text-xs shadow active:scale-95"
+            >
+              Tukar
+            </button>
+          </div>
+
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
