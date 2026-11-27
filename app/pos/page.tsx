@@ -87,9 +87,58 @@ const POS_CATEGORIES = [
   { id: 'minuman', label: 'Air', icon: '🥤' },
 ];
 
+// Subkategori Kiosk KFC mengikut kategori utama
+const KIOSK_SUBCATEGORIES: Record<string, { id: string; label: string }[]> = {
+  all: [
+    { id: 'all', label: 'SEMUA' },
+    { id: 'sate', label: 'SATE' },
+    { id: 'sup', label: 'SUP/MEE' },
+    { id: 'nasi', label: 'NASI' },
+    { id: 'karipap', label: 'KARIPAP' },
+    { id: 'air', label: 'AIR' },
+  ],
+  sate: [
+    { id: 'all', label: 'SEMUA' },
+    { id: 'ayam', label: 'AYAM' },
+    { id: 'daging', label: 'DAGING' },
+    { id: 'kambing', label: 'KAMBING' },
+    { id: 'perut', label: 'PERUT' },
+    { id: 'ketupat', label: 'KETUPAT' },
+  ],
+  istimewa: [
+    { id: 'all', label: 'SEMUA' },
+    { id: 'sup', label: 'SUP TULANG' },
+    { id: 'soto', label: 'SOTO' },
+    { id: 'mee', label: 'MEE' },
+    { id: 'bihun', label: 'BIHUN' },
+  ],
+  santai: [
+    { id: 'all', label: 'SEMUA' },
+    { id: 'lemak', label: 'NASI LEMAK' },
+    { id: 'goreng', label: 'NASI GORENG' },
+    { id: 'santai', label: 'SET SANTAI' },
+  ],
+  karipap: [
+    { id: 'all', label: 'SEMUA' },
+    { id: 'daging', label: 'DAGING' },
+    { id: 'ayam', label: 'AYAM' },
+    { id: 'kentang', label: 'KENTANG' },
+  ],
+  minuman: [
+    { id: 'all', label: 'SEMUA' },
+    { id: 'ais', label: 'AIS' },
+    { id: 'panas', label: 'PANAS' },
+    { id: 'teh', label: 'TEH' },
+    { id: 'kopi', label: 'KOPI' },
+    { id: 'buah', label: 'JUS / BUAH' },
+  ],
+};
+
 export default function PosPage() {
   const [menu] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [subCategoryFilter, setSubCategoryFilter] = useState<string>('all');
+  const [showCategorySidebar, setShowCategorySidebar] = useState<boolean>(true); // Papar panel kiri secara lalai seperti KFC Kiosk
   const [searchQuery, setSearchQuery] = useState('');
   
   // Navigasi POS Dipermudahkan: 'tables' (Page 1) vs 'menu' (Page 2)
@@ -172,11 +221,32 @@ export default function PosPage() {
     (o) => o.type === 'dine_in' && o.tableNumber === tableNumber && !o.isPaid && o.status !== 'cancelled'
   );
 
-  // Tapis katalog menu
+  // Tapis katalog menu (mengambil kira kategori, subkategori Kiosk KFC & carian)
   const filteredMenu = menu.filter((item) => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    
+    let matchesSub = true;
+    if (subCategoryFilter !== 'all') {
+      const name = item.name.toLowerCase();
+      if (selectedCategory === 'all') {
+        if (subCategoryFilter === 'sate') matchesSub = item.category === 'sate';
+        else if (subCategoryFilter === 'sup') matchesSub = item.category === 'istimewa';
+        else if (subCategoryFilter === 'nasi') matchesSub = item.category === 'santai';
+        else if (subCategoryFilter === 'karipap') matchesSub = item.category === 'karipap';
+        else if (subCategoryFilter === 'air') matchesSub = item.category === 'minuman';
+      } else if (subCategoryFilter === 'ais') {
+        matchesSub = name.includes('ais') || name.includes('coke') || name.includes('100 plus');
+      } else if (subCategoryFilter === 'panas') {
+        matchesSub = name.includes('panas') || (!name.includes('ais') && (name.includes('teh') || name.includes('kopi') || name.includes('milo')));
+      } else if (subCategoryFilter === 'buah') {
+        matchesSub = name.includes('limau') || name.includes('laici') || name.includes('barli') || name.includes('lai chee kang');
+      } else {
+        matchesSub = name.includes(subCategoryFilter.toLowerCase());
+      }
+    }
+
+    return matchesCategory && matchesSearch && matchesSub;
   });
 
   // Operasi troli
@@ -237,6 +307,7 @@ export default function PosPage() {
   // Pemilihan Kategori dengan Auto-Hide Panel (seperti susunan Kiosk KFC)
   const handleSelectCategory = (catId: string) => {
     setSelectedCategory(catId);
+    setSubCategoryFilter('all');
     if (categoryAutoHide) {
       setCategoryPanelOpen(false); // AUTO-HIDE!
     }
@@ -653,9 +724,9 @@ export default function PosPage() {
                     />
                   </div>
 
-                  {/* Bawah: Harga & Jumlah Item jika diduduki */}
+                  {/* Bawah: Harga & Jumlah Item jika diduduki / + Pesan jika kosong */}
                   <div className="w-full">
-                    {activeOrd && (
+                    {activeOrd ? (
                       <div>
                         <div className="font-mono text-xs sm:text-sm font-black text-orange-400 leading-tight">
                           RM {activeOrd.total.toFixed(activeOrd.total % 1 === 0 ? 0 : 2)}
@@ -663,6 +734,10 @@ export default function PosPage() {
                         <div className="text-[10px] text-stone-400 font-bold leading-tight mt-0.5">
                           {itemCount} item
                         </div>
+                      </div>
+                    ) : (
+                      <div className="text-[10px] sm:text-xs text-stone-500 font-medium leading-tight">
+                        + Pesan
                       </div>
                     )}
                   </div>
@@ -732,11 +807,16 @@ export default function PosPage() {
             <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
-                onClick={() => setCategoryPanelOpen(true)}
-                className="px-2.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-black text-xs flex items-center gap-1 shadow active:scale-95 border border-orange-400"
+                onClick={() => setShowCategorySidebar(!showCategorySidebar)}
+                className={`px-2.5 py-1.5 rounded-lg text-white font-black text-xs flex items-center gap-1 shadow active:scale-95 border transition-all ${
+                  showCategorySidebar
+                    ? 'bg-orange-600 border-orange-400 hover:bg-orange-500'
+                    : 'bg-stone-800 border-stone-700 text-stone-300'
+                }`}
+                title="Togol Panel Kategori Kiri"
               >
                 <span>{POS_CATEGORIES.find((c) => c.id === selectedCategory)?.icon || '🔥'}</span>
-                <span className="hidden sm:inline">{POS_CATEGORIES.find((c) => c.id === selectedCategory)?.label || 'Semua'}</span>
+                <span className="hidden sm:inline">{POS_CATEGORIES.find((c) => c.id === selectedCategory)?.label || 'Kategori'}</span>
                 <Layers className="w-3.5 h-3.5" />
               </button>
 
@@ -746,6 +826,7 @@ export default function PosPage() {
                 className={`p-1.5 rounded-lg border text-xs ${
                   showSettingsDrawer ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-950 text-stone-400 border-stone-800'
                 }`}
+                title="Tetapan Saiz"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
               </button>
@@ -800,48 +881,20 @@ export default function PosPage() {
           )}
 
           {/* ======================================================== */}
-          {/* PANEL KATEGORI SEBELAH KIRI (AUTO-HIDE KIOSK STYLE)      */}
+          {/* SUSUN ATUR KIOSK KFC: KATEGORI KIRI + MENU & PIL KANAN   */}
           {/* ======================================================== */}
-
-          {/* Tab Terapung Tepi Kiri (Minimalis) */}
-          <button
-            type="button"
-            onClick={() => setCategoryPanelOpen(true)}
-            className="fixed left-0 top-1/2 -translate-y-1/2 z-40 bg-orange-600 hover:bg-orange-500 text-white px-1.5 py-2.5 rounded-r-xl shadow-lg flex flex-col items-center gap-1 border-y border-r border-orange-400 cursor-pointer active:scale-95"
-            title="Kategori"
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="text-[8px] font-black uppercase [writing-mode:vertical-rl] rotate-180">
-              {POS_CATEGORIES.find((c) => c.id === selectedCategory)?.label || 'Menu'}
-            </span>
-          </button>
-
-          {/* Drawer Kategori Sebelah Kiri (Auto-Hide Selepas Klik) */}
-          {categoryPanelOpen && (
-            <div className="fixed inset-0 z-50 flex">
-              <div
-                className="fixed inset-0 bg-black/70 backdrop-blur-xs"
-                onClick={() => setCategoryPanelOpen(false)}
-              />
-
-              <aside className="relative z-10 w-60 bg-stone-900 border-r-2 border-orange-600 shadow-2xl flex flex-col justify-between overflow-hidden animate-slideIn">
-                {/* Header Padat Panel */}
-                <div className="p-3 border-b border-stone-800 bg-stone-950 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">🔥</span>
-                    <span className="font-black text-white text-xs">Kategori</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setCategoryPanelOpen(false)}
-                    className="p-1 rounded bg-stone-800 text-stone-400 hover:text-white"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+          <div className="flex gap-2 sm:gap-2.5 items-start">
+            {/* 1. SIDEBAR KATEGORI SEBELAH KIRI (SEPERTI KIOSK KFC) */}
+            {showCategorySidebar && (
+              <aside className="w-16 sm:w-20 md:w-24 shrink-0 bg-stone-900/95 border border-stone-800 rounded-2xl p-1 sm:p-1.5 flex flex-col gap-1 shadow-xl sticky top-28 select-none">
+                {/* Brand / Logo Mini (seperti Logo KFC di atas gambar) */}
+                <div className="flex flex-col items-center justify-center py-1 border-b border-stone-800 text-center">
+                  <span className="text-xl filter drop-shadow">🔥</span>
+                  <span className="text-[8px] sm:text-[9px] font-black text-orange-400 tracking-wider">NIPAH</span>
                 </div>
 
-                {/* Senarai Vertikal Kategori (KFC Kiosk Style - Jimat Ruang) */}
-                <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
+                {/* Senarai Kategori Vertikal Kiosk */}
+                <div className="flex flex-col gap-1 py-1">
                   {POS_CATEGORIES.map((cat) => {
                     const isActive = selectedCategory === cat.id;
                     const count = cat.id === 'all'
@@ -853,159 +906,201 @@ export default function PosPage() {
                         key={cat.id}
                         type="button"
                         onClick={() => handleSelectCategory(cat.id)}
-                        className={`w-full p-2 rounded-xl border transition-all text-left flex items-center gap-2.5 active:scale-95 cursor-pointer ${
+                        className={`w-full py-2 px-1 rounded-xl flex flex-col items-center justify-center text-center transition-all cursor-pointer active:scale-95 ${
                           isActive
-                            ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-400 shadow-md font-black'
-                            : 'bg-stone-950 text-stone-300 border-stone-800 hover:border-orange-500'
+                            ? 'bg-gradient-to-b from-orange-600 to-amber-600 text-white shadow-lg border border-orange-400 font-black'
+                            : 'bg-stone-950/80 hover:bg-stone-800 text-stone-300 border border-stone-850 hover:border-stone-700'
                         }`}
                       >
-                        <span className="text-xl shrink-0">{cat.icon}</span>
-                        <div className="flex-1 min-w-0 flex items-center justify-between">
-                          <span className="text-xs truncate">{cat.label}</span>
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/30 text-white' : 'text-stone-400'}`}>
-                            {count}
-                          </span>
-                        </div>
+                        <span className="text-base sm:text-lg leading-none">{cat.icon}</span>
+                        <span className="text-[9px] sm:text-[10px] font-bold mt-1 leading-tight tracking-tight line-clamp-1">
+                          {cat.label}
+                        </span>
+                        <span className={`text-[8px] font-mono px-1 rounded-full mt-0.5 ${isActive ? 'bg-black/30 text-white' : 'text-stone-500'}`}>
+                          {count}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
+              </aside>
+            )}
 
-                {/* Footer Kategori */}
-                <div className="p-2.5 bg-stone-950 border-t border-stone-800 flex justify-between items-center text-[10px] text-stone-400">
-                  <span>{menu.length} item</span>
+            {/* 2. KAWASAN MENU & SUBKATEGORI (KANAN) */}
+            <div className="flex-1 min-w-0 space-y-2">
+              {/* Header Kategori Terpilih & Sub-filter Horizontal (seperti BURGERS & ALL/ZINGER/GRANDER di Kiosk KFC) */}
+              <div className="bg-stone-900 border border-stone-800 rounded-xl p-2 sm:p-2.5 shadow-sm space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg">
+                      {POS_CATEGORIES.find((c) => c.id === selectedCategory)?.icon || '🔥'}
+                    </span>
+                    <h2 className="text-xs sm:text-sm font-black text-white uppercase tracking-wide">
+                      {POS_CATEGORIES.find((c) => c.id === selectedCategory)?.label || 'SEMUA MENU'}
+                    </h2>
+                    <span className="text-[10px] sm:text-xs text-stone-400 font-mono">
+                      ({filteredMenu.length})
+                    </span>
+                  </div>
+
+                  {/* Butang Auto-Hide Toggle */}
                   <button
                     type="button"
-                    onClick={() => handleSelectCategory('all')}
-                    className="text-orange-400 font-bold hover:underline"
+                    onClick={() => setShowCategorySidebar(!showCategorySidebar)}
+                    className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 text-stone-400 hover:text-white flex items-center gap-1 active:scale-95"
+                    title={showCategorySidebar ? 'Sembunyikan Sidebar Kategori' : 'Buka Sidebar Kategori'}
                   >
-                    Semua
+                    <Layers className="w-3 h-3 text-orange-400" />
+                    <span>{showCategorySidebar ? 'Auto-hide' : 'Kategori'}</span>
                   </button>
                 </div>
-              </aside>
-            </div>
-          )}
 
-          {/* ======================================================== */}
-          {/* GRID MENU: 4 SEBARIS MELINTANG (KONSEP MINIMALIS)         */}
-          {/* ======================================================== */}
-          <div
-            className={`${
-              columnsCount === 4
-                ? 'grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-2'
-                : 'grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2'
-            }`}
-          >
-            {filteredMenu.map((item) => {
-              const inCart = cart.find((i) => i.itemId === item.id);
-              const isSatay = item.category === 'sate';
-              const displayIcon = getItemDisplayIcon(item);
-
-              const iconBoxClass = {
-                sm: 'h-12 text-2xl',
-                md: 'h-14 sm:h-16 text-3xl',
-                lg: 'h-18 sm:h-20 text-4xl',
-              }[iconSize];
-
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => addToCart(item, isSatay ? 5 : 1)}
-                  className={`group relative bg-stone-900 border rounded-xl p-1.5 sm:p-2 cursor-pointer select-none transition-all flex flex-col justify-between active:scale-95 ${
-                    inCart ? 'border-orange-500 ring-1 ring-orange-500/60 shadow bg-stone-900' : 'border-stone-800 hover:border-orange-500/60'
-                  }`}
-                >
-                  {/* Kotak Ikon Menu (Mengikut Lakaran Pengguna) */}
-                  <div
-                    className={`w-full ${iconBoxClass} rounded-lg border flex items-center justify-center relative overflow-hidden transition-all ${
-                      inCart
-                        ? 'border-orange-500 bg-orange-950/20'
-                        : 'border-stone-850 bg-stone-950 group-hover:border-stone-700'
-                    }`}
-                  >
-                    <span className="filter drop-shadow select-none">
-                      {displayIcon.emoji}
-                    </span>
-
-                    {/* Lencana Kuantiti Jika Dipilih */}
-                    {inCart && (
-                      <span className="absolute top-1 right-1 text-[9px] font-black px-1 rounded bg-orange-600 text-white shadow">
-                        {inCart.quantity}x
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Nama Menu & Harga (Padat & Jelas) */}
-                  <div className="mt-1 flex-1 flex flex-col justify-between text-center min-w-0">
-                    <span className="text-[11px] sm:text-xs font-bold text-stone-100 truncate">
-                      {item.name}
-                    </span>
-
-                    <span className="font-mono text-[10px] sm:text-xs font-bold text-orange-400 mt-0.5">
-                      RM {item.price.toFixed(2)}
-                    </span>
-
-                    {/* Stepper Tambah/Tolak Jika Dalam Troli */}
-                    {inCart && (
-                      <div
-                        className="flex items-center justify-between w-full mt-1 bg-orange-950/90 border border-orange-600/70 rounded p-0.5 text-xs font-bold"
-                        onClick={(e) => e.stopPropagation()}
+                {/* Subcategory Pills (Horizontal Scroll seperti di Gambar Kiosk KFC) */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+                  {(KIOSK_SUBCATEGORIES[selectedCategory] || KIOSK_SUBCATEGORIES.all).map((sub) => {
+                    const isSubActive = subCategoryFilter === sub.id;
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        onClick={() => setSubCategoryFilter(sub.id)}
+                        className={`px-2.5 py-1 rounded-full text-[9px] sm:text-[11px] font-black tracking-tight whitespace-nowrap transition-all cursor-pointer active:scale-95 border ${
+                          isSubActive
+                            ? 'bg-orange-600 text-white border-orange-400 shadow-sm'
+                            : 'bg-stone-950 text-stone-400 border-stone-800 hover:text-stone-200 hover:border-stone-700'
+                        }`}
                       >
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.id, isSatay ? -5 : -1)}
-                          className="w-4 h-4 flex items-center justify-center rounded bg-stone-900 text-orange-400 hover:bg-orange-600 hover:text-white"
-                        >
-                          <Minus className="w-2.5 h-2.5" />
-                        </button>
-                        <span className="font-mono font-black text-[10px] text-white">
-                          {inCart.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => addToCart(item, isSatay ? 5 : 1)}
-                          className="w-4 h-4 flex items-center justify-center rounded bg-orange-600 text-white hover:bg-orange-500"
-                        >
-                          <Plus className="w-2.5 h-2.5" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                        {sub.label}
+                      </button>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+
+              {/* Grid Menu: Minimalis & Sesuai dengan Kiosk KFC */}
+              <div
+                className={`${
+                  columnsCount === 4
+                    ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2'
+                    : 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2'
+                }`}
+              >
+                {filteredMenu.map((item) => {
+                  const inCart = cart.find((i) => i.itemId === item.id);
+                  const isSatay = item.category === 'sate';
+                  const displayIcon = getItemDisplayIcon(item);
+
+                  const iconBoxClass = {
+                    sm: 'h-12 text-2xl',
+                    md: 'h-14 sm:h-16 text-3xl',
+                    lg: 'h-18 sm:h-20 text-4xl',
+                  }[iconSize];
+
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => addToCart(item, isSatay ? 5 : 1)}
+                      className={`group relative bg-stone-900 border rounded-xl p-1.5 sm:p-2 cursor-pointer select-none transition-all flex flex-col justify-between active:scale-95 ${
+                        inCart ? 'border-orange-500 ring-1 ring-orange-500/60 shadow bg-stone-900' : 'border-stone-800 hover:border-orange-500/60'
+                      }`}
+                    >
+                      {/* Kotak Ikon Menu */}
+                      <div
+                        className={`w-full ${iconBoxClass} rounded-lg border flex items-center justify-center relative overflow-hidden transition-all ${
+                          inCart
+                            ? 'border-orange-500 bg-orange-950/20'
+                            : 'border-stone-850 bg-stone-950 group-hover:border-stone-700'
+                        }`}
+                      >
+                        <span className="filter drop-shadow select-none">
+                          {displayIcon.emoji}
+                        </span>
+
+                        {/* Lencana Kuantiti Jika Dipilih */}
+                        {inCart && (
+                          <span className="absolute top-1 right-1 text-[9px] font-black px-1 rounded bg-orange-600 text-white shadow">
+                            {inCart.quantity}x
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Nama Menu & Harga (Padat & Jelas) */}
+                      <div className="mt-1 flex-1 flex flex-col justify-between text-center min-w-0">
+                        <span className="text-[11px] sm:text-xs font-bold text-stone-100 truncate">
+                          {item.name}
+                        </span>
+
+                        <span className="font-mono text-[10px] sm:text-xs font-bold text-orange-400 mt-0.5">
+                          RM {item.price.toFixed(2)}
+                        </span>
+
+                        {/* Stepper Tambah/Tolak Jika Dalam Troli */}
+                        {inCart && (
+                          <div
+                            className="flex items-center justify-between w-full mt-1 bg-orange-950/90 border border-orange-600/70 rounded p-0.5 text-xs font-bold"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.id, isSatay ? -5 : -1)}
+                              className="w-4 h-4 flex items-center justify-center rounded bg-stone-900 text-orange-400 hover:bg-orange-600 hover:text-white"
+                            >
+                              <Minus className="w-2.5 h-2.5" />
+                            </button>
+                            <span className="font-mono font-black text-[10px] text-white">
+                              {inCart.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => addToCart(item, isSatay ? 5 : 1)}
+                              className="w-4 h-4 flex items-center justify-center rounded bg-orange-600 text-white hover:bg-orange-500"
+                            >
+                              <Plus className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           {/* ======================================================== */}
-          {/* FLOATING ACTION BAR: HANTAR ORDER (PADAT & MINIMALIS)    */}
+          {/* FLOATING ACTION BAR: HANTAR ORDER (SEPERTI KIOSK KFC)     */}
           {/* ======================================================== */}
           <div className="fixed bottom-[4.75rem] left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto">
-            <div className="bg-stone-900 border border-orange-500/80 rounded-xl px-3 py-2 shadow-2xl flex items-center justify-between gap-2 text-stone-100 backdrop-blur-md">
-              {/* Ringkasan Troli */}
+            <div className="bg-stone-900 border border-orange-500/80 rounded-2xl px-3 py-2.5 shadow-2xl flex items-center justify-between gap-2 text-stone-100 backdrop-blur-md">
+              {/* Ringkasan Troli (SHOW BASKET ^) */}
               <button
                 type="button"
                 onClick={() => setCartModalOpen(true)}
-                className="flex items-center gap-2 text-left active:scale-95"
+                className="flex items-center gap-2.5 text-left active:scale-95 group cursor-pointer"
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow ${activeTableOrder && cart.length === 0 ? 'bg-emerald-600' : 'bg-orange-600'}`}>
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white shadow relative transition-all ${
+                  activeTableOrder && cart.length === 0 ? 'bg-emerald-600' : 'bg-orange-600 group-hover:bg-orange-500'
+                }`}>
                   {activeTableOrder && cart.length === 0 ? <Banknote className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
+                  {cart.length > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-stone-900 shadow">
+                      {cart.reduce((a, b) => a + b.quantity, 0)}
+                    </span>
+                  )}
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-stone-300">
-                    {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `M${tableNumber}`) : 'Bungkus'} •{' '}
-                    {cart.length > 0
-                      ? `${cart.reduce((a, b) => a + b.quantity, 0)} item baru`
-                      : activeTableOrder
-                      ? `${activeTableOrder.items.reduce((a, b) => a + b.quantity, 0)} item`
-                      : '0 item'}
+                  <div className="text-[10px] font-black text-stone-300 flex items-center gap-1 uppercase tracking-tight">
+                    <span>{orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}</span>
+                    <span>•</span>
+                    <span className="text-orange-400">TROLI ^</span>
                   </div>
-                  <div className={`font-mono text-sm font-black ${activeTableOrder && cart.length === 0 ? 'text-emerald-400' : 'text-white'}`}>
+                  <div className={`font-mono text-sm sm:text-base font-black ${activeTableOrder && cart.length === 0 ? 'text-emerald-400' : 'text-white'}`}>
                     RM {(cart.length > 0 ? subtotal : activeTableOrder ? activeTableOrder.total : 0).toFixed(2)}
                   </div>
                 </div>
               </button>
 
-              {/* Butang Tindakan Hantar / Bayar */}
+              {/* Butang Tindakan Kiosk KFC (PLACE ORDER / KIRA BIL) */}
               <div className="flex items-center gap-1.5">
                 {cart.length > 0 ? (
                   orderType === 'takeaway' && !selectedTakeawayOrder ? (
@@ -1013,27 +1108,27 @@ export default function PosPage() {
                       <button
                         type="button"
                         onClick={handleSendToKitchen}
-                        className="px-2.5 py-2 rounded-lg font-bold text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 active:scale-95"
+                        className="px-2.5 py-2 rounded-xl font-bold text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 active:scale-95"
                       >
                         Hantar
                       </button>
                       <button
                         type="button"
                         onClick={handlePayNowDirectly}
-                        className="px-3 py-2 rounded-lg font-black text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow active:scale-95 flex items-center gap-1"
+                        className="px-3.5 py-2 rounded-xl font-black text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg active:scale-95 flex items-center gap-1.5 border border-emerald-400"
                       >
                         <Banknote className="w-3.5 h-3.5" />
-                        <span>Bayar</span>
+                        <span>PLACE ORDER RM {subtotal.toFixed(2)}</span>
                       </button>
                     </div>
                   ) : (
                     <button
                       type="button"
                       onClick={(activeTableOrder || selectedTakeawayOrder) ? handleAppendOrder : handleSendToKitchen}
-                      className="px-3.5 py-2 rounded-lg font-black text-xs bg-orange-600 hover:bg-orange-500 text-white shadow active:scale-95 flex items-center gap-1.5"
+                      className="px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl active:scale-95 flex items-center gap-1.5 border border-emerald-400"
                     >
                       <Send className="w-3.5 h-3.5" />
-                      <span>{(activeTableOrder || selectedTakeawayOrder) ? 'Hantar Tambahan' : 'Hantar Dapur'}</span>
+                      <span>PLACE ORDER RM {subtotal.toFixed(2)}</span>
                     </button>
                   )
                 ) : (
@@ -1041,10 +1136,10 @@ export default function PosPage() {
                     <button
                       type="button"
                       onClick={() => handleOpenSettleModal(activeTableOrder)}
-                      className="px-3.5 py-2 rounded-lg font-black text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white shadow-lg active:scale-95 flex items-center gap-1.5 border border-emerald-400"
+                      className="px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white shadow-xl active:scale-95 flex items-center gap-1.5 border border-emerald-400"
                     >
-                      <Banknote className="w-3.5 h-3.5" />
-                      <span>Kira Bil RM {activeTableOrder.total.toFixed(activeTableOrder.total % 1 === 0 ? 0 : 2)}</span>
+                      <Banknote className="w-4 h-4" />
+                      <span>KIRA BIL RM {activeTableOrder.total.toFixed(activeTableOrder.total % 1 === 0 ? 0 : 2)}</span>
                     </button>
                   )
                 )}

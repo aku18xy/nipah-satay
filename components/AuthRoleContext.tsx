@@ -20,7 +20,7 @@ export const ROLES_CONFIG: Record<UserRole, RoleConfig> = {
     label: 'Pengurus / Eksekutif',
     shortLabel: 'Eksekutif',
     icon: '👑',
-    description: 'Akses penuh semua modul termasuk Laporan Eksekutif, Kos Sulit & Z-Report.',
+    description: 'Akses penuh semua modul termasuk Halaman Utama, Laporan Eksekutif, Kos Sulit & Z-Report.',
     allowedRoutes: ['/', '/pos', '/kitchen', '/production', '/wholesale', '/reports', '/menu'],
     requiresPin: true,
   },
@@ -30,7 +30,7 @@ export const ROLES_CONFIG: Record<UserRole, RoleConfig> = {
     shortLabel: 'Juruwang',
     icon: '💳',
     description: 'Akses ke POS Kaunter, Pesanan Meja, Status Dapur & Borong.',
-    allowedRoutes: ['/', '/pos', '/kitchen', '/wholesale', '/menu'],
+    allowedRoutes: ['/pos', '/kitchen', '/wholesale', '/menu'],
     requiresPin: false,
   },
   kitchen: {
@@ -39,7 +39,7 @@ export const ROLES_CONFIG: Record<UserRole, RoleConfig> = {
     shortLabel: 'Pitmaster',
     icon: '🔥',
     description: 'Akses terus ke Dapur Pintar KDS untuk giliran bakar sate & pesanan kuali.',
-    allowedRoutes: ['/', '/kitchen', '/menu'],
+    allowedRoutes: ['/kitchen', '/menu'],
     requiresPin: false,
   },
   production: {
@@ -48,7 +48,7 @@ export const ROLES_CONFIG: Record<UserRole, RoleConfig> = {
     shortLabel: 'Kilang',
     icon: '🏭',
     description: 'Akses ke rekod timbangan daging, hasil trimming, dan upah pencucuk sate.',
-    allowedRoutes: ['/', '/production', '/wholesale', '/menu'],
+    allowedRoutes: ['/production', '/wholesale', '/menu'],
     requiresPin: false,
   },
 };

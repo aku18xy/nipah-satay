@@ -35,14 +35,16 @@ Sistem menguatkuasakan kawalan capaian berasaskan peranan secara automatik sejak
 
 | Peranan (Role) | Kod Peranan | Akses Tab Bawah & Menu | Kawalan Keselamatan | Modul Terlibat |
 | :--- | :--- | :--- | :--- | :--- |
-| **Pengurus / Eksekutif** | `executive` | **Semua Tab & Halaman:** Utama, POS, Dapur, Kilang, Borong, Laporan | Dilindungi PIN 4-Digit Khusus (`1990` / `1234`) | Semua Modul (`/`, `/pos`, `/kitchen`, `/production`, `/wholesale`, `/reports`) |
-| **Juruwang & Kaunter** | `cashier` | **3 Tab Sahaja:** Utama, POS Kaunter, Dapur KDS | Dihadkan; disekat daripada Laporan Eksekutif & Kilang | `/pos`, `/kitchen`, `/`, `/wholesale`, `/menu` |
-| **Pitmaster & Dapur KDS** | `kitchen` | **2 Tab Sahaja:** Utama, Dapur KDS | Dihadkan; disekat daripada POS, Kilang, dan Laporan | `/kitchen`, `/`, `/menu` |
-| **Pekerja Kilang Sate** | `production` | **2 Tab Sahaja:** Utama, Kilang Sate | Dihadkan; disekat daripada POS, Dapur, dan Laporan | `/production`, `/`, `/wholesale`, `/menu` |
+| **Pengurus / Eksekutif** | `executive` | **Semua 5 Tab & Halaman:** Utama, POS, Dapur, Kilang, Laporan | **Satu-satunya akses ke Halaman Utama & Laporan (PIN: `1990` / `1234`)** | Semua Modul (`/`, `/pos`, `/kitchen`, `/production`, `/wholesale`, `/reports`) |
+| **Juruwang & Kaunter** | `cashier` | **2 Tab Sahaja:** POS Kaunter, Dapur KDS | Dihadkan; disekat daripada Utama (`/`), Laporan Eksekutif & Kilang | `/pos`, `/kitchen`, `/wholesale`, `/menu` |
+| **Pitmaster & Dapur KDS** | `kitchen` | **1 Tab Sahaja:** Dapur KDS | Dihadkan; disekat daripada Utama (`/`), POS, Kilang, dan Laporan | `/kitchen`, `/menu` |
+| **Pekerja Kilang Sate** | `production` | **1 Tab Sahaja:** Kilang Sate | Dihadkan; disekat daripada Utama (`/`), POS, Dapur, dan Laporan | `/production`, `/wholesale`, `/menu` |
 
 ### Ciri Keselamatan RBAC:
 1. **Modal Pemulaan (Initialization Modal):** Ditampilkan secara automatik jika peranti belum menetapkan peranan staf atau apabila staf menekan butang lencana peranan untuk bertukar syif.
-2. **Penapisan Tab Dinamik (Dynamic BottomNav & Header):** Bar navigasi bawah telefon pintar dan pautan menu atas menyembunyikan sepenuhnya tab yang tidak dibenarkan bagi peranan tersebut.
+2. **Eksklusiviti Halaman Utama (`/`):** Halaman Utama (Pusat Kawalan Operasi) hanya boleh diakses oleh Eksekutif. Petugas juruwang, dapur, dan kilang akan dihalakan (*auto-redirect*) terus ke modul kerja masing-masing (/pos, /kitchen, /production).
+3. **Penapisan Tab Dinamik (Dynamic BottomNav & Header):** Bar navigasi bawah telefon pintar dan pautan menu atas menyembunyikan sepenuhnya tab yang tidak dibenarkan bagi peranan tersebut.
+4. **Pengawal Laluan URL (Security Route Guard):** Percubaan membuka halaman terhad (`/` dan `/reports`) oleh staf bukan Eksekutif akan memaparkan skrin sekatan berserta butang log masuk PIN Eksekutif.
 3. **Pengawal Laluan URL (Security Route Guard):** Percubaan membuka halaman terhad (cth: `/reports`) oleh staf bukan Eksekutif akan memaparkan skrin sekatan **"Laporan Eksekutif Terhad"** berserta butang log masuk PIN Eksekutif.
 
 ---

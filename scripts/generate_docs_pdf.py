@@ -283,10 +283,10 @@ def build_srs_pdf(filename):
     ))
     roles_data = [
         [Paragraph("Peranan (Role)", styles['TableHeader']), Paragraph("Kod & Akses Tab", styles['TableHeader']), Paragraph("Kawalan Keselamatan & Modul", styles['TableHeader'])],
-        [Paragraph("Pengurus / Eksekutif", styles['TableCellBold']), Paragraph("<b>executive</b><br/>Semua 5 Tab: Utama, POS, Dapur, Kilang, Laporan", styles['TableCell']), Paragraph("<b>Dilindungi PIN 4-Digit (1990/1234)</b><br/>Akses penuh Z-Report, Kos Se-Cucuk, POS, KDS & Kilang.", styles['TableCell'])],
-        [Paragraph("Juruwang & Kaunter", styles['TableCellBold']), Paragraph("<b>cashier</b><br/>3 Tab: Utama, POS, Dapur", styles['TableCell']), Paragraph("Akses POS Kaunter & Meja Dinamik, Status Dapur & Borong. <i>Disekat daripada Laporan & Kilang.</i>", styles['TableCell'])],
-        [Paragraph("Pitmaster & Dapur KDS", styles['TableCellBold']), Paragraph("<b>kitchen</b><br/>2 Tab: Utama, Dapur", styles['TableCell']), Paragraph("Akses terus Skrin KDS Dapur Pintar untuk giliran bakar arang. <i>Disekat daripada POS, Kilang & Laporan.</i>", styles['TableCell'])],
-        [Paragraph("Pekerja Kilang Sate", styles['TableCellBold']), Paragraph("<b>production</b><br/>2 Tab: Utama, Kilang", styles['TableCell']), Paragraph("Akses borang timbangan daging kasar, yield %, dan log upah mencucuk. <i>Disekat daripada POS, Dapur & Laporan.</i>", styles['TableCell'])],
+        [Paragraph("Pengurus / Eksekutif", styles['TableCellBold']), Paragraph("<b>executive</b><br/>Semua 5 Tab: Utama, POS, Dapur, Kilang, Laporan", styles['TableCell']), Paragraph("<b>Satu-satunya akses ke Utama & Laporan (PIN 1990)</b><br/>Akses penuh Z-Report, Kos Se-Cucuk, POS, KDS & Kilang.", styles['TableCell'])],
+        [Paragraph("Juruwang & Kaunter", styles['TableCellBold']), Paragraph("<b>cashier</b><br/>2 Tab: POS, Dapur", styles['TableCell']), Paragraph("Akses POS Kaunter & Meja Dinamik, Status Dapur & Borong. <i>Disekat daripada Utama (/), Laporan & Kilang.</i>", styles['TableCell'])],
+        [Paragraph("Pitmaster & Dapur KDS", styles['TableCellBold']), Paragraph("<b>kitchen</b><br/>1 Tab: Dapur KDS", styles['TableCell']), Paragraph("Akses terus Skrin KDS Dapur Pintar untuk giliran bakar arang. <i>Disekat daripada Utama (/), POS, Kilang & Laporan.</i>", styles['TableCell'])],
+        [Paragraph("Pekerja Kilang Sate", styles['TableCellBold']), Paragraph("<b>production</b><br/>1 Tab: Kilang Sate", styles['TableCell']), Paragraph("Akses borang timbangan daging kasar, yield %, dan log upah mencucuk. <i>Disekat daripada Utama (/), POS, Dapur & Laporan.</i>", styles['TableCell'])],
     ]
     t_roles = Table(roles_data, colWidths=[100, 160, 227])
     t_roles.setStyle(TableStyle([

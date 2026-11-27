@@ -39,11 +39,11 @@ export default function RoleAuthModal() {
       return;
     }
 
-    // If current pathname is restricted for this new role, redirect to permitted home
+    // If current pathname is restricted for this new role (or on '/' and not executive), redirect to permitted home
     const allowed = ROLES_CONFIG[selectedRole].allowedRoutes;
     const canKeepPath = allowed.some((r) => (r === '/' ? pathname === '/' : pathname.startsWith(r)));
     
-    if (!canKeepPath) {
+    if (!canKeepPath || (pathname === '/' && selectedRole !== 'executive')) {
       if (selectedRole === 'kitchen') router.push('/kitchen');
       else if (selectedRole === 'production') router.push('/production');
       else if (selectedRole === 'cashier') router.push('/pos');

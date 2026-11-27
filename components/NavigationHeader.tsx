@@ -56,13 +56,14 @@ export default function NavigationHeader() {
 
   // Filter links dynamically based on role permissions
   const navLinks = allNavLinks.filter((link) => canAccess(link.href));
+  const homeHref = roleConfig?.id === 'executive' ? '/' : roleConfig?.id === 'kitchen' ? '/kitchen' : roleConfig?.id === 'production' ? '/production' : '/pos';
 
   return (
     <header className="sticky top-0 z-50 bg-[#121110]/95 backdrop-blur-md border-b border-orange-950/40 text-stone-100">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo & Outlet Location */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+          <Link href={homeHref} className="flex items-center gap-2 sm:gap-3 group min-w-0">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md shadow-orange-950/60 group-hover:scale-105 transition-transform flex-shrink-0">
               <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-pulse" />
             </div>

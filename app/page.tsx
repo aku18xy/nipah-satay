@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Flame, 
   Store, 
@@ -16,14 +17,71 @@ import {
   Users, 
   Boxes, 
   ThermometerSnowflake,
-  ShieldCheck
+  ShieldCheck,
+  ShieldAlert,
+  Lock
 } from 'lucide-react';
 import { INITIAL_STORAGE, INITIAL_ORDERS, INITIAL_MEAT_INTAKE } from '@/lib/data';
+import { useAuthRole } from '@/components/AuthRoleContext';
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { role, isInitialized, setShowAuthModal } = useAuthRole();
   const [storage] = useState(INITIAL_STORAGE);
   const [orders] = useState(INITIAL_ORDERS);
   const [meatIntake] = useState(INITIAL_MEAT_INTAKE);
+
+  // Non-executive users are automatically redirected to their operational module
+  useEffect(() => {
+    if (isInitialized && role && role !== 'executive') {
+      if (role === 'cashier') router.replace('/pos');
+      else if (role === 'kitchen') router.replace('/kitchen');
+      else if (role === 'production') router.replace('/production');
+    }
+  }, [isInitialized, role, router]);
+
+  // Executive Access Protection Guard for Utama (/)
+  if (isInitialized && role !== 'executive') {
+    return (
+      <div className="min-h-[65vh] flex items-center justify-center p-4">
+        <div className="bg-stone-900 border-2 border-rose-600/70 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl animate-fadeIn">
+          <div className="w-16 h-16 rounded-2xl bg-rose-950/90 border border-rose-500/50 flex items-center justify-center text-rose-400 mx-auto shadow-inner">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white">Halaman Utama Terhad</h2>
+            <p className="text-xs sm:text-sm text-stone-300 mt-1.5 leading-relaxed">
+              Halaman <strong>Utama (Pusat Kawalan Operasi)</strong> hanya boleh diakses oleh <strong>Pengurus / Eksekutif</strong>. Petugas kaunter, dapur, dan kilang sila gunakan modul operasi yang ditetapkan.
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(true)}
+              className="w-full py-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:from-orange-500 text-white shadow-lg active:scale-95 flex items-center justify-center gap-2 border border-orange-400 cursor-pointer"
+            >
+              <Lock className="w-4 h-4" />
+              <span>Log Masuk Eksekutif (PIN: 1990)</span>
+            </button>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              <Link
+                href="/pos"
+                className="py-2.5 rounded-xl font-bold text-xs bg-stone-950 hover:bg-stone-850 text-stone-300 border border-stone-800 text-center block active:scale-95"
+              >
+                Ke POS Kaunter
+              </Link>
+              <Link
+                href="/kitchen"
+                className="py-2.5 rounded-xl font-bold text-xs bg-stone-950 hover:bg-stone-850 text-stone-300 border border-stone-800 text-center block active:scale-95"
+              >
+                Ke Dapur KDS
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Computed metrics
   const activeOrdersCount = orders.filter(o => o.status === 'cooking' || o.status === 'pending').length;
