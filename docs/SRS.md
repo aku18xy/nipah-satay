@@ -177,14 +177,39 @@ Sistem menguatkuasakan kawalan capaian berasaskan peranan secara automatik sejak
 
 ---
 
-### Modul 8: Seni Bina Data & API REST (`/api/*` & Neon PostgreSQL)
+### Modul 8: POS Backoffice — Pengurusan Menu & Kategori Dinamik (`/pos/backoffice`)
+* **Tujuan:** Menyediakan hab pengurusan katalog berpusat bagi pihak pengurusan dan juruwang untuk mengemaskini, menambah, mengubah suai, dan memadam hidangan serta kategori menu tanpa penglibatan teknikal atau perubahan kod.
+* **Ciri-Ciri Utama:**
+  1. **Pengurusan Menu Lengkap (CRUD Menu):**
+     - **Tambah Menu Baharu:** Memasukkan nama menu, kategori dinamik, harga jualan rasmi (RM), unit hidangan (*cucuk, mangkuk, pinggan, bungkus*), stesen dapur (*Grill Bakar, Wok Panas, Prep Bar*), dan penerangan ramuan.
+     - **Pilihan Gambar Makanan Fleksibel:** Menyediakan galeri pilihan gambar hidangan rasmi Nipah Satay (sate, karipap, soto, nasi lemak, mi rebus, dsb.) atau pautan URL gambar tersuai.
+     - **Ubah Suai Menu (Modify):** Mengedit semula nama, harga, gambar, atau kategori hidangan secara langsung.
+     - **Buang Menu (Delete):** Memadam hidangan daripada sistem dengan dialog pengesahan perlindungan ralat manusia.
+     - **Togol Ketersediaan Stok (*Available / Out of Stock*):** Menandakan hidangan sebagai "Ada Stok" atau "Habis" dengan satu klik untuk rujukan pantas kaunter POS.
+  2. **Pengurusan Kategori Menu (CRUD Kategori):**
+     - **Tambah Kategori Baharu:** Mencipta kategori sajian baharu (cth: Pencuci Mulut, Minuman Khas, Sarapan Pagi) dengan pemilih ikon emoji pantas (*Emoji Picker*).
+     - **Ubah Suai & Buang Kategori:** Mengemas kini nama atau ikon kategori, serta memadam kategori lapuk.
+  3. **Penyegerakan Automatik Masa Nyata:**
+     - Sebarang penambahan menu atau kategori baharu terus dicerminkan serta-merta pada skrin **POS Kaunter (`/pos`)** (termasuk panel kategori kiosk gaya KFC dan subkategori melintang) serta **Menu Pelanggan (`/menu`)**.
+  4. **Akses Pantas Kaunter:**
+     - Butang jalan pintas `[⚙️ Backoffice]` disediakan secara langsung pada bar tajuk POS Kaunter bagi memudahkan akses segera juruwang dan eksekutif.
+
+---
+
+### Modul 9: Seni Bina Data & API REST (`/api/*` & Neon PostgreSQL)
 * **Tujuan:** Menyimpan data operasi secara kekal di awan dengan sandaran tempatan bagi memastikan ketahanan sistem.
 * **Struktur Pangkalan Data (Neon PostgreSQL Serverless):**
   - `orders`: Menyimpan rekod pesanan, jenis (*dine_in / takeaway*), nombor meja, senarai item hidangan, jumlah bil, status penyediaan dapur (*pending / preparing / ready / completed*), dan status bayaran (*paid / unpaid*).
+  - `menu_items`: Menyimpan katalog hidangan makanan dan minuman, harga, unit, pautan gambar, stesen dapur, status ketersediaan, dan anggaran kos bahan mentah.
+  - `menu_categories`: Menyimpan senarai kategori menu dinamik, label, ikon emoji, dan susunan paparan.
   - `meat_intake`: Menyimpan rekod timbangan daging mentah, susut urat, berat bersih, peratusan hasil, dan tarikh pemprosesan kilang.
   - `worker_skewer_logs`: Menyimpan rekod output cucukan sate harian pekerja mengikut jenis daging dan jumlah upah terkumpul.
   - `chiller_inventory`: Menyimpan baki stok fizikal sate siap cucuk di dalam bilik sejuk kilang.
 * **Laluan API Utama:**
+  - `GET /api/menu` & `POST /api/menu` — Membaca katalog penuh serta menambah menu baharu.
+  - `PUT /api/menu/[id]` & `DELETE /api/menu/[id]` — Mengemaskini atau memadam hidangan menu tertentu.
+  - `GET /api/categories` & `POST /api/categories` — Membaca dan mencipta kategori menu baharu.
+  - `PUT /api/categories/[id]` & `DELETE /api/categories/[id]` — Mengemaskini atau memadam kategori menu.
   - `GET /api/orders` & `POST /api/orders` — Membaca dan mencipta pesanan POS baharu.
   - `GET /api/orders/[id]` & `PATCH /api/orders/[id]` — Mengemaskini status penyediaan atau pembayaran bil.
   - `GET /api/production` & `POST /api/production` — Mengurus rekod kilang dan upah mencucuk.
@@ -193,7 +218,7 @@ Sistem menguatkuasakan kawalan capaian berasaskan peranan secara automatik sejak
 
 ---
 
-### Modul 9: Antaramuka Mesra Warga Emas & Keserasian PWA
+### Modul 10: Antaramuka Mesra Warga Emas & Keserasian PWA
 * **Tujuan:** Memastikan perisian boleh digunakan dengan mudah oleh pekerja senior dan serasi dengan tablet generasi lama di restoran.
 * **Ciri-Ciri Utama:**
   - **Suis Mod Warga Emas (`👓 A++`):** Butang togol pada bar tajuk atas yang membesarkan saiz teks dan meningkatkan ketajaman kontras warna untuk staf yang memerlukan bantuan penglihatan.

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { 
   Flame, 
@@ -135,7 +136,8 @@ const KIOSK_SUBCATEGORIES: Record<string, { id: string; label: string }[]> = {
 };
 
 export default function PosPage() {
-  const [menu] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
+  const [menu, setMenu] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
+  const [categories, setCategories] = useState<{ id: string; label: string; icon: string }[]>(POS_CATEGORIES);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [subCategoryFilter, setSubCategoryFilter] = useState<string>('all');
   const [showCategorySidebar, setShowCategorySidebar] = useState<boolean>(true); // Papar panel kiri secara lalai seperti KFC Kiosk
@@ -172,7 +174,7 @@ export default function PosPage() {
   const [cashTendered, setCashTendered] = useState<number>(0);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
-  // Ambil pesanan aktif dari Neon Postgres (Auto-poll 4s)
+  // Ambil pesanan aktif & data menu dari Neon Postgres
   const fetchOrders = useCallback(async () => {
     try {
       const res = await fetch('/api/orders', { cache: 'no-store' });
@@ -185,11 +187,27 @@ export default function PosPage() {
     } catch (e) {}
   }, []);
 
+  const fetchMenuData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/menu', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.items) && data.items.length > 0) {
+          setMenu(data.items);
+        }
+        if (Array.isArray(data.categories) && data.categories.length > 0) {
+          setCategories(data.categories);
+        }
+      }
+    } catch (e) {}
+  }, []);
+
   useEffect(() => {
     fetchOrders();
+    fetchMenuData();
     const interval = setInterval(fetchOrders, 4000);
     return () => clearInterval(interval);
-  }, [fetchOrders]);
+  }, [fetchOrders, fetchMenuData]);
 
   // Muat tetapan dari localStorage jika ada
   useEffect(() => {
@@ -311,7 +329,7 @@ export default function PosPage() {
     if (categoryAutoHide) {
       setCategoryPanelOpen(false); // AUTO-HIDE!
     }
-    const catObj = POS_CATEGORIES.find((c) => c.id === catId);
+    const catObj = categories.find((c) => c.id === catId);
     if (catObj) {
       showToast(`${catObj.icon} Kategori: ${catObj.label}`);
     }
@@ -613,14 +631,25 @@ export default function PosPage() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleSelectTakeawayAndNavigate}
-              className="px-2.5 py-1 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-black text-xs shadow flex items-center gap-1 active:scale-95 cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Bungkus</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <Link
+                href="/pos/backoffice"
+                className="px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white font-bold text-xs border border-stone-700 shadow flex items-center gap-1 active:scale-95 transition-all"
+                title="Buka POS Backoffice (Urus Menu & Kategori)"
+              >
+                <span>⚙️</span>
+                <span className="hidden sm:inline">Backoffice</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleSelectTakeawayAndNavigate}
+                className="px-2.5 py-1 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-black text-xs shadow flex items-center gap-1 active:scale-95 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Bungkus</span>
+              </button>
+            </div>
           </div>
 
           {/* Senarai Pesanan Bungkus Aktif (Hanya jika wujud) */}
@@ -803,7 +832,7 @@ export default function PosPage() {
               )}
             </div>
 
-            {/* Kanan: Butang Buka Kategori & Tetapan */}
+            {/* Kanan: Butang Buka Kategori, Backoffice & Tetapan */}
             <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
@@ -815,10 +844,18 @@ export default function PosPage() {
                 }`}
                 title="Togol Panel Kategori Kiri"
               >
-                <span>{POS_CATEGORIES.find((c) => c.id === selectedCategory)?.icon || '🔥'}</span>
-                <span className="hidden sm:inline">{POS_CATEGORIES.find((c) => c.id === selectedCategory)?.label || 'Kategori'}</span>
+                <span>{categories.find((c) => c.id === selectedCategory)?.icon || '🔥'}</span>
+                <span className="hidden sm:inline">{categories.find((c) => c.id === selectedCategory)?.label || 'Kategori'}</span>
                 <Layers className="w-3.5 h-3.5" />
               </button>
+
+              <Link
+                href="/pos/backoffice"
+                className="p-1.5 rounded-lg bg-stone-950 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-800 text-xs active:scale-95 transition-all flex items-center justify-center"
+                title="Buka POS Backoffice (Urus Menu & Kategori)"
+              >
+                ⚙️
+              </Link>
 
               <button
                 type="button"
@@ -895,7 +932,7 @@ export default function PosPage() {
 
                 {/* Senarai Kategori Vertikal Kiosk */}
                 <div className="flex flex-col gap-1 py-1">
-                  {POS_CATEGORIES.map((cat) => {
+                  {categories.map((cat) => {
                     const isActive = selectedCategory === cat.id;
                     const count = cat.id === 'all'
                       ? menu.length
@@ -933,10 +970,10 @@ export default function PosPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg">
-                      {POS_CATEGORIES.find((c) => c.id === selectedCategory)?.icon || '🔥'}
+                      {categories.find((c) => c.id === selectedCategory)?.icon || '🔥'}
                     </span>
                     <h2 className="text-xs sm:text-sm font-black text-white uppercase tracking-wide">
-                      {POS_CATEGORIES.find((c) => c.id === selectedCategory)?.label || 'SEMUA MENU'}
+                      {categories.find((c) => c.id === selectedCategory)?.label || 'SEMUA MENU'}
                     </h2>
                     <span className="text-[10px] sm:text-xs text-stone-400 font-mono">
                       ({filteredMenu.length})
@@ -957,7 +994,7 @@ export default function PosPage() {
 
                 {/* Subcategory Pills (Horizontal Scroll seperti di Gambar Kiosk KFC) */}
                 <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
-                  {(KIOSK_SUBCATEGORIES[selectedCategory] || KIOSK_SUBCATEGORIES.all).map((sub) => {
+                  {(KIOSK_SUBCATEGORIES[selectedCategory] || [{ id: 'all', label: 'SEMUA' }]).map((sub) => {
                     const isSubActive = subCategoryFilter === sub.id;
                     return (
                       <button

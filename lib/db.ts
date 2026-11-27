@@ -1,6 +1,20 @@
 import { neon } from '@neondatabase/serverless';
-import { INITIAL_ORDERS, INITIAL_MEAT_INTAKE, INITIAL_SKEWER_LOGS, INITIAL_STORAGE } from '@/lib/data';
-import { Order, MeatIntakeRecord, SkeweringWorkerLog, ColdStorageInventory } from '@/lib/types';
+import { 
+  INITIAL_ORDERS, 
+  INITIAL_MEAT_INTAKE, 
+  INITIAL_SKEWER_LOGS, 
+  INITIAL_STORAGE, 
+  INITIAL_MENU_ITEMS, 
+  INITIAL_CATEGORIES 
+} from '@/lib/data';
+import { 
+  Order, 
+  MeatIntakeRecord, 
+  SkeweringWorkerLog, 
+  ColdStorageInventory, 
+  MenuItem, 
+  MenuCategory 
+} from '@/lib/types';
 
 // Detect Neon Postgres connection string from any possible Vercel env variable name
 export function getConnectionString(): string | null {
@@ -32,6 +46,8 @@ let memoryOrders: Order[] = [...INITIAL_ORDERS];
 let memoryMeatIntake: MeatIntakeRecord[] = [...INITIAL_MEAT_INTAKE];
 let memorySkewerLogs: SkeweringWorkerLog[] = [...INITIAL_SKEWER_LOGS];
 let memoryStorage: ColdStorageInventory = { ...INITIAL_STORAGE };
+let memoryMenuItems: MenuItem[] = [...INITIAL_MENU_ITEMS];
+let memoryCategories: MenuCategory[] = [...INITIAL_CATEGORIES];
 
 // Initialize Database Schema if not exists
 export async function initDatabase() {
@@ -112,6 +128,36 @@ export async function initDatabase() {
       );
     `;
 
+    // 5. Create menu_categories table
+    await sql`
+      CREATE TABLE IF NOT EXISTS menu_categories (
+        id VARCHAR(64) PRIMARY KEY,
+        label VARCHAR(128) NOT NULL,
+        icon VARCHAR(32) NOT NULL,
+        subcategories JSONB,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `;
+
+    // 6. Create menu_items table
+    await sql`
+      CREATE TABLE IF NOT EXISTS menu_items (
+        id VARCHAR(64) PRIMARY KEY,
+        name VARCHAR(128) NOT NULL,
+        category VARCHAR(64) NOT NULL,
+        price NUMERIC(10, 2) NOT NULL,
+        unit VARCHAR(32) NOT NULL DEFAULT 'hidangan',
+        min_order INTEGER DEFAULT 1,
+        image TEXT,
+        description TEXT,
+        station VARCHAR(32) NOT NULL DEFAULT 'wok',
+        available BOOLEAN NOT NULL DEFAULT true,
+        cost_estimate NUMERIC(10, 2) DEFAULT 0,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `;
+
     // Seed initial orders if empty
     const existingOrders = await sql`SELECT count(*) FROM orders;`;
     if (Number(existingOrders[0].count) === 0) {
@@ -174,6 +220,38 @@ export async function initDatabase() {
             ${log.id}, ${log.workerName}, ${log.date}, ${log.shift},
             ${log.meatType}, ${log.sticksCompleted}, ${log.ratePerStick},
             ${log.totalEarnings}, ${log.qualityCheck}
+          );
+        `;
+      }
+    }
+
+    // Seed menu categories if empty
+    const existingCategories = await sql`SELECT count(*) FROM menu_categories;`;
+    if (Number(existingCategories[0].count) === 0) {
+      for (const cat of INITIAL_CATEGORIES) {
+        await sql`
+          INSERT INTO menu_categories (
+            id, label, icon, subcategories, sort_order
+          ) VALUES (
+            ${cat.id}, ${cat.label}, ${cat.icon}, ${cat.subcategories ? JSON.stringify(cat.subcategories) : null}, ${cat.sortOrder ?? 0}
+          );
+        `;
+      }
+    }
+
+    // Seed menu items if empty
+    const existingMenuItems = await sql`SELECT count(*) FROM menu_items;`;
+    if (Number(existingMenuItems[0].count) === 0) {
+      for (const item of INITIAL_MENU_ITEMS) {
+        await sql`
+          INSERT INTO menu_items (
+            id, name, category, price, unit, min_order, image, description,
+            station, available, cost_estimate
+          ) VALUES (
+            ${item.id}, ${item.name}, ${item.category}, ${item.price},
+            ${item.unit}, ${item.minOrder || 1}, ${item.image || null},
+            ${item.description || ''}, ${item.station || 'wok'},
+            ${item.available}, ${item.costEstimate || 0}
           );
         `;
       }
@@ -440,5 +518,210 @@ export async function updateDbStorage(storage: ColdStorageInventory) {
     return storage;
   } catch (err) {
     return storage;
+  }
+}
+
+// ----------------- MENU ITEMS SERVICE -----------------
+export async function getDbMenuItems(): Promise<MenuItem[]> {
+  const sql = getSql();
+  if (!sql) return memoryMenuItems;
+
+  try {
+    await initDatabase();
+    const rows = await sql`
+      SELECT 
+        id, name, category, price::float, unit,
+        min_order as "minOrder", image, description,
+        station, available, cost_estimate::float as "costEstimate"
+      FROM menu_items
+      ORDER BY 
+        CASE 
+          WHEN category = 'sate' THEN 1
+          WHEN category = 'istimewa' THEN 2
+          WHEN category = 'santai' THEN 3
+          WHEN category = 'karipap' THEN 4
+          WHEN category = 'minuman' THEN 5
+          ELSE 6
+        END, name ASC;
+    `;
+    if (rows.length === 0) return memoryMenuItems;
+    return rows as unknown as MenuItem[];
+  } catch (err) {
+    console.error('Error fetching menu items:', err);
+    return memoryMenuItems;
+  }
+}
+
+export async function createDbMenuItem(item: MenuItem): Promise<MenuItem> {
+  const sql = getSql();
+  if (!sql) {
+    memoryMenuItems = [item, ...memoryMenuItems];
+    return item;
+  }
+
+  try {
+    await initDatabase();
+    await sql`
+      INSERT INTO menu_items (
+        id, name, category, price, unit, min_order, image, description,
+        station, available, cost_estimate
+      ) VALUES (
+        ${item.id}, ${item.name}, ${item.category}, ${item.price},
+        ${item.unit || 'hidangan'}, ${item.minOrder || 1}, ${item.image || null},
+        ${item.description || ''}, ${item.station || 'wok'},
+        ${item.available !== false}, ${item.costEstimate || 0}
+      );
+    `;
+    memoryMenuItems = [item, ...memoryMenuItems.filter(i => i.id !== item.id)];
+    return item;
+  } catch (err) {
+    console.error('Error creating menu item:', err);
+    memoryMenuItems = [item, ...memoryMenuItems.filter(i => i.id !== item.id)];
+    return item;
+  }
+}
+
+export async function updateDbMenuItem(id: string, updates: Partial<MenuItem>): Promise<MenuItem | null> {
+  const sql = getSql();
+  const existing = memoryMenuItems.find(i => i.id === id);
+  const updatedItem = existing ? { ...existing, ...updates } : (updates as MenuItem);
+
+  if (!sql) {
+    memoryMenuItems = memoryMenuItems.map(i => i.id === id ? { ...i, ...updates } : i);
+    return updatedItem;
+  }
+
+  try {
+    await initDatabase();
+    await sql`
+      UPDATE menu_items SET
+        name = COALESCE(${updates.name}, name),
+        category = COALESCE(${updates.category}, category),
+        price = COALESCE(${updates.price}, price),
+        unit = COALESCE(${updates.unit}, unit),
+        min_order = COALESCE(${updates.minOrder}, min_order),
+        image = COALESCE(${updates.image}, image),
+        description = COALESCE(${updates.description}, description),
+        station = COALESCE(${updates.station}, station),
+        available = COALESCE(${updates.available}, available),
+        cost_estimate = COALESCE(${updates.costEstimate}, cost_estimate)
+      WHERE id = ${id};
+    `;
+    memoryMenuItems = memoryMenuItems.map(i => i.id === id ? { ...i, ...updates } : i);
+    return updatedItem;
+  } catch (err) {
+    console.error('Error updating menu item:', err);
+    memoryMenuItems = memoryMenuItems.map(i => i.id === id ? { ...i, ...updates } : i);
+    return updatedItem;
+  }
+}
+
+export async function deleteDbMenuItem(id: string): Promise<boolean> {
+  const sql = getSql();
+  memoryMenuItems = memoryMenuItems.filter(i => i.id !== id);
+  if (!sql) return true;
+
+  try {
+    await initDatabase();
+    await sql`DELETE FROM menu_items WHERE id = ${id};`;
+    return true;
+  } catch (err) {
+    console.error('Error deleting menu item:', err);
+    return true;
+  }
+}
+
+// ----------------- MENU CATEGORIES SERVICE -----------------
+export async function getDbCategories(): Promise<MenuCategory[]> {
+  const sql = getSql();
+  if (!sql) return memoryCategories;
+
+  try {
+    await initDatabase();
+    const rows = await sql`
+      SELECT 
+        id, label, icon, subcategories, sort_order as "sortOrder"
+      FROM menu_categories
+      ORDER BY sort_order ASC, label ASC;
+    `;
+    if (rows.length === 0) return memoryCategories;
+    return rows as unknown as MenuCategory[];
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+    return memoryCategories;
+  }
+}
+
+export async function createDbCategory(cat: MenuCategory): Promise<MenuCategory> {
+  const sql = getSql();
+  if (!sql) {
+    memoryCategories = [...memoryCategories, cat];
+    return cat;
+  }
+
+  try {
+    await initDatabase();
+    await sql`
+      INSERT INTO menu_categories (
+        id, label, icon, subcategories, sort_order
+      ) VALUES (
+        ${cat.id}, ${cat.label}, ${cat.icon}, ${cat.subcategories ? JSON.stringify(cat.subcategories) : null}, ${cat.sortOrder ?? 10}
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        label = EXCLUDED.label,
+        icon = EXCLUDED.icon,
+        subcategories = EXCLUDED.subcategories,
+        sort_order = EXCLUDED.sort_order;
+    `;
+    memoryCategories = [...memoryCategories.filter(c => c.id !== cat.id), cat];
+    return cat;
+  } catch (err) {
+    console.error('Error creating category:', err);
+    memoryCategories = [...memoryCategories.filter(c => c.id !== cat.id), cat];
+    return cat;
+  }
+}
+
+export async function updateDbCategory(id: string, updates: Partial<MenuCategory>): Promise<MenuCategory | null> {
+  const sql = getSql();
+  const existing = memoryCategories.find(c => c.id === id);
+  const updatedCat = existing ? { ...existing, ...updates } : (updates as MenuCategory);
+
+  if (!sql) {
+    memoryCategories = memoryCategories.map(c => c.id === id ? { ...c, ...updates } : c);
+    return updatedCat;
+  }
+
+  try {
+    await initDatabase();
+    await sql`
+      UPDATE menu_categories SET
+        label = COALESCE(${updates.label}, label),
+        icon = COALESCE(${updates.icon}, icon),
+        subcategories = COALESCE(${updates.subcategories ? JSON.stringify(updates.subcategories) : null}, subcategories),
+        sort_order = COALESCE(${updates.sortOrder}, sort_order)
+      WHERE id = ${id};
+    `;
+    memoryCategories = memoryCategories.map(c => c.id === id ? { ...c, ...updates } : c);
+    return updatedCat;
+  } catch (err) {
+    console.error('Error updating category:', err);
+    memoryCategories = memoryCategories.map(c => c.id === id ? { ...c, ...updates } : c);
+    return updatedCat;
+  }
+}
+
+export async function deleteDbCategory(id: string): Promise<boolean> {
+  const sql = getSql();
+  memoryCategories = memoryCategories.filter(c => c.id !== id);
+  if (!sql) return true;
+
+  try {
+    await initDatabase();
+    await sql`DELETE FROM menu_categories WHERE id = ${id};`;
+    return true;
+  } catch (err) {
+    console.error('Error deleting category:', err);
+    return true;
   }
 }

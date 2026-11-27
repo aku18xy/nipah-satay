@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { 
   Flame, 
@@ -21,8 +21,35 @@ import { INITIAL_MENU_ITEMS } from '@/lib/data';
 import { MenuItem } from '@/lib/types';
 
 export default function CustomerMenuPage() {
-  const [menu] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
+  const [menu, setMenu] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
+  const [categories, setCategories] = useState<{ id: string; label: string }[]>([
+    { id: 'all', label: 'Semua Menu' },
+    { id: 'sate', label: '🍢 Sate' },
+    { id: 'istimewa', label: '🍲 Istimewa (Sup & Mee)' },
+    { id: 'santai', label: '🍙 Santai & Bungkus' },
+    { id: 'karipap', label: '🥟 Karipap & Frozen' },
+    { id: 'minuman', label: '🥤 Minuman & LCK' },
+  ]);
   const [selectedCat, setSelectedCat] = useState<string>('all');
+
+  useEffect(() => {
+    fetch('/api/menu')
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d.items) && d.items.length > 0) {
+          setMenu(d.items);
+        }
+        if (Array.isArray(d.categories) && d.categories.length > 0) {
+          setCategories(
+            d.categories.map((c: any) => ({
+              id: c.id,
+              label: c.id === 'all' ? 'Semua Menu' : `${c.icon || '🍽️'} ${c.label}`,
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [cart, setCart] = useState<{ item: MenuItem; quantity: number }[]>([]);
   const [orderType, setOrderType] = useState<'delivery' | 'pickup' | 'catering'>('pickup');
   const [customerName, setCustomerName] = useState('');
@@ -163,14 +190,7 @@ export default function CustomerMenuPage() {
         <div className="lg:col-span-8 space-y-4">
           {/* Category Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold">
-            {[
-              { id: 'all', label: 'Semua Menu' },
-              { id: 'sate', label: '🍢 Sate' },
-              { id: 'istimewa', label: '🍲 Istimewa (Sup & Mee)' },
-              { id: 'santai', label: '🍙 Santai & Bungkus' },
-              { id: 'karipap', label: '🥟 Karipap & Frozen' },
-              { id: 'minuman', label: '🥤 Minuman & LCK' },
-            ].map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCat(cat.id)}

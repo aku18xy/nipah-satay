@@ -1,4 +1,13 @@
-import { MenuItem, MeatIntakeRecord, SkeweringWorkerLog, ColdStorageInventory, Order } from './types';
+import { MenuItem, MenuCategory, MeatIntakeRecord, SkeweringWorkerLog, ColdStorageInventory, Order } from './types';
+
+export const INITIAL_CATEGORIES: MenuCategory[] = [
+  { id: 'all', label: 'Semua', icon: '🔥', sortOrder: 0 },
+  { id: 'sate', label: 'Sate', icon: '🍢', sortOrder: 1 },
+  { id: 'istimewa', label: 'Sup/Mee', icon: '🍲', sortOrder: 2 },
+  { id: 'santai', label: 'Nasi', icon: '🍙', sortOrder: 3 },
+  { id: 'karipap', label: 'Karipap', icon: '🥟', sortOrder: 4 },
+  { id: 'minuman', label: 'Air', icon: '🥤', sortOrder: 5 },
+];
 
 export const STORE_INFO = {
   name: 'Nipah Satay™',

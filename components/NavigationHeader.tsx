@@ -17,7 +17,8 @@ import {
   ExternalLink,
   Glasses,
   Download,
-  UserCheck
+  UserCheck,
+  Layers
 } from 'lucide-react';
 import { useSeniorMode } from './SeniorModeContext';
 import { useAuthRole } from './AuthRoleContext';
@@ -47,6 +48,7 @@ export default function NavigationHeader() {
   const allNavLinks = [
     { href: '/', label: 'Ringkasan', icon: Flame },
     { href: '/pos', label: 'POS Kaunter', icon: Store, badge: 'Meja' },
+    { href: '/pos/backoffice', label: 'Backoffice', icon: Layers, badge: 'Menu' },
     { href: '/kitchen', label: 'Dapur KDS', icon: CookingPot, badge: 'Live' },
     { href: '/production', label: 'Kilang Sate', icon: Factory, badge: 'Hasil' },
     { href: '/wholesale', label: 'Borong & Katering', icon: Package },

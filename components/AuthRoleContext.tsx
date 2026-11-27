@@ -21,7 +21,7 @@ export const ROLES_CONFIG: Record<UserRole, RoleConfig> = {
     shortLabel: 'Eksekutif',
     icon: '👑',
     description: 'Akses penuh semua modul termasuk Halaman Utama, Laporan Eksekutif, Kos Sulit & Z-Report.',
-    allowedRoutes: ['/', '/pos', '/kitchen', '/production', '/wholesale', '/reports', '/menu'],
+    allowedRoutes: ['/', '/pos', '/pos/backoffice', '/backoffice', '/kitchen', '/production', '/wholesale', '/reports', '/menu'],
     requiresPin: true,
   },
   cashier: {
@@ -30,7 +30,7 @@ export const ROLES_CONFIG: Record<UserRole, RoleConfig> = {
     shortLabel: 'Juruwang',
     icon: '💳',
     description: 'Akses ke POS Kaunter, Pesanan Meja, Status Dapur & Borong.',
-    allowedRoutes: ['/pos', '/kitchen', '/wholesale', '/menu'],
+    allowedRoutes: ['/pos', '/pos/backoffice', '/backoffice', '/kitchen', '/wholesale', '/menu'],
     requiresPin: false,
   },
   kitchen: {
