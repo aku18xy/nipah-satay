@@ -659,6 +659,11 @@ export default function PosPage() {
                 ? activeOrd.items.reduce((a, b) => a + b.quantity, 0)
                 : 0;
 
+              const isSelectedDetail =
+                selectedDetailOrder?.type === 'dine_in' &&
+                selectedDetailOrder.tableNumber === tbl.id &&
+                bottomSheetOpen;
+
               return (
                 <button
                   key={tbl.id}
@@ -674,7 +679,9 @@ export default function PosPage() {
                     }
                   }}
                   className={`aspect-square rounded-2xl p-2.5 sm:p-3 text-left transition-all duration-200 flex flex-col justify-between select-none cursor-pointer active:scale-95 active:shadow-neu-pressed ${
-                    activeOrd
+                    isSelectedDetail
+                      ? 'bg-gradient-to-br from-[#2a1d13] to-[#1e1510] border-2 border-orange-500 ring-4 ring-orange-500/40 shadow-[0_0_20px_rgba(249,115,22,0.5)] scale-[1.03] z-10'
+                      : activeOrd
                       ? 'bg-gradient-to-br from-[#221a15] to-[#181411] border border-amber-500/50 shadow-neu-amber hover:border-amber-400'
                       : 'bg-[#181614] border border-stone-800/40 shadow-neu-flat hover:shadow-neu-flat-lg hover:border-orange-500/40'
                   }`}
@@ -722,85 +729,104 @@ export default function PosPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {activeTakeaways.map((ord) => (
-                    <div
-                      key={ord.id}
-                      onClick={() => {
-                        // Master–Detail: Tunjukkan item dipesan bungkus dalam Bottom Sheet
-                        setSelectedDetailOrder(ord);
-                        setBottomSheetOpen(true);
-                      }}
-                      className="neu-inset-sm p-2.5 flex items-center justify-between gap-2 text-xs cursor-pointer hover:border-orange-500/50 transition-all active:scale-[0.99]"
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                          <span className="text-orange-400 font-black">{ord.orderNumber}</span>
-                          <span className="text-stone-300 truncate font-sans font-bold">{ord.customerName}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-[11px] mt-0.5">
-                          <span className="font-mono font-bold text-white">RM {ord.total.toFixed(2)}</span>
-                          <span className={`text-[10px] font-bold ${ord.isPaid ? 'text-emerald-400' : 'text-rose-400'}`}>
-                            {ord.isPaid ? 'Lunas' : 'Belum Bayar'}
-                          </span>
-                        </div>
-                      </div>
+                  {activeTakeaways.map((ord) => {
+                    const isSelectedTakeaway = selectedDetailOrder?.id === ord.id && bottomSheetOpen;
 
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {!ord.isPaid ? (
+                    return (
+                      <div
+                        key={ord.id}
+                        onClick={() => {
+                          // Master–Detail: Tunjukkan item dipesan bungkus dalam Bottom Sheet
+                          setSelectedDetailOrder(ord);
+                          setBottomSheetOpen(true);
+                        }}
+                        className={`neu-inset-sm p-2.5 flex items-center justify-between gap-2 text-xs cursor-pointer transition-all active:scale-[0.99] ${
+                          isSelectedTakeaway
+                            ? 'border-2 border-orange-500 ring-4 ring-orange-500/40 shadow-[0_0_15px_rgba(249,115,22,0.4)]'
+                            : 'hover:border-orange-500/50'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                            <span className="text-orange-400 font-black">{ord.orderNumber}</span>
+                            <span className="text-stone-300 truncate font-sans font-bold">{ord.customerName}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[11px] mt-0.5">
+                            <span className="font-mono font-bold text-white">RM {ord.total.toFixed(2)}</span>
+                            <span className={`text-[10px] font-bold ${ord.isPaid ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              {ord.isPaid ? 'Lunas' : 'Belum Bayar'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {!ord.isPaid ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenSettleModal(ord);
+                              }}
+                              className="px-2.5 py-1 rounded-xl neu-btn-emerald font-black text-[11px] flex items-center gap-1 shadow-neu-green active:scale-95"
+                            >
+                              <Banknote className="w-3 h-3" />
+                              <span>Bayar</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCompleteTakeawayHandover(ord);
+                              }}
+                              className="px-2.5 py-1 rounded-xl neu-btn text-stone-300 text-[11px] font-bold active:scale-95"
+                            >
+                              Selesai
+                            </button>
+                          )}
                           <button
                             type="button"
-                            onClick={() => handleOpenSettleModal(ord)}
-                            className="px-2.5 py-1 rounded-xl neu-btn-emerald font-black text-[11px] flex items-center gap-1 shadow-neu-green active:scale-95"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectExistingTakeawayAndNavigate(ord);
+                            }}
+                            className="p-1.5 rounded-xl neu-btn text-orange-400 active:scale-95"
+                            title="Tambah item"
                           >
-                            <Banknote className="w-3 h-3" />
-                            <span>Bayar</span>
+                            <Plus className="w-3.5 h-3.5" />
                           </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleCompleteTakeawayHandover(ord)}
-                            className="px-2.5 py-1 rounded-xl neu-btn text-stone-300 text-[11px] font-bold active:scale-95"
-                          >
-                            Selesai
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => handleSelectExistingTakeawayAndNavigate(ord)}
-                          className="p-1.5 rounded-xl neu-btn text-orange-400 active:scale-95"
-                          title="Tambah item"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
           })()}
 
           {/* FLOATING ACTION BUTTON DI BUCU BAWAH KANAN (Morph Jadi +Bungkus) */}
-          {/* Menggunakan gaya butang jemari terapung yang sama dengan dalam menu */}
-          <div className="fixed right-4 sm:right-6 bottom-6 sm:bottom-8 z-40 select-none">
-            <button
-              type="button"
-              onClick={handleSelectTakeawayAndNavigate}
-              className="group relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer shadow-2xl z-40 bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 text-white shadow-[0_0_25px_rgba(249,115,22,0.7)] ring-4 ring-orange-500/30 hover:scale-105"
-              title="Buat Pesanan Bungkus Baharu (+Bungkus)"
-            >
-              {/* Ikon Beg Bungkus */}
-              <ShoppingBag className="w-6 h-6 text-white filter drop-shadow transition-transform group-hover:scale-110" />
+          {/* Sembunyikan bila Bottom Sheet terbuka supaya tidak bertindih dengan butang Tambah Order */}
+          {!bottomSheetOpen && (
+            <div className="fixed right-4 sm:right-6 bottom-6 sm:bottom-8 z-40 select-none animate-fadeIn">
+              <button
+                type="button"
+                onClick={handleSelectTakeawayAndNavigate}
+                className="group relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer shadow-2xl z-40 bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 text-white shadow-[0_0_25px_rgba(249,115,22,0.7)] ring-4 ring-orange-500/30 hover:scale-105"
+                title="Buat Pesanan Bungkus Baharu (+Bungkus)"
+              >
+                {/* Ikon Beg Bungkus */}
+                <ShoppingBag className="w-6 h-6 text-white filter drop-shadow transition-transform group-hover:scale-110" />
 
-              {/* Tanda Plus Mini di Atas */}
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-[#161311] text-[11px] font-black flex items-center justify-center border-2 border-[#161311] shadow-md">
-                +
-              </span>
+                {/* Tanda Plus Mini di Atas */}
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-[#161311] text-[11px] font-black flex items-center justify-center border-2 border-[#161311] shadow-md">
+                  +
+                </span>
 
-              {/* Lingkaran Berkilau (Ambient Glow Ring) */}
-              <span className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
-            </button>
-          </div>
+                {/* Lingkaran Berkilau (Ambient Glow Ring) */}
+                <span className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -1173,25 +1199,28 @@ export default function PosPage() {
 
           {/* ======================================================== */}
           {/* RADIAL THUMB ARC ROTARY MOTION (Pemilihan Kategori Jemari) */}
+          {/* Sembunyikan bila Troli Bottom Sheet terbuka               */}
           {/* ======================================================== */}
-          <RadialThumbArc
-            categories={categories.map((cat) => ({
-              id: cat.id,
-              label: cat.label,
-              icon: cat.icon,
-              count: cat.id === 'all' ? menu.length : menu.filter((m) => m.category === cat.id).length,
-            }))}
-            selectedCategory={selectedCategory}
-            onSelectCategory={(id) => {
-              setSelectedCategory(id);
-              setExpandedItemId(null);
-              const catObj = categories.find((c) => c.id === id);
-              if (catObj) {
-                // Island atas berubah jadi pill oren seketika kemudian kembali ke asal (tanpa toast terapung)
-                showIslandNotification(`${catObj.icon} Kategori: ${catObj.label}`);
-              }
-            }}
-          />
+          {!bottomSheetOpen && (
+            <RadialThumbArc
+              categories={categories.map((cat) => ({
+                id: cat.id,
+                label: cat.label,
+                icon: cat.icon,
+                count: cat.id === 'all' ? menu.length : menu.filter((m) => m.category === cat.id).length,
+              }))}
+              selectedCategory={selectedCategory}
+              onSelectCategory={(id) => {
+                setSelectedCategory(id);
+                setExpandedItemId(null);
+                const catObj = categories.find((c) => c.id === id);
+                if (catObj) {
+                  // Island atas berubah jadi pill oren seketika kemudian kembali ke asal (tanpa toast terapung)
+                  showIslandNotification(`${catObj.icon} Kategori: ${catObj.label}`);
+                }
+              }}
+            />
+          )}
         </div>
       )}
 
@@ -1215,7 +1244,7 @@ export default function PosPage() {
           <div
             className={`transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
               bottomSheetOpen
-                ? 'rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 max-h-[85vh] flex flex-col space-y-3.5 shadow-2xl border-t sm:border border-orange-500/70 bg-[#161311] text-stone-100'
+                ? 'rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 pb-8 sm:pb-6 max-h-[85vh] flex flex-col space-y-3.5 shadow-2xl border-t sm:border border-orange-500/70 bg-[#161311] text-stone-100'
                 : 'rounded-full px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2 shadow-2xl border border-stone-800/80 bg-[#161311]/95 backdrop-blur-md mb-2 sm:mb-0'
             }`}
           >
