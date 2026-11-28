@@ -16,11 +16,11 @@ export function SeniorModeProvider({ children }: { children: React.ReactNode }) 
   const [isSeniorMode, setIsSeniorMode] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('nipah_senior_mode');
-    if (saved === 'true') {
-      setIsSeniorMode(true);
-      document.documentElement.classList.add('senior-mode');
-    }
+    // Tanggalkan mod warga emas sekiranya pernah diaktifkan sebelum ini
+    try {
+      localStorage.removeItem('nipah_senior_mode');
+      document.documentElement.classList.remove('senior-mode');
+    } catch (e) {}
   }, []);
 
   const toggleSeniorMode = () => {

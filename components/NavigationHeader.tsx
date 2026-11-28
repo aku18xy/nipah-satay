@@ -14,7 +14,6 @@ import {
   Menu as MenuIcon, 
   X,
   ExternalLink,
-  Glasses,
   Download,
   UserCheck,
   Layers,
@@ -22,7 +21,6 @@ import {
   ShieldCheck,
   Sparkles
 } from 'lucide-react';
-import { useSeniorMode } from './SeniorModeContext';
 import { useAuthRole } from './AuthRoleContext';
 
 export default function NavigationHeader() {
@@ -30,7 +28,6 @@ export default function NavigationHeader() {
   const [isOnline, setIsOnline] = useState(true);
   const [appLauncherOpen, setAppLauncherOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { isSeniorMode, toggleSeniorMode } = useSeniorMode();
   const { roleConfig, canAccess, setShowAuthModal } = useAuthRole();
 
   useEffect(() => {
@@ -190,22 +187,6 @@ export default function NavigationHeader() {
 
           {/* Navigasi Utama: Melalui Butang Burger Sahaja (Semua Modul Diuruskan Sebagai Aplikasi Kendiri) */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
-            {/* Senior Mode Toggle (Tulisan Besar) */}
-            <button
-              onClick={toggleSeniorMode}
-              className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
-                isSeniorMode
-                  ? 'bg-amber-500 text-stone-950 shadow-neu-amber font-black'
-                  : 'neu-btn text-stone-300'
-              }`}
-              title="Tukar Mod Warga Emas (A+)"
-            >
-              <Glasses className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isSeniorMode ? 'text-stone-950 font-black' : 'text-amber-400'}`} />
-              <span className="font-mono text-[11px] sm:text-xs">
-                {isSeniorMode ? 'A++' : 'A+'}
-              </span>
-            </button>
-
             {/* Pulau Indah Connectivity Indicator */}
             <div
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold ${
