@@ -43,7 +43,7 @@ Sistem menguatkuasakan kawalan capaian berasaskan peranan secara automatik sejak
 ### Ciri Keselamatan RBAC:
 1. **Modal Pemulaan (Initialization Modal):** Ditampilkan secara automatik jika peranti belum menetapkan peranan staf atau apabila staf menekan butang lencana peranan untuk bertukar syif.
 2. **Eksklusiviti Halaman Utama (`/`):** Halaman Utama (Pusat Kawalan Operasi) hanya boleh diakses oleh Eksekutif. Petugas juruwang, dapur, dan kilang akan dihalakan (*auto-redirect*) terus ke modul kerja masing-masing (/pos, /kitchen, /production).
-3. **Penapisan Tab Dinamik (Dynamic BottomNav & Header):** Bar navigasi bawah telefon pintar dan pautan menu atas menyembunyikan sepenuhnya tab yang tidak dibenarkan bagi peranan tersebut.
+3. **Seni Bina Aplikasi Kendiri & Pelancar Butang Burger (Single-App Architecture & Burger App Launcher):** Setiap modul beroperasi sebagai satu aplikasi kendiri yang fokus. Bar navigasi bawah (BottomNav) dan tab melintang telah dibuang sepenuhnya. Navigasi antara modul dikawal secara eksklusif melalui Butang Burger (App Launcher Hub) yang menapis aplikasi berdasarkan peranan yang disahkan.
 4. **Pengawal Laluan URL (Security Route Guard):** Percubaan membuka halaman terhad (`/` dan `/reports`) oleh staf bukan Eksekutif akan memaparkan skrin sekatan berserta butang log masuk PIN Eksekutif.
 3. **Pengawal Laluan URL (Security Route Guard):** Percubaan membuka halaman terhad (cth: `/reports`) oleh staf bukan Eksekutif akan memaparkan skrin sekatan **"Laporan Eksekutif Terhad"** berserta butang log masuk PIN Eksekutif.
 
