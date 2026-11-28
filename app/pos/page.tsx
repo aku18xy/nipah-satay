@@ -140,9 +140,19 @@ export default function PosPage() {
   // Navigasi POS: 'tables' (Skrin 1) vs 'menu' (Skrin 2)
   const [posView, setPosView] = useState<'tables' | 'menu'>('tables');
 
-  // Top Island Alert State (Berubah seketika jadi pill oren bila kategori dipilih)
-  const [categoryAlert, setCategoryAlert] = useState<{ icon: string; label: string } | null>(null);
-  const categoryAlertTimer = useRef<NodeJS.Timeout | null>(null);
+  // Top Dynamic Island Notification State (Semua notifikasi menggunakan morph island atas)
+  const [islandNotification, setIslandNotification] = useState<string | null>(null);
+  const islandNotificationTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const showIslandNotification = useCallback((msg: string, duration = 2500) => {
+    // Bersihkan emoji tanda tick berulang jika mesej sudah ada ikon sendiri
+    const cleanMsg = msg.replace(/^✅\s*/, '');
+    setIslandNotification(cleanMsg);
+    if (islandNotificationTimer.current) clearTimeout(islandNotificationTimer.current);
+    islandNotificationTimer.current = setTimeout(() => {
+      setIslandNotification(null);
+    }, duration);
+  }, []);
 
   // Multi-Attribute Accordion Matrix State
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
@@ -157,7 +167,6 @@ export default function PosPage() {
   const [customerName, setCustomerName] = useState('');
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [liveOrders, setLiveOrders] = useState<Order[]>(INITIAL_ORDERS);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [cartModalOpen, setCartModalOpen] = useState(false);
 
   // Modal Bayaran Bil Meja (Bila Selesai Makan)
@@ -213,8 +222,7 @@ export default function PosPage() {
   });
 
   const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    showIslandNotification(msg);
   };
 
   // Togol Accordion Matrix untuk Item Menu
@@ -282,7 +290,8 @@ export default function PosPage() {
       }
     });
 
-    showToast(`✅ ${matrixQty}x ${item.name} ${combinedNotes ? `(${combinedNotes})` : ''} ditambah!`);
+    const displayNotes = combinedNotes ? combinedNotes.replace(/^\[|\]$/g, '').trim() : '';
+    showToast(`${matrixQty}x ${item.name} ${displayNotes ? `(${displayNotes})` : ''} ditambah!`);
     setExpandedItemId(null); // Tutup accordion selepas berjaya ditambah
   };
 
@@ -580,13 +589,6 @@ export default function PosPage() {
 
   return (
     <div className="space-y-3 pb-24 sm:pb-20">
-      {/* Toast Feedback */}
-      {toastMessage && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-orange-600 to-amber-600 text-white px-5 py-2.5 rounded-full shadow-2xl font-extrabold text-xs sm:text-sm flex items-center gap-2 border border-orange-400 animate-bounce">
-          <CheckCircle2 className="w-4 h-4" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
 
       {/* ======================================================== */}
       {/* SKRIN 1: PILIHAN MEJA & BUNGKUS (MINIMALIS)               */}
@@ -594,42 +596,55 @@ export default function PosPage() {
       {posView === 'tables' && (
         <div className="space-y-3 pb-20">
           {/* ======================================================== */}
-          {/* TOP DYNAMIC ISLAND: HANYA STATUS MEJA                    */}
+          {/* TOP DYNAMIC ISLAND: HANYA STATUS MEJA / NOTIFIKASI MORPH */}
           {/* (Gunakan struktur kapsul sama seperti dalam menu)         */}
           {/* ======================================================== */}
-          <div className="sticky top-16 z-30 max-w-xl mx-auto w-full px-2 select-none flex justify-center">
-            <div className="dynamic-island-top rounded-full px-5 py-2 flex items-center justify-center gap-3 sm:gap-4 shadow-2xl border border-stone-800/80 bg-[#161311]/95 backdrop-blur-md">
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)] animate-pulse" />
-                <span className="text-emerald-400 font-mono">
-                  {RESTAURANT_TABLES.filter(t => !liveOrders.some(o => o.type === 'dine_in' && o.tableNumber === t.id && !o.isPaid && o.status !== 'cancelled')).length}
-                </span>
-                <span className="text-stone-300 font-bold">Kosong</span>
+          <div className="sticky top-16 z-30 max-w-xl mx-auto w-full px-2 select-none flex justify-center transition-all duration-300">
+            {islandNotification ? (
+              /* Kapsul Berubah Jadi Pill Oren Notifikasi Persis Gambar Rujukan */
+              <div
+                onClick={() => setIslandNotification(null)}
+                className="cursor-pointer rounded-full px-5 py-2 sm:py-2.5 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 border border-orange-400 shadow-[0_4px_22px_rgba(234,88,12,0.6)] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all duration-300 transform scale-100 animate-fadeIn hover:brightness-110 active:scale-95 max-w-md mx-auto"
+                title="Ketik untuk tutup notifikasi"
+              >
+                <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
+                <span className="truncate">{islandNotification}</span>
               </div>
+            ) : (
+              /* Status Meja Asal */
+              <div className="dynamic-island-top rounded-full px-5 py-2 flex items-center justify-center gap-3 sm:gap-4 shadow-2xl border border-stone-800/80 bg-[#161311]/95 backdrop-blur-md">
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)] animate-pulse" />
+                  <span className="text-emerald-400 font-mono">
+                    {RESTAURANT_TABLES.filter(t => !liveOrders.some(o => o.type === 'dine_in' && o.tableNumber === t.id && !o.isPaid && o.status !== 'cancelled')).length}
+                  </span>
+                  <span className="text-stone-300 font-bold">Kosong</span>
+                </div>
 
-              <span className="w-1 h-3.5 rounded-full bg-stone-700/60" />
+                <span className="w-1 h-3.5 rounded-full bg-stone-700/60" />
 
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse" />
-                <span className="text-amber-400 font-mono">
-                  {liveOrders.filter(o => o.type === 'dine_in' && !o.isPaid && o.status !== 'cancelled').length}
-                </span>
-                <span className="text-stone-300 font-bold">Makan</span>
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse" />
+                  <span className="text-amber-400 font-mono">
+                    {liveOrders.filter(o => o.type === 'dine_in' && !o.isPaid && o.status !== 'cancelled').length}
+                  </span>
+                  <span className="text-stone-300 font-bold">Makan</span>
+                </div>
+
+                {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length > 0 && (
+                  <>
+                    <span className="w-1 h-3.5 rounded-full bg-stone-700/60" />
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
+                      <span className="text-sm">🛍️</span>
+                      <span className="text-orange-400 font-mono">
+                        {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length}
+                      </span>
+                      <span className="text-stone-300 font-bold">Bungkus</span>
+                    </div>
+                  </>
+                )}
               </div>
-
-              {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length > 0 && (
-                <>
-                  <span className="w-1 h-3.5 rounded-full bg-stone-700/60" />
-                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
-                    <span className="text-sm">🛍️</span>
-                    <span className="text-orange-400 font-mono">
-                      {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length}
-                    </span>
-                    <span className="text-stone-300 font-bold">Bungkus</span>
-                  </div>
-                </>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Grid Meja 4 Sebaris (Square, Soft Neumorphic) */}
@@ -779,20 +794,18 @@ export default function PosPage() {
       {posView === 'menu' && (
         <div className="space-y-3">
           {/* ======================================================== */}
-          {/* TOP BAR / DYNAMIC ISLAND: MEJA, NO MEJA & KATEGORI       */}
+          {/* TOP BAR / DYNAMIC ISLAND: MEJA, NO MEJA & NOTIFIKASI MORPH*/}
           {/* ======================================================== */}
           <div className="sticky top-16 z-30 max-w-xl mx-auto w-full px-2 select-none flex justify-center transition-all duration-300">
-            {categoryAlert ? (
-              /* Kapsul Berubah Jadi Pill Oren (Persis Gambar Rujukan) Bila Kategori Dipilih */
+            {islandNotification ? (
+              /* Kapsul Berubah Jadi Pill Oren (Persis Gambar Rujukan) Bila Ada Notifikasi */
               <div
-                onClick={() => setCategoryAlert(null)}
-                className="cursor-pointer rounded-full px-5 py-2 sm:py-2.5 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 border border-orange-400 shadow-[0_4px_22px_rgba(234,88,12,0.6)] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all duration-300 transform scale-100 animate-fadeIn hover:brightness-110 active:scale-95"
-                title="Ketik untuk kembali ke paparan meja asal"
+                onClick={() => setIslandNotification(null)}
+                className="cursor-pointer rounded-full px-5 py-2 sm:py-2.5 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 border border-orange-400 shadow-[0_4px_22px_rgba(234,88,12,0.6)] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all duration-300 transform scale-100 animate-fadeIn hover:brightness-110 active:scale-95 max-w-md mx-auto"
+                title="Ketik untuk tutup notifikasi"
               >
                 <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
-                <span className="truncate">
-                  {categoryAlert.icon} Kategori: {categoryAlert.label}
-                </span>
+                <span className="truncate">{islandNotification}</span>
               </div>
             ) : (
               /* Island Asal: [ ← Meja ] [ 🍽️ Meja M-04 ] [ 🔥 Semua (59) ] */
@@ -1159,11 +1172,7 @@ export default function PosPage() {
               const catObj = categories.find((c) => c.id === id);
               if (catObj) {
                 // Island atas berubah jadi pill oren seketika kemudian kembali ke asal (tanpa toast terapung)
-                setCategoryAlert({ icon: catObj.icon, label: catObj.label });
-                if (categoryAlertTimer.current) clearTimeout(categoryAlertTimer.current);
-                categoryAlertTimer.current = setTimeout(() => {
-                  setCategoryAlert(null);
-                }, 2200);
+                showIslandNotification(`${catObj.icon} Kategori: ${catObj.label}`);
               }
             }}
           />
