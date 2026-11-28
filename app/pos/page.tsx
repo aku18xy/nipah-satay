@@ -168,6 +168,7 @@ export default function PosPage() {
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [liveOrders, setLiveOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [cartModalOpen, setCartModalOpen] = useState(false);
+  const [selectedDetailOrder, setSelectedDetailOrder] = useState<Order | null>(null);
 
   // Modal Bayaran Bil Meja (Bila Selesai Makan)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
@@ -657,13 +658,28 @@ export default function PosPage() {
                 ? activeOrd.items.reduce((a, b) => a + b.quantity, 0)
                 : 0;
 
+              const isSelectedDetail =
+                selectedDetailOrder?.type === 'dine_in' &&
+                selectedDetailOrder.tableNumber === tbl.id;
+
               return (
                 <button
                   key={tbl.id}
                   type="button"
-                  onClick={() => handleSelectTableAndNavigate(tbl.id)}
+                  onClick={() => {
+                    if (activeOrd) {
+                      // Buka kotak terapung untuk meja aktif (Master–Detail)
+                      setSelectedDetailOrder(activeOrd);
+                    } else {
+                      // Meja kosong: Masuk terus ke menu untuk mula order
+                      setSelectedDetailOrder(null);
+                      handleSelectTableAndNavigate(tbl.id);
+                    }
+                  }}
                   className={`aspect-square rounded-2xl p-2.5 sm:p-3 text-left transition-all duration-200 flex flex-col justify-between select-none cursor-pointer active:scale-95 active:shadow-neu-pressed ${
-                    activeOrd
+                    isSelectedDetail
+                      ? 'bg-gradient-to-br from-[#2a1d13] to-[#1e1510] border-2 border-orange-500 ring-4 ring-orange-500/40 shadow-[0_0_20px_rgba(249,115,22,0.5)] scale-[1.03] z-10'
+                      : activeOrd
                       ? 'bg-gradient-to-br from-[#221a15] to-[#181411] border border-amber-500/50 shadow-neu-amber hover:border-amber-400'
                       : 'bg-[#181614] border border-stone-800/40 shadow-neu-flat hover:shadow-neu-flat-lg hover:border-orange-500/40'
                   }`}
@@ -711,80 +727,250 @@ export default function PosPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {activeTakeaways.map((ord) => (
-                    <div
-                      key={ord.id}
-                      className="neu-inset-sm p-2.5 flex items-center justify-between gap-2 text-xs"
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                          <span className="text-orange-400 font-black">{ord.orderNumber}</span>
-                          <span className="text-stone-300 truncate font-sans font-bold">{ord.customerName}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-[11px] mt-0.5">
-                          <span className="font-mono font-bold text-white">RM {ord.total.toFixed(2)}</span>
-                          <span className={`text-[10px] font-bold ${ord.isPaid ? 'text-emerald-400' : 'text-rose-400'}`}>
-                            {ord.isPaid ? 'Lunas' : 'Belum Bayar'}
-                          </span>
-                        </div>
-                      </div>
+                  {activeTakeaways.map((ord) => {
+                    const isSelectedTakeaway = selectedDetailOrder?.id === ord.id;
 
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {!ord.isPaid ? (
+                    return (
+                      <div
+                        key={ord.id}
+                        onClick={() => {
+                          setSelectedDetailOrder(ord);
+                        }}
+                        className={`neu-inset-sm p-2.5 flex items-center justify-between gap-2 text-xs cursor-pointer transition-all active:scale-[0.99] ${
+                          isSelectedTakeaway
+                            ? 'border-2 border-orange-500 ring-4 ring-orange-500/40 shadow-[0_0_15px_rgba(249,115,22,0.4)]'
+                            : 'hover:border-orange-500/50'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                            <span className="text-orange-400 font-black">{ord.orderNumber}</span>
+                            <span className="text-stone-300 truncate font-sans font-bold">{ord.customerName}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[11px] mt-0.5">
+                            <span className="font-mono font-bold text-white">RM {ord.total.toFixed(2)}</span>
+                            <span className={`text-[10px] font-bold ${ord.isPaid ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              {ord.isPaid ? 'Lunas' : 'Belum Bayar'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {!ord.isPaid ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenSettleModal(ord);
+                              }}
+                              className="px-2.5 py-1 rounded-xl neu-btn-emerald font-black text-[11px] flex items-center gap-1 shadow-neu-green active:scale-95"
+                            >
+                              <Banknote className="w-3 h-3" />
+                              <span>Bayar</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCompleteTakeawayHandover(ord);
+                              }}
+                              className="px-2.5 py-1 rounded-xl neu-btn text-stone-300 text-[11px] font-bold active:scale-95"
+                            >
+                              Selesai
+                            </button>
+                          )}
                           <button
                             type="button"
-                            onClick={() => handleOpenSettleModal(ord)}
-                            className="px-2.5 py-1 rounded-xl neu-btn-emerald font-black text-[11px] flex items-center gap-1 shadow-neu-green active:scale-95"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectExistingTakeawayAndNavigate(ord);
+                            }}
+                            className="p-1.5 rounded-xl neu-btn text-orange-400 active:scale-95"
+                            title="Tambah item"
                           >
-                            <Banknote className="w-3 h-3" />
-                            <span>Bayar</span>
+                            <Plus className="w-3.5 h-3.5" />
                           </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleCompleteTakeawayHandover(ord)}
-                            className="px-2.5 py-1 rounded-xl neu-btn text-stone-300 text-[11px] font-bold active:scale-95"
-                          >
-                            Selesai
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => handleSelectExistingTakeawayAndNavigate(ord)}
-                          className="p-1.5 rounded-xl neu-btn text-orange-400 active:scale-95"
-                          title="Tambah item"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
           })()}
 
           {/* FLOATING ACTION BUTTON DI BUCU BAWAH KANAN (Morph Jadi +Bungkus) */}
-          {/* Menggunakan gaya butang jemari terapung yang sama dengan dalam menu */}
-          <div className="fixed right-4 sm:right-6 bottom-6 sm:bottom-8 z-40 select-none">
-            <button
-              type="button"
-              onClick={handleSelectTakeawayAndNavigate}
-              className="group relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer shadow-2xl z-40 bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 text-white shadow-[0_0_25px_rgba(249,115,22,0.7)] ring-4 ring-orange-500/30 hover:scale-105"
-              title="Buat Pesanan Bungkus Baharu (+Bungkus)"
-            >
-              {/* Ikon Beg Bungkus */}
-              <ShoppingBag className="w-6 h-6 text-white filter drop-shadow transition-transform group-hover:scale-110" />
+          {/* Sembunyikan bila kotak perincian meja/bungkus terbuka supaya tidak bertindih */}
+          {!selectedDetailOrder && (
+            <div className="fixed right-4 sm:right-6 bottom-6 sm:bottom-8 z-40 select-none animate-fadeIn">
+              <button
+                type="button"
+                onClick={handleSelectTakeawayAndNavigate}
+                className="group relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer shadow-2xl z-40 bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 text-white shadow-[0_0_25px_rgba(249,115,22,0.7)] ring-4 ring-orange-500/30 hover:scale-105"
+                title="Buat Pesanan Bungkus Baharu (+Bungkus)"
+              >
+                {/* Ikon Beg Bungkus */}
+                <ShoppingBag className="w-6 h-6 text-white filter drop-shadow transition-transform group-hover:scale-110" />
 
-              {/* Tanda Plus Mini di Atas */}
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-[#161311] text-[11px] font-black flex items-center justify-center border-2 border-[#161311] shadow-md">
-                +
-              </span>
+                {/* Tanda Plus Mini di Atas */}
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-[#161311] text-[11px] font-black flex items-center justify-center border-2 border-[#161311] shadow-md">
+                  +
+                </span>
 
-              {/* Lingkaran Berkilau (Ambient Glow Ring) */}
-              <span className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
-            </button>
-          </div>
+                {/* Lingkaran Berkilau (Ambient Glow Ring) */}
+                <span className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
+              </button>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* KOTAK PERINCIAN TERAPUNG (Persis Kotak Troli Rujukan)     */}
+          {/* Tetingkap Meja: Tunjuk Item Dipesan + Bayar / Tambah Order */}
+          {/* ======================================================== */}
+          {selectedDetailOrder && (
+            <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto select-none animate-fadeIn">
+              {/* Latar Belakang Gelap Lembut (Tanpa Sebarang Blur) */}
+              <div 
+                className="fixed inset-0 bg-black/40 -z-10 transition-opacity"
+                onClick={() => setSelectedDetailOrder(null)}
+              />
+
+              {/* Kotak Terapung: Gaya Persis Rujukan Gambar (rounded-3xl, border-orange-500/80, bg-[#161311]) */}
+              <div className="rounded-3xl p-4 sm:p-5 max-h-[82vh] flex flex-col space-y-3.5 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
+                {/* Header Kotak */}
+                <div className="flex items-center justify-between pb-2 border-b border-stone-800/80">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-neu-orange">
+                      <span className="text-sm">{selectedDetailOrder.type === 'dine_in' ? '🍽️' : '🛍️'}</span>
+                    </div>
+                    <div>
+                      <h3 className="font-black text-xs sm:text-sm text-white flex items-center gap-2">
+                        <span>
+                          {selectedDetailOrder.type === 'dine_in'
+                            ? (selectedDetailOrder.tableNumber === 'VIP' ? 'Bilik VIP' : `Meja ${selectedDetailOrder.tableNumber}`)
+                            : (selectedDetailOrder.customerName || 'Pesanan Bungkus')}
+                        </span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          selectedDetailOrder.isPaid
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        }`}>
+                          {selectedDetailOrder.isPaid ? 'Lunas' : 'Belum Bayar'}
+                        </span>
+                      </h3>
+                      <span className="text-[10px] text-stone-400 font-mono">
+                        #{selectedDetailOrder.orderNumber} • Masa: {selectedDetailOrder.createdAt}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedDetailOrder(null)} 
+                    className="p-1.5 rounded-full neu-btn text-stone-400 hover:text-white"
+                    title="Tutup Kotak"
+                  >
+                    <ChevronDown className="w-4 h-4 text-orange-400" />
+                  </button>
+                </div>
+
+                {/* Senarai Makanan yang Dipesan */}
+                <div className="text-[11px] font-bold text-stone-400 flex items-center justify-between px-1">
+                  <span>Item Dipesan ({selectedDetailOrder.items.reduce((a, b) => a + b.quantity, 0)} item):</span>
+                </div>
+
+                <div className="max-h-56 overflow-y-auto space-y-2 pr-0.5 flex-1 min-h-0">
+                  {selectedDetailOrder.items.map((item, idx) => (
+                    <div key={idx} className="neu-inset-sm p-2.5 rounded-2xl flex items-center justify-between text-xs">
+                      <div className="min-w-0 pr-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-black text-orange-400">{item.quantity}x</span>
+                          <span className="font-bold text-white truncate">{item.name}</span>
+                        </div>
+                        {item.notes && (
+                          <span className="block text-[10px] text-amber-300 font-semibold truncate mt-0.5">
+                            Nota: {item.notes}
+                          </span>
+                        )}
+                        <span className="text-[10px] text-stone-400 font-mono">
+                          RM {item.price.toFixed(2)} seunit {item.station ? `• ${item.station.toUpperCase()}` : ''}
+                        </span>
+                      </div>
+                      <div className="font-mono font-black text-xs text-white shrink-0">
+                        RM {(item.price * item.quantity).toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Jumlah Keseluruhan Pesanan */}
+                <div className="pt-2 border-t border-stone-800/80 flex justify-between items-center text-xs font-black">
+                  <span className="text-stone-300">Jumlah Keseluruhan Bil:</span>
+                  <span className="font-mono text-base sm:text-lg text-emerald-400">
+                    RM {selectedDetailOrder.total.toFixed(2)}
+                  </span>
+                </div>
+
+                {/* Dua Pilihan Tindakan: Bayar ATAU Tambah Order (Master–Detail) */}
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                  {/* Butang 1: Bayar (atau Selesai jika dah bayar) */}
+                  {!selectedDetailOrder.isPaid ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ord = selectedDetailOrder;
+                        setSelectedDetailOrder(null);
+                        handleOpenSettleModal(ord);
+                      }}
+                      className="py-3 rounded-2xl neu-btn-emerald font-black text-xs sm:text-sm text-white shadow-neu-green active:scale-95 flex items-center justify-center gap-1.5 border border-emerald-400/40"
+                    >
+                      <Banknote className="w-4 h-4" />
+                      <span>Bayar RM {selectedDetailOrder.total.toFixed(2)}</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ord = selectedDetailOrder;
+                        setSelectedDetailOrder(null);
+                        handleCompleteTakeawayHandover(ord);
+                      }}
+                      className="py-3 rounded-2xl neu-btn font-black text-xs sm:text-sm text-stone-200 active:scale-95 flex items-center justify-center gap-1.5"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span>Selesai & Serah</span>
+                    </button>
+                  )}
+
+                  {/* Butang 2: Tambah Order (Morph ke Tetingkap Menu) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ord = selectedDetailOrder;
+                      setSelectedDetailOrder(null);
+                      if (ord.type === 'dine_in') {
+                        setTableNumber(ord.tableNumber || 'M-01');
+                        setOrderType('dine_in');
+                        setSelectedTakeawayOrder(null);
+                      } else {
+                        setSelectedTakeawayOrder(ord);
+                        setOrderType('takeaway');
+                        setCustomerName(ord.customerName || '');
+                      }
+                      setCart([]);
+                      setPosView('menu');
+                      showIslandNotification(`➕ Tambah order: ${ord.type === 'dine_in' ? `Meja ${ord.tableNumber}` : 'Bungkus'}`);
+                    }}
+                    className="py-3 rounded-2xl neu-btn-primary font-black text-xs sm:text-sm text-white shadow-neu-orange active:scale-95 flex items-center justify-center gap-1.5"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Tambah Order</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1157,43 +1343,47 @@ export default function PosPage() {
 
           {/* ======================================================== */}
           {/* RADIAL THUMB ARC ROTARY MOTION (Pemilihan Kategori Jemari) */}
+          {/* Sembunyikan semasa Island troli sedang mengembang         */}
           {/* ======================================================== */}
-          <RadialThumbArc
-            categories={categories.map((cat) => ({
-              id: cat.id,
-              label: cat.label,
-              icon: cat.icon,
-              count: cat.id === 'all' ? menu.length : menu.filter((m) => m.category === cat.id).length,
-            }))}
-            selectedCategory={selectedCategory}
-            onSelectCategory={(id) => {
-              setSelectedCategory(id);
-              setExpandedItemId(null);
-              const catObj = categories.find((c) => c.id === id);
-              if (catObj) {
-                // Island atas berubah jadi pill oren seketika kemudian kembali ke asal (tanpa toast terapung)
-                showIslandNotification(`${catObj.icon} Kategori: ${catObj.label}`);
-              }
-            }}
-          />
+          {!cartModalOpen && (
+            <RadialThumbArc
+              categories={categories.map((cat) => ({
+                id: cat.id,
+                label: cat.label,
+                icon: cat.icon,
+                count: cat.id === 'all' ? menu.length : menu.filter((m) => m.category === cat.id).length,
+              }))}
+              selectedCategory={selectedCategory}
+              onSelectCategory={(id) => {
+                setSelectedCategory(id);
+                setExpandedItemId(null);
+                const catObj = categories.find((c) => c.id === id);
+                if (catObj) {
+                  // Island atas berubah jadi pill oren seketika kemudian kembali ke asal (tanpa toast terapung)
+                  showIslandNotification(`${catObj.icon} Kategori: ${catObj.label}`);
+                }
+              }}
+            />
+          )}
 
           {/* ======================================================== */}
           {/* BOTTOM DYNAMIC ISLAND MORPH (Kapsul Bawah Boleh Berubah) */}
           {/* ======================================================== */}
           <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto">
-            {/* Latar Belakang Lutsinar Semasa Island Mengembang */}
+            {/* Latar Belakang Gelap Semasa Island Mengembang (Tanpa Blur) */}
             {cartModalOpen && (
               <div 
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm -z-10 animate-fadeIn"
+                className="fixed inset-0 bg-black/40 -z-10 animate-fadeIn"
                 onClick={() => setCartModalOpen(false)}
               />
             )}
 
             {/* Kontena Island Morfisme Bendalir (Fluid Island Morphing) */}
+            {/* Persis Kotak Rujukan Gambar (rounded-3xl, border-orange-500/80, bg-[#161311]) */}
             <div 
               className={`dynamic-island-bottom transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                 cartModalOpen
-                  ? 'rounded-3xl p-4 sm:p-5 max-h-[82vh] flex flex-col space-y-3.5 shadow-2xl border-orange-500/80 bg-[#161311]'
+                  ? 'rounded-3xl p-4 sm:p-5 max-h-[82vh] flex flex-col space-y-3.5 shadow-2xl border border-orange-500/80 bg-[#161311]'
                   : 'rounded-full px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2 shadow-2xl'
               }`}
             >
