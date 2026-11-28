@@ -768,22 +768,10 @@ export default function PosPage() {
                 <span>Meja</span>
               </button>
 
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs sm:text-sm font-black text-white px-3 py-1 rounded-xl neu-inset-sm flex items-center gap-1.5">
-                  <span className="text-orange-500">🍽️</span>
-                  <span>{orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}</span>
-                </span>
-                {activeTableOrder && (
-                  <button
-                    type="button"
-                    onClick={() => handleOpenSettleModal(activeTableOrder)}
-                    className="text-[10px] font-black px-2.5 py-1 rounded-xl neu-btn-emerald text-white flex items-center gap-1 active:scale-95 shadow-neu-green"
-                  >
-                    <Banknote className="w-3 h-3" />
-                    <span>Bil RM {activeTableOrder.total.toFixed(0)}</span>
-                  </button>
-                )}
-              </div>
+              <span className="text-xs sm:text-sm font-black text-white px-3 py-1.5 rounded-xl neu-inset-sm flex items-center gap-1.5">
+                <span className="text-orange-500">🍽️</span>
+                <span>{orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}</span>
+              </span>
             </div>
 
             {/* Kanan: Penunjuk Kategori Aktif Ringkas */}
