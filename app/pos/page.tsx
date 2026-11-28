@@ -140,6 +140,10 @@ export default function PosPage() {
   // Navigasi POS: 'tables' (Skrin 1) vs 'menu' (Skrin 2)
   const [posView, setPosView] = useState<'tables' | 'menu'>('tables');
 
+  // Top Island Alert State (Berubah seketika jadi pill oren bila kategori dipilih)
+  const [categoryAlert, setCategoryAlert] = useState<{ icon: string; label: string } | null>(null);
+  const categoryAlertTimer = useRef<NodeJS.Timeout | null>(null);
+
   // Multi-Attribute Accordion Matrix State
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
   const [matrixQty, setMatrixQty] = useState<number>(1);
@@ -756,46 +760,61 @@ export default function PosPage() {
       {posView === 'menu' && (
         <div className="space-y-3">
           {/* ======================================================== */}
-          {/* TOP BAR / CAPSULE: MEJA, NO MEJA & KATEGORI AKTIF        */}
+          {/* TOP BAR / DYNAMIC ISLAND: MEJA, NO MEJA & KATEGORI       */}
           {/* ======================================================== */}
-          <div className="sticky top-16 z-30 max-w-xl mx-auto w-full select-none">
-            <div className="dynamic-island-top rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between gap-2 shadow-2xl">
-              {/* Kiri: Butang Kembali ke Meja */}
-              <button
-                type="button"
-                onClick={() => setPosView('tables')}
-                className="px-3 py-1.5 rounded-full neu-btn text-stone-200 text-xs font-bold flex items-center gap-1.5 active:scale-95 shrink-0 cursor-pointer hover:text-white transition-all"
-                title="Kembali ke Senarai Meja"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Meja</span>
-              </button>
-
-              {/* Tengah: Lencana Nombor Meja / Bungkus */}
+          <div className="sticky top-16 z-30 max-w-xl mx-auto w-full px-2 select-none flex justify-center transition-all duration-300">
+            {categoryAlert ? (
+              /* Kapsul Berubah Jadi Pill Oren (Persis Gambar Rujukan) Bila Kategori Dipilih */
               <div
-                className="px-3.5 py-1.5 rounded-full neu-inset-sm text-xs sm:text-sm font-black text-white flex items-center gap-2 min-w-0"
+                onClick={() => setCategoryAlert(null)}
+                className="cursor-pointer rounded-full px-5 py-2 sm:py-2.5 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 border border-orange-400 shadow-[0_4px_22px_rgba(234,88,12,0.6)] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all duration-300 transform scale-100 animate-fadeIn hover:brightness-110 active:scale-95"
+                title="Ketik untuk kembali ke paparan meja asal"
               >
-                <span className="text-orange-500 text-sm">
-                  {orderType === 'dine_in' ? '🍽️' : '🛍️'}
-                </span>
+                <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
                 <span className="truncate">
-                  {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}
+                  {categoryAlert.icon} Kategori: {categoryAlert.label}
                 </span>
-                {activeTableOrder && (
-                  <span
-                    className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)] animate-pulse shrink-0"
-                    title="Ada pesanan sedang makan"
-                  />
-                )}
               </div>
+            ) : (
+              /* Island Asal: [ ← Meja ] [ 🍽️ Meja M-04 ] [ 🔥 Semua (59) ] */
+              <div className="dynamic-island-top w-full rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between gap-2 shadow-2xl transition-all duration-300">
+                {/* Kiri: Butang Kembali ke Meja */}
+                <button
+                  type="button"
+                  onClick={() => setPosView('tables')}
+                  className="px-3 py-1.5 rounded-full neu-btn text-stone-200 text-xs font-bold flex items-center gap-1.5 active:scale-95 shrink-0 cursor-pointer hover:text-white transition-all"
+                  title="Kembali ke Senarai Meja"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Meja</span>
+                </button>
 
-              {/* Kanan: Kategori Aktif (Semua / Sate / dll) */}
-              <div className="px-3 py-1.5 rounded-full neu-inset-sm text-xs font-bold text-stone-300 flex items-center gap-1.5 shrink-0">
-                <span className="text-sm">{currentCategoryObj.icon}</span>
-                <span className="text-orange-400 font-black">{currentCategoryObj.label}</span>
-                <span className="text-[10px] text-stone-500 font-mono">({filteredMenu.length})</span>
+                {/* Tengah: Lencana Nombor Meja / Bungkus */}
+                <div
+                  className="px-3.5 py-1.5 rounded-full neu-inset-sm text-xs sm:text-sm font-black text-white flex items-center gap-2 min-w-0"
+                >
+                  <span className="text-orange-500 text-sm">
+                    {orderType === 'dine_in' ? '🍽️' : '🛍️'}
+                  </span>
+                  <span className="truncate">
+                    {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}
+                  </span>
+                  {activeTableOrder && (
+                    <span
+                      className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)] animate-pulse shrink-0"
+                      title="Ada pesanan sedang makan"
+                    />
+                  )}
+                </div>
+
+                {/* Kanan: Kategori Aktif (Semua / Sate / dll) */}
+                <div className="px-3 py-1.5 rounded-full neu-inset-sm text-xs font-bold text-stone-300 flex items-center gap-1.5 shrink-0">
+                  <span className="text-sm">{currentCategoryObj.icon}</span>
+                  <span className="text-orange-400 font-black">{currentCategoryObj.label}</span>
+                  <span className="text-[10px] text-stone-500 font-mono">({filteredMenu.length})</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Senarai Menu dengan Multi-Attribute Accordion Matrix (Lebar Penuh) */}
@@ -1118,6 +1137,15 @@ export default function PosPage() {
             onSelectCategory={(id) => {
               setSelectedCategory(id);
               setExpandedItemId(null);
+              const catObj = categories.find((c) => c.id === id);
+              if (catObj) {
+                // Island atas berubah jadi pill oren seketika kemudian kembali ke asal (tanpa toast terapung)
+                setCategoryAlert({ icon: catObj.icon, label: catObj.label });
+                if (categoryAlertTimer.current) clearTimeout(categoryAlertTimer.current);
+                categoryAlertTimer.current = setTimeout(() => {
+                  setCategoryAlert(null);
+                }, 2200);
+              }
             }}
           />
 
