@@ -140,11 +140,6 @@ export default function PosPage() {
   // Navigasi POS: 'tables' (Skrin 1) vs 'menu' (Skrin 2)
   const [posView, setPosView] = useState<'tables' | 'menu'>('tables');
 
-  // Top Dynamic Island State (Tunjuk Kategori Seketika kemudian Kembali ke Meja)
-  const [showCategoryFlash, setShowCategoryFlash] = useState(false);
-  const categoryFlashTimer = useRef<NodeJS.Timeout | null>(null);
-  const prevCategoryRef = useRef<string>(selectedCategory);
-
   // Multi-Attribute Accordion Matrix State
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
   const [matrixQty, setMatrixQty] = useState<number>(1);
@@ -202,18 +197,6 @@ export default function PosPage() {
     const interval = setInterval(fetchOrders, 4000);
     return () => clearInterval(interval);
   }, [fetchOrders, fetchMenuData]);
-
-  // Tunjukkan kategori terpilih seketika di Dynamic Island atas, kemudian kembali ke nombor meja
-  useEffect(() => {
-    if (prevCategoryRef.current !== selectedCategory && posView === 'menu') {
-      prevCategoryRef.current = selectedCategory;
-      setShowCategoryFlash(true);
-      if (categoryFlashTimer.current) clearTimeout(categoryFlashTimer.current);
-      categoryFlashTimer.current = setTimeout(() => {
-        setShowCategoryFlash(false);
-      }, 2500);
-    }
-  }, [selectedCategory, posView]);
 
   // Semak pesanan aktif meja yang dipilih
   const activeTableOrder = liveOrders.find(
@@ -773,63 +756,44 @@ export default function PosPage() {
       {posView === 'menu' && (
         <div className="space-y-3">
           {/* ======================================================== */}
-          {/* TOP DYNAMIC ISLAND CAPSULE                                */}
-          {/* Nav Meja, Tunjuk No Meja / Bungkus <-> Kategori Seketika  */}
+          {/* TOP BAR / CAPSULE: MEJA, NO MEJA & KATEGORI AKTIF        */}
           {/* ======================================================== */}
-          <div className="sticky top-16 z-30 max-w-md mx-auto w-full px-2 select-none">
-            <div className="dynamic-island-top rounded-full px-3 py-1.5 flex items-center justify-between gap-2 shadow-2xl border border-stone-800/80 bg-[#161311]/95 backdrop-blur-md">
-              {/* 1. Nav Kembali ke Meja */}
+          <div className="sticky top-16 z-30 max-w-xl mx-auto w-full select-none">
+            <div className="dynamic-island-top rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between gap-2 shadow-2xl">
+              {/* Kiri: Butang Kembali ke Meja */}
               <button
                 type="button"
                 onClick={() => setPosView('tables')}
-                className="px-3 py-1.5 rounded-full neu-btn text-stone-200 text-xs font-bold flex items-center gap-1.5 active:scale-95 shrink-0 cursor-pointer hover:text-white hover:border-orange-500/40 transition-all"
+                className="px-3 py-1.5 rounded-full neu-btn text-stone-200 text-xs font-bold flex items-center gap-1.5 active:scale-95 shrink-0 cursor-pointer hover:text-white transition-all"
                 title="Kembali ke Senarai Meja"
               >
-                <ArrowLeft className="w-3.5 h-3.5 text-orange-400" />
+                <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Meja</span>
               </button>
 
-              {/* 2. Dynamic Island Body: Nombor Meja / Bungkus <-> Kategori Terpilih Seketika */}
+              {/* Tengah: Lencana Nombor Meja / Bungkus */}
               <div
-                onClick={() => {
-                  // Ketik untuk togol paparan seketika antara Meja dan Kategori
-                  setShowCategoryFlash((prev) => !prev);
-                }}
-                className="flex-1 flex items-center justify-center min-w-0 px-2 py-0.5 cursor-pointer transition-all duration-300"
-                title={showCategoryFlash ? 'Memaparkan kategori aktif' : 'Memaparkan nombor meja'}
+                className="px-3.5 py-1.5 rounded-full neu-inset-sm text-xs sm:text-sm font-black text-white flex items-center gap-2 min-w-0"
               >
-                {showCategoryFlash ? (
-                  /* Kategori Terpilih (Seketika kemudian kembali ke nombor meja) */
-                  <div className="flex items-center gap-2 animate-fadeIn py-1 px-3.5 rounded-full bg-orange-500/15 border border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
-                    <span className="text-base leading-none">{currentCategoryObj.icon}</span>
-                    <span className="text-xs sm:text-sm font-black text-orange-400 truncate">
-                      {currentCategoryObj.label}
-                    </span>
-                    <span className="text-[10px] font-mono font-bold text-orange-300 px-1.5 py-0.5 rounded-full bg-black/40 border border-orange-500/30">
-                      {filteredMenu.length}
-                    </span>
-                  </div>
-                ) : (
-                  /* Nombor Meja / Bungkus */
-                  <div className="flex items-center gap-2 animate-fadeIn py-1 px-3.5 rounded-full neu-inset-sm">
-                    <span className="text-base leading-none">
-                      {orderType === 'dine_in' ? '🍽️' : '🛍️'}
-                    </span>
-                    <span className="text-xs sm:text-sm font-black text-white truncate">
-                      {orderType === 'dine_in'
-                        ? tableNumber === 'VIP'
-                          ? 'Bilik VIP'
-                          : `Meja ${tableNumber}`
-                        : 'Bungkus'}
-                    </span>
-                    {activeTableOrder && (
-                      <span
-                        className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)] animate-pulse shrink-0 ml-0.5"
-                        title="Ada pesanan belum bayar"
-                      />
-                    )}
-                  </div>
+                <span className="text-orange-500 text-sm">
+                  {orderType === 'dine_in' ? '🍽️' : '🛍️'}
+                </span>
+                <span className="truncate">
+                  {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}
+                </span>
+                {activeTableOrder && (
+                  <span
+                    className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)] animate-pulse shrink-0"
+                    title="Ada pesanan sedang makan"
+                  />
                 )}
+              </div>
+
+              {/* Kanan: Kategori Aktif (Semua / Sate / dll) */}
+              <div className="px-3 py-1.5 rounded-full neu-inset-sm text-xs font-bold text-stone-300 flex items-center gap-1.5 shrink-0">
+                <span className="text-sm">{currentCategoryObj.icon}</span>
+                <span className="text-orange-400 font-black">{currentCategoryObj.label}</span>
+                <span className="text-[10px] text-stone-500 font-mono">({filteredMenu.length})</span>
               </div>
             </div>
           </div>
@@ -1154,13 +1118,6 @@ export default function PosPage() {
             onSelectCategory={(id) => {
               setSelectedCategory(id);
               setExpandedItemId(null);
-              // Tunjukkan kategori terpilih seketika di Dynamic Island atas
-              setShowCategoryFlash(true);
-              if (categoryFlashTimer.current) clearTimeout(categoryFlashTimer.current);
-              categoryFlashTimer.current = setTimeout(() => {
-                setShowCategoryFlash(false);
-              }, 2500);
-
               const catObj = categories.find((c) => c.id === id);
               if (catObj) {
                 showToast(`${catObj.icon} Kategori: ${catObj.label}`);
