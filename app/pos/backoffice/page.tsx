@@ -408,7 +408,7 @@ export default function PosBackofficePage() {
   });
 
   return (
-    <div className="space-y-4 pb-24 text-stone-100 max-w-7xl mx-auto">
+    <div className="space-y-4 pb-8 text-stone-100 max-w-7xl mx-auto">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-orange-600 to-amber-600 text-white px-5 py-2.5 rounded-full shadow-2xl font-extrabold text-xs sm:text-sm flex items-center gap-2 border border-orange-400 animate-bounce">

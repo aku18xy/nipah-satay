@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import NavigationHeader from '@/components/NavigationHeader';
-import BottomNav from '@/components/BottomNav';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 import { SeniorModeProvider } from '@/components/SeniorModeContext';
 import { AuthRoleProvider } from '@/components/AuthRoleContext';
@@ -53,10 +52,9 @@ export default function RootLayout({
             <RoleAuthModal />
             <PwaInstallPrompt />
             <NavigationHeader />
-            <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-6 pb-24 md:pb-8">
+            <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-6 pb-6 sm:pb-8">
               {children}
             </main>
-            <BottomNav />
           </AuthRoleProvider>
         </SeniorModeProvider>
         

@@ -596,7 +596,7 @@ export default function PosPage() {
   };
 
   return (
-    <div className="space-y-4 pb-24 lg:pb-8">
+    <div className="space-y-3 pb-20 sm:pb-16">
       {/* Toast Feedback */}
       {toastMessage && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-orange-600 to-amber-600 text-white px-5 py-2.5 rounded-full shadow-2xl font-extrabold text-xs sm:text-sm flex items-center gap-2 border border-orange-400 animate-bounce">
@@ -1101,7 +1101,7 @@ export default function PosPage() {
           {/* ======================================================== */}
           {/* FLOATING ACTION BAR: HANTAR ORDER (Soft Neumorphic)       */}
           {/* ======================================================== */}
-          <div className="fixed bottom-[4.75rem] left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto">
+          <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto">
             <div className="neu-card-lg border border-orange-500/50 rounded-2xl px-3.5 py-2.5 shadow-neu-flat-lg flex items-center justify-between gap-2 text-stone-100">
               {/* Ringkasan Troli (SHOW BASKET ^) */}
               <button
