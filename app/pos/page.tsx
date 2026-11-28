@@ -132,6 +132,14 @@ function getItemQuickNotes(item: MenuItem): string[] {
   return ['Bungkus Asing', 'Panaskan Dulu', 'Makan Sini', 'Sos Lebih'];
 }
 
+// Label Stesen Dapur Standard
+function getStationLabel(station?: string): string {
+  if (station === 'grill') return 'Arang';
+  if (station === 'wok') return 'Kuali';
+  if (station === 'drink') return 'Bar Air';
+  return station ? station.toUpperCase() : '';
+}
+
 export default function PosPage() {
   const [menu, setMenu] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
   const [categories, setCategories] = useState<{ id: string; label: string; icon: string }[]>(POS_CATEGORIES);
@@ -703,7 +711,7 @@ export default function PosPage() {
                         <div className="font-mono text-xs sm:text-sm font-black text-orange-400 leading-tight">
                           RM {activeOrd.total.toFixed(activeOrd.total % 1 === 0 ? 0 : 2)}
                         </div>
-                        <div className="text-[10px] text-stone-300 font-bold leading-tight mt-0.5">
+                        <div className="text-xs text-stone-300 font-bold leading-tight mt-0.5">
                           {itemCount} item
                         </div>
                       </div>
@@ -724,7 +732,7 @@ export default function PosPage() {
 
             return (
               <div className="neu-card p-2.5 space-y-2 border border-orange-950/40 mt-3">
-                <div className="flex items-center justify-between text-[11px] font-black text-stone-300 px-1">
+                <div className="flex items-center justify-between text-xs font-black text-stone-300 px-1 uppercase tracking-wider">
                   <span>🛍️ Pesanan Bungkus Aktif ({activeTakeaways.length})</span>
                 </div>
 
@@ -745,13 +753,13 @@ export default function PosPage() {
                         }`}
                       >
                         <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                          <div className="flex items-center gap-1.5 font-mono text-xs">
                             <span className="text-orange-400 font-black">{ord.orderNumber}</span>
                             <span className="text-stone-300 truncate font-sans font-bold">{ord.customerName}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-[11px] mt-0.5">
+                          <div className="flex items-center gap-1.5 text-xs mt-0.5">
                             <span className="font-mono font-bold text-white">RM {ord.total.toFixed(2)}</span>
-                            <span className={`text-[10px] font-bold ${ord.isPaid ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            <span className={`text-xs font-bold ${ord.isPaid ? 'text-emerald-400' : 'text-rose-400'}`}>
                               {ord.isPaid ? 'Lunas' : 'Belum Bayar'}
                             </span>
                           </div>
@@ -765,9 +773,9 @@ export default function PosPage() {
                                 e.stopPropagation();
                                 handleOpenSettleModal(ord);
                               }}
-                              className="px-2.5 py-1 rounded-xl neu-btn-emerald font-black text-[11px] flex items-center gap-1 shadow-neu-green active:scale-95"
+                              className="px-2.5 py-1.5 rounded-xl neu-btn-emerald font-black text-xs flex items-center gap-1 shadow-neu-green active:scale-95"
                             >
-                              <Banknote className="w-3 h-3" />
+                              <Banknote className="w-3.5 h-3.5" />
                               <span>Bayar</span>
                             </button>
                           ) : (
@@ -777,7 +785,7 @@ export default function PosPage() {
                                 e.stopPropagation();
                                 handleCompleteTakeawayHandover(ord);
                               }}
-                              className="px-2.5 py-1 rounded-xl neu-btn text-stone-300 text-[11px] font-bold active:scale-95"
+                              className="px-2.5 py-1.5 rounded-xl neu-btn text-stone-300 text-xs font-bold active:scale-95"
                             >
                               Selesai
                             </button>
@@ -816,7 +824,7 @@ export default function PosPage() {
                 <ShoppingBag className="w-6 h-6 text-white filter drop-shadow transition-transform group-hover:scale-110" />
 
                 {/* Tanda Plus Mini di Atas */}
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-[#161311] text-[11px] font-black flex items-center justify-center border-2 border-[#161311] shadow-md">
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-[#161311] text-xs font-black flex items-center justify-center border-2 border-[#161311] shadow-md">
                   +
                 </span>
 
@@ -847,13 +855,13 @@ export default function PosPage() {
                       <span className="text-sm">{selectedDetailOrder.type === 'dine_in' ? '🍽️' : '🛍️'}</span>
                     </div>
                     <div>
-                      <h3 className="font-black text-xs sm:text-sm text-white flex items-center gap-2">
+                      <h3 className="font-black text-sm text-white flex items-center gap-2">
                         <span>
                           {selectedDetailOrder.type === 'dine_in'
                             ? (selectedDetailOrder.tableNumber === 'VIP' ? 'Bilik VIP' : `Meja ${selectedDetailOrder.tableNumber}`)
                             : (selectedDetailOrder.customerName || 'Pesanan Bungkus')}
                         </span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                           selectedDetailOrder.isPaid
                             ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                             : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
@@ -861,7 +869,7 @@ export default function PosPage() {
                           {selectedDetailOrder.isPaid ? 'Lunas' : 'Belum Bayar'}
                         </span>
                       </h3>
-                      <span className="text-[10px] text-stone-400 font-mono">
+                      <span className="text-xs text-stone-400 font-mono">
                         #{selectedDetailOrder.orderNumber} • Masa: {selectedDetailOrder.createdAt}
                       </span>
                     </div>
@@ -878,7 +886,7 @@ export default function PosPage() {
                 </div>
 
                 {/* Senarai Makanan yang Dipesan */}
-                <div className="text-[11px] font-bold text-stone-400 flex items-center justify-between px-1">
+                <div className="text-xs font-bold text-stone-400 flex items-center justify-between px-1">
                   <span>Item Dipesan ({selectedDetailOrder.items.reduce((a, b) => a + b.quantity, 0)} item):</span>
                 </div>
 
@@ -891,12 +899,12 @@ export default function PosPage() {
                           <span className="font-bold text-white truncate">{item.name}</span>
                         </div>
                         {item.notes && (
-                          <span className="block text-[10px] text-amber-300 font-semibold truncate mt-0.5">
+                          <span className="block text-xs text-amber-300 font-medium truncate mt-0.5">
                             Nota: {item.notes}
                           </span>
                         )}
-                        <span className="text-[10px] text-stone-400 font-mono">
-                          RM {item.price.toFixed(2)} seunit {item.station ? `• ${item.station.toUpperCase()}` : ''}
+                        <span className="text-xs text-stone-400 font-mono">
+                          RM {item.price.toFixed(2)} seunit {item.station ? `• ${getStationLabel(item.station)}` : ''}
                         </span>
                       </div>
                       <div className="font-mono font-black text-xs text-white shrink-0">
@@ -1032,7 +1040,7 @@ export default function PosPage() {
                 <div className="px-3 py-1.5 rounded-full neu-inset-sm text-xs font-bold text-stone-300 flex items-center gap-1.5 shrink-0">
                   <span className="text-sm">{currentCategoryObj.icon}</span>
                   <span className="text-orange-400 font-black">{currentCategoryObj.label}</span>
-                  <span className="text-[10px] text-stone-500 font-mono">({filteredMenu.length})</span>
+                  <span className="text-xs text-stone-400 font-mono">({filteredMenu.length})</span>
                 </div>
               </div>
             )}
@@ -1071,7 +1079,7 @@ export default function PosPage() {
                           {item.name}
                         </h3>
                         {totalInCart > 0 && (
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
+                          <span className="text-xs font-black px-2 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
                             {totalInCart}x
                           </span>
                         )}
@@ -1080,10 +1088,10 @@ export default function PosPage() {
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="font-mono text-xs font-black text-orange-400">
                           RM {item.price.toFixed(2)}
-                          {isSatay ? <span className="text-[10px] text-stone-400 font-sans font-normal"> /cucuk</span> : null}
+                          {isSatay ? <span className="text-xs text-stone-400 font-sans font-normal"> /cucuk</span> : null}
                         </span>
-                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded neu-inset-sm text-stone-400 uppercase">
-                          {item.station === 'grill' ? 'Arang' : item.station === 'wok' ? 'Kuali' : 'Bar Air'}
+                        <span className="text-xs font-bold px-2 py-0.5 rounded neu-inset-sm text-stone-400 uppercase">
+                          {getStationLabel(item.station)}
                         </span>
                       </div>
                     </div>
@@ -1136,7 +1144,7 @@ export default function PosPage() {
                         <div className="flex items-center gap-2">
                           <h3 className="font-black text-sm text-white truncate">{activeExpandedItem.name}</h3>
                           {totalInCart > 0 && (
-                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
+                            <span className="text-xs font-black px-2 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
                               {totalInCart}x dlm troli
                             </span>
                           )}
@@ -1144,10 +1152,10 @@ export default function PosPage() {
                         <div className="flex items-center gap-2 text-xs">
                           <span className="font-mono font-black text-orange-400">
                             RM {activeExpandedItem.price.toFixed(2)}
-                            {isSatay ? <span className="text-[10px] text-stone-400 font-sans font-normal"> /cucuk</span> : null}
+                            {isSatay ? <span className="text-xs text-stone-400 font-sans font-normal"> /cucuk</span> : null}
                           </span>
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded neu-inset-sm text-stone-400 uppercase">
-                            {activeExpandedItem.station === 'grill' ? 'Arang' : activeExpandedItem.station === 'wok' ? 'Kuali' : 'Bar Air'}
+                          <span className="text-xs font-bold px-2 py-0.5 rounded neu-inset-sm text-stone-400 uppercase">
+                            {getStationLabel(activeExpandedItem.station)}
                           </span>
                         </div>
                       </div>
@@ -1207,7 +1215,7 @@ export default function PosPage() {
                         
                         <div className="flex items-center gap-1 font-mono font-black text-sm text-white">
                           <span>{matrixQty}</span>
-                          <span className="text-[10px] text-stone-400 font-sans font-normal">
+                          <span className="text-xs text-stone-400 font-sans font-normal">
                             (RM {(activeExpandedItem.price * matrixQty).toFixed(2)})
                           </span>
                         </div>
@@ -1275,7 +1283,7 @@ export default function PosPage() {
                                   setMatrixNotes((prev) => (prev ? `${prev}, ${chip}` : chip));
                                 }
                               }}
-                              className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all active:scale-95 ${
+                              className={`text-xs font-bold px-2.5 py-1 rounded-lg transition-all active:scale-95 ${
                                 isIncluded
                                   ? 'neu-btn-primary text-white shadow-neu-orange'
                                   : 'neu-inset-sm text-stone-300 hover:text-white'
@@ -1311,7 +1319,7 @@ export default function PosPage() {
                     {/* Senarai Variasi Item Ini Yang Sedang Berada Dalam Troli */}
                     {itemsInCart.length > 0 && (
                       <div className="neu-inset-sm p-2.5 rounded-xl space-y-1.5">
-                        <div className="text-[10px] font-bold text-stone-400">
+                        <div className="text-xs font-bold text-stone-400">
                           Dalam Troli Sekarang ({totalInCart}x):
                         </div>
                         {itemsInCart.map((cItem, cIdx) => (
@@ -1355,7 +1363,7 @@ export default function PosPage() {
                   {/* FOOTER DETAIL PANE DENGAN CTA BESAR */}
                   <div className="pt-2.5 border-t border-stone-800 shrink-0 flex items-center justify-between gap-3">
                     <div>
-                      <div className="text-[10px] text-stone-400">Jumlah:</div>
+                      <div className="text-xs font-semibold text-stone-400">Jumlah:</div>
                       <div className="font-mono text-base font-black text-orange-400">
                         RM {(activeExpandedItem.price * matrixQty).toFixed(2)}
                       </div>
@@ -1438,14 +1446,14 @@ export default function PosPage() {
                     }`}>
                       {activeTableOrder && cart.length === 0 ? <Banknote className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
                       {cart.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-[#181614] shadow animate-bounce">
+                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#181614] shadow animate-bounce">
                           {cart.reduce((a, b) => a + b.quantity, 0)}
                         </span>
                       )}
                     </div>
 
                     <div className="text-left min-w-0">
-                      <div className="text-[10px] font-black text-stone-300 flex items-center gap-1 uppercase tracking-tight truncate">
+                      <div className="text-xs font-black text-stone-300 flex items-center gap-1 uppercase tracking-tight truncate">
                         <span>{orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}</span>
                         <span>•</span>
                         <span className="text-orange-400 font-bold">TROLI</span>
@@ -1474,10 +1482,10 @@ export default function PosPage() {
                         <ShoppingBag className="w-3.5 h-3.5" />
                       </div>
                       <div>
-                        <h3 className="font-black text-xs sm:text-sm text-white">
+                        <h3 className="font-black text-sm text-white">
                           Troli: {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}
                         </h3>
-                        <span className="text-[10px] text-stone-400 font-mono">
+                        <span className="text-xs text-stone-400 font-mono">
                           {cart.reduce((a, b) => a + b.quantity, 0)} item dipilih
                         </span>
                       </div>
@@ -1505,11 +1513,11 @@ export default function PosPage() {
                           <div className="min-w-0 pr-2">
                             <span className="font-bold text-white truncate block">{item.name}</span>
                             {item.notes && (
-                              <span className="block text-[10px] text-amber-300 font-semibold truncate">
+                              <span className="block text-xs text-amber-300 font-medium truncate">
                                 {item.notes}
                               </span>
                             )}
-                            <span className="text-[10px] text-stone-400 font-mono">
+                            <span className="text-xs text-stone-400 font-mono">
                               RM {item.price.toFixed(2)} × {item.quantity} = RM {(item.price * item.quantity).toFixed(2)}
                             </span>
                           </div>
@@ -1593,7 +1601,7 @@ export default function PosPage() {
                 <h3 className="font-black text-sm text-white">
                   Kira Bil: {settlingOrder.tableNumber ? (settlingOrder.tableNumber === 'VIP' ? 'VIP' : `Meja ${settlingOrder.tableNumber}`) : (settlingOrder.customerName || 'Bungkus')}
                 </h3>
-                <span className="text-[10px] text-stone-400 font-mono">#{settlingOrder.orderNumber}</span>
+                <span className="text-xs text-stone-400 font-mono">#{settlingOrder.orderNumber}</span>
               </div>
               <button onClick={() => setPaymentModalOpen(false)} className="p-1 rounded-lg neu-btn text-stone-400 hover:text-white text-xs">
                 ✕
@@ -1603,10 +1611,10 @@ export default function PosPage() {
             {/* Senarai Makanan */}
             <div className="max-h-36 overflow-y-auto neu-inset-sm p-2.5 rounded-xl space-y-1 text-xs">
               {settlingOrder.items.map((it, i) => (
-                <div key={i} className="flex justify-between text-stone-300 text-[11px]">
+                <div key={i} className="flex justify-between text-stone-300 text-xs">
                   <div className="truncate pr-2">
                     <span>{it.name} × {it.quantity}</span>
-                    {it.notes && <span className="text-[10px] text-amber-300 italic block">{it.notes}</span>}
+                    {it.notes && <span className="text-xs text-amber-300 italic block font-medium">{it.notes}</span>}
                   </div>
                   <span className="font-mono font-bold shrink-0">RM {(it.price * it.quantity).toFixed(2)}</span>
                 </div>
@@ -1630,7 +1638,7 @@ export default function PosPage() {
                   <button
                     key={m.id}
                     onClick={() => setPaymentMethod(m.id as any)}
-                    className={`py-2.5 rounded-xl flex flex-col items-center gap-1 text-[11px] font-bold transition-all active:scale-95 ${
+                    className={`py-2.5 rounded-xl flex flex-col items-center gap-1 text-xs font-bold transition-all active:scale-95 ${
                       isSelected
                         ? 'neu-btn-primary shadow-neu-orange text-white'
                         : 'neu-btn text-stone-400 hover:text-white'
@@ -1651,7 +1659,7 @@ export default function PosPage() {
                     <button
                       key={idx}
                       onClick={() => setCashTendered(amt)}
-                      className={`py-1.5 rounded-lg font-mono font-bold text-[10px] transition-all active:scale-95 ${
+                      className={`py-1.5 rounded-lg font-mono font-bold text-xs transition-all active:scale-95 ${
                         cashTendered === amt ? 'neu-btn-primary shadow-neu-orange text-white' : 'neu-btn text-stone-300'
                       }`}
                     >
@@ -1659,7 +1667,7 @@ export default function PosPage() {
                     </button>
                   ))}
                 </div>
-                <div className="flex justify-between items-center pt-1.5 border-t border-stone-800/80 text-[11px]">
+                <div className="flex justify-between items-center pt-1.5 border-t border-stone-800/80 text-xs">
                   <span className="text-stone-400">Baki:</span>
                   <span className="font-mono text-sm font-black text-emerald-400">
                     RM {Math.max(0, cashTendered - settlingOrder.total).toFixed(2)}
@@ -1671,7 +1679,7 @@ export default function PosPage() {
             {paymentMethod === 'duitnow_qr' && (
               <div className="neu-inset-sm rounded-xl p-2.5 text-center">
                 <div className="w-20 h-20 mx-auto bg-white p-1 rounded-xl shadow-neu-flat flex items-center justify-center">
-                  <span className="text-[9px] font-black text-rose-600 font-mono">DuitNow QR</span>
+                  <span className="text-xs font-black text-rose-600 font-mono">DuitNow QR</span>
                 </div>
               </div>
             )}
@@ -1686,7 +1694,7 @@ export default function PosPage() {
             <button
               onClick={handleConfirmSettlement}
               disabled={paymentSuccess}
-              className={`w-full py-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-neu-green border border-emerald-400/40 active:scale-95 ${
+              className={`w-full py-3 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-neu-green border border-emerald-400/40 active:scale-95 ${
                 paymentSuccess
                   ? 'neu-btn-emerald text-white'
                   : 'neu-btn-emerald text-white hover:brightness-110'

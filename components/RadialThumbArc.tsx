@@ -261,7 +261,7 @@ export default function RadialThumbArc({
 
             {/* Petunjuk Arah Putaran / Scrollable Dial Hints */}
             <div
-              className="absolute pointer-events-none text-[10px] text-indigo-300/50 flex items-center gap-0.5 animate-pulse"
+              className="absolute pointer-events-none text-xs text-indigo-300/50 flex items-center gap-0.5 animate-pulse"
               style={{
                 left: `${RADIUS + Math.cos((82 * Math.PI) / 180) * RADIUS}px`,
                 top: `${RADIUS - Math.sin((82 * Math.PI) / 180) * RADIUS}px`,
@@ -272,7 +272,7 @@ export default function RadialThumbArc({
             </div>
 
             <div
-              className="absolute pointer-events-none text-[10px] text-indigo-300/50 flex items-center gap-0.5 animate-pulse"
+              className="absolute pointer-events-none text-xs text-indigo-300/50 flex items-center gap-0.5 animate-pulse"
               style={{
                 left: `${RADIUS + Math.cos((225 * Math.PI) / 180) * RADIUS}px`,
                 top: `${RADIUS - Math.sin((225 * Math.PI) / 180) * RADIUS}px`,
@@ -351,7 +351,7 @@ export default function RadialThumbArc({
 
                     {/* Label Teks di Bawah */}
                     <span
-                      className={`text-[9px] font-bold leading-tight tracking-tight truncate max-w-[50px] mt-1 text-center ${
+                      className={`text-[11px] font-bold leading-tight tracking-tight truncate max-w-[54px] mt-1 text-center ${
                         isSelected ? 'text-white font-black' : 'text-stone-300'
                       }`}
                     >
@@ -360,7 +360,7 @@ export default function RadialThumbArc({
 
                     {/* Lencana Bilangan Item */}
                     <span
-                      className={`absolute -top-1.5 -right-1 text-[8px] font-mono font-black px-1.5 py-0.2 rounded-full border shadow-sm ${
+                      className={`absolute -top-1.5 -right-1 text-[10px] font-mono font-black px-1.5 py-0.5 rounded-full border shadow-sm ${
                         isSelected
                           ? 'bg-orange-500 text-white border-orange-300'
                           : 'bg-[#100e14] text-stone-400 border-stone-800'
