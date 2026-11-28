@@ -134,10 +134,13 @@ function getItemQuickNotes(item: MenuItem): string[] {
 
 // Label Stesen Dapur Standard
 function getStationLabel(station?: string): string {
-  if (station === 'grill') return 'Arang';
-  if (station === 'wok') return 'Kuali';
-  if (station === 'drink') return 'Bar Air';
-  return station ? station.toUpperCase() : '';
+  if (!station) return '';
+  const s = station.toLowerCase();
+  if (s === 'grill') return 'Arang';
+  if (s === 'wok') return 'Kuali';
+  if (s === 'drink') return 'Bar Air';
+  if (s === 'prep_bar' || s === 'prep') return 'Kaunter';
+  return station.toUpperCase();
 }
 
 export default function PosPage() {
@@ -1050,7 +1053,8 @@ export default function PosPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
             {filteredMenu.map((item) => {
               const isSelected = expandedItemId === item.id;
-              const isSatay = item.category === 'sate';
+              const isSatay = item.category === 'sate' && !item.name.toLowerCase().includes('ketupat');
+              const unitLabel = isSatay ? 'cucuk' : item.name.toLowerCase().includes('ketupat') ? 'biji' : '';
               const displayIcon = getItemDisplayIcon(item);
               const itemsInCart = cart.filter((c) => c.itemId === item.id);
               const totalInCart = itemsInCart.reduce((sum, c) => sum + c.quantity, 0);
@@ -1059,7 +1063,7 @@ export default function PosPage() {
                 <div
                   key={item.id}
                   onClick={() => toggleItemAccordion(item)}
-                  className={`neu-card p-3 rounded-2xl transition-all duration-200 select-none cursor-pointer flex items-center justify-between gap-3 active:scale-[0.98] ${
+                  className={`neu-card p-3 sm:p-3.5 rounded-2xl transition-all duration-200 select-none cursor-pointer flex items-center justify-between gap-3 active:scale-[0.98] ${
                     isSelected
                       ? 'border-2 border-orange-500 ring-4 ring-orange-500/40 shadow-[0_0_20px_rgba(249,115,22,0.5)] scale-[1.02] bg-gradient-to-br from-[#2a1d13] to-[#1e1510]'
                       : totalInCart > 0
@@ -1067,15 +1071,15 @@ export default function PosPage() {
                       : 'border border-stone-800/40 shadow-neu-flat hover:shadow-neu-flat-lg hover:border-orange-500/30'
                   }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3.5 min-w-0">
                     {/* Kotak Ikon Sunken Neumorphic */}
-                    <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
+                    <div className="w-13 h-13 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
                       <span className="filter drop-shadow">{displayIcon.emoji}</span>
                     </div>
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className={`font-black text-sm truncate ${isSelected ? 'text-orange-400' : 'text-white'}`}>
+                        <h3 className={`font-black text-base sm:text-lg tracking-tight truncate ${isSelected ? 'text-orange-400' : 'text-white'}`}>
                           {item.name}
                         </h3>
                         {totalInCart > 0 && (
@@ -1085,10 +1089,10 @@ export default function PosPage() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="font-mono text-xs font-black text-orange-400">
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="font-mono text-sm font-black text-orange-400">
                           RM {item.price.toFixed(2)}
-                          {isSatay ? <span className="text-xs text-stone-400 font-sans font-normal"> /cucuk</span> : null}
+                          {unitLabel ? <span className="text-xs text-stone-400 font-sans font-normal"> /{unitLabel}</span> : null}
                         </span>
                         <span className="text-xs font-bold px-2 py-0.5 rounded neu-inset-sm text-stone-400 uppercase">
                           {getStationLabel(item.station)}
@@ -1099,7 +1103,7 @@ export default function PosPage() {
 
                   <div className="flex items-center gap-1.5 shrink-0">
                     <div
-                      className={`p-2 rounded-xl neu-btn text-xs font-bold flex items-center justify-center transition-all ${
+                      className={`w-9 h-9 rounded-xl neu-btn text-xs font-bold flex items-center justify-center transition-all ${
                         isSelected ? 'text-orange-400 neu-inset' : 'text-stone-300'
                       }`}
                     >
@@ -1113,10 +1117,11 @@ export default function PosPage() {
 
           {/* ======================================================== */}
           {/* DETAIL PANE: MODIFIER & ATTRIBUTE CUSTOMIZER SHEET        */}
-          {/* (Reka bentuk persis Troli: Terapung dengan backdrop blur) */}
+          {/* (Reka bentuk MINIMALIS, kemas & elegan persis Troli)     */}
           {/* ======================================================== */}
           {activeExpandedItem && (() => {
-            const isSatay = activeExpandedItem.category === 'sate';
+            const isSatay = activeExpandedItem.category === 'sate' && !activeExpandedItem.name.toLowerCase().includes('ketupat');
+            const unitLabel = isSatay ? 'cucuk' : activeExpandedItem.name.toLowerCase().includes('ketupat') ? 'biji' : 'unit';
             const displayIcon = getItemDisplayIcon(activeExpandedItem);
             const tempOptions = getItemTemperatureOptions(activeExpandedItem);
             const quickNotes = getItemQuickNotes(activeExpandedItem);
@@ -1132,27 +1137,29 @@ export default function PosPage() {
                   onClick={() => setExpandedItemId(null)}
                 />
 
-                {/* Kontena Kad Ubahsuai: Persis Reka Bentuk Lembaran Troli (rounded-3xl, border-orange-500/80, bg-[#161311]) */}
-                <div className="rounded-3xl p-4 sm:p-5 max-h-[75vh] sm:max-h-[80vh] flex flex-col space-y-3.5 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
-                  {/* HEADER DETAIL PANE */}
-                  <div className="flex items-center justify-between pb-2.5 border-b border-stone-800 shrink-0">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-10 h-10 rounded-2xl neu-inset flex items-center justify-center text-xl shrink-0">
+                {/* Kontena Kad Ubahsuai Minimalis */}
+                <div className="rounded-3xl p-4 sm:p-5 max-h-[78vh] flex flex-col space-y-4 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
+                  {/* HEADER MINIMALIS: Nama Besar & Harga Jelas */}
+                  <div className="flex items-center justify-between pb-3 border-b border-stone-800 shrink-0">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
                         <span>{displayIcon.emoji}</span>
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-black text-sm text-white truncate">{activeExpandedItem.name}</h3>
+                          <h3 className="font-black text-lg sm:text-xl text-white truncate tracking-tight">
+                            {activeExpandedItem.name}
+                          </h3>
                           {totalInCart > 0 && (
                             <span className="text-xs font-black px-2 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
                               {totalInCart}x dlm troli
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="font-mono font-black text-orange-400">
+                        <div className="flex items-center gap-2 mt-0.5 text-xs">
+                          <span className="font-mono font-black text-sm text-orange-400">
                             RM {activeExpandedItem.price.toFixed(2)}
-                            {isSatay ? <span className="text-xs text-stone-400 font-sans font-normal"> /cucuk</span> : null}
+                            <span className="text-xs text-stone-400 font-sans font-normal"> /{unitLabel}</span>
                           </span>
                           <span className="text-xs font-bold px-2 py-0.5 rounded neu-inset-sm text-stone-400 uppercase">
                             {getStationLabel(activeExpandedItem.station)}
@@ -1165,79 +1172,70 @@ export default function PosPage() {
                       type="button"
                       onClick={() => setExpandedItemId(null)}
                       className="w-8 h-8 rounded-full neu-btn flex items-center justify-center text-stone-400 hover:text-white transition-all active:scale-95 shrink-0"
-                      title="Tutup Panel Ubahsuai"
+                      title="Tutup"
                     >
-                      <ChevronDown className="w-5 h-5" />
+                      <ChevronDown className="w-5 h-5 text-orange-400" />
                     </button>
                   </div>
 
-                  {/* KANDUNGAN UBAHSUAI (BOLEH DISKROL DALAM PANE) */}
-                  <div className="overflow-y-auto space-y-3 pr-1 flex-1 min-h-0 text-xs">
-                    {/* ATTRIBUTE 1: KUANTITI */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between font-bold text-stone-300">
-                        <span className="flex items-center gap-1.5 text-orange-400">
-                          <span>📊</span>
-                          <span>Kuantiti ({isSatay ? 'Min. 5 cucuk' : 'Unit'})</span>
-                        </span>
-                        <span className="font-mono font-black text-white text-sm">
-                          {matrixQty} {isSatay ? 'cucuk' : 'unit'}
-                        </span>
+                  {/* KANDUNGAN UBAHSUAI MINIMALIS */}
+                  <div className="overflow-y-auto space-y-4 pr-0.5 flex-1 min-h-0 text-xs">
+                    {/* SEKSYEN 1: KUANTITI MINIMALIS (Stepper Hero + Baris Preset Bersih) */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between neu-inset-sm p-1.5 rounded-2xl">
+                        <button
+                          type="button"
+                          onClick={() => setMatrixQty((prev) => Math.max(isSatay ? 5 : 1, prev - (isSatay ? 5 : 1)))}
+                          className="w-11 h-11 rounded-xl neu-btn flex items-center justify-center text-stone-300 hover:text-white active:scale-90"
+                        >
+                          <Minus className="w-5 h-5" />
+                        </button>
+                        
+                        <div className="text-center">
+                          <div className="font-mono text-2xl font-black text-white leading-none">
+                            {matrixQty} <span className="text-xs font-sans font-bold text-stone-400">{unitLabel}</span>
+                          </div>
+                          <div className="text-xs font-mono font-bold text-orange-400 mt-1">
+                            RM {(activeExpandedItem.price * matrixQty).toFixed(2)}
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setMatrixQty((prev) => prev + (isSatay ? 5 : 1))}
+                          className="w-11 h-11 rounded-xl neu-btn-primary text-white flex items-center justify-center active:scale-90 shadow-neu-orange"
+                        >
+                          <Plus className="w-5 h-5" />
+                        </button>
                       </div>
 
-                      {/* Butang Preset */}
-                      <div className="grid grid-cols-6 gap-1.5">
+                      {/* Baris Butang Preset Pantas */}
+                      <div className="flex items-center justify-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
                         {qtyPresets.map((qty) => (
                           <button
                             key={qty}
                             type="button"
                             onClick={() => setMatrixQty(qty)}
-                            className={`py-1.5 rounded-xl font-mono text-xs font-black transition-all active:scale-95 ${
+                            className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all active:scale-95 shrink-0 ${
                               matrixQty === qty
-                                ? 'neu-btn-primary shadow-neu-orange text-white'
-                                : 'neu-btn text-stone-300 hover:text-white'
+                                ? 'neu-btn-primary shadow-neu-orange text-white ring-1 ring-orange-400'
+                                : 'neu-btn text-stone-400 hover:text-white'
                             }`}
                           >
                             {qty}
                           </button>
                         ))}
                       </div>
-
-                      {/* Stepper Presisi */}
-                      <div className="flex items-center justify-between neu-inset-sm p-1 rounded-xl mt-1">
-                        <button
-                          type="button"
-                          onClick={() => setMatrixQty((prev) => Math.max(isSatay ? 5 : 1, prev - (isSatay ? 5 : 1)))}
-                          className="w-8 h-8 rounded-lg neu-btn flex items-center justify-center text-stone-300 hover:text-white active:scale-90"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        
-                        <div className="flex items-center gap-1 font-mono font-black text-sm text-white">
-                          <span>{matrixQty}</span>
-                          <span className="text-xs text-stone-400 font-sans font-normal">
-                            (RM {(activeExpandedItem.price * matrixQty).toFixed(2)})
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => setMatrixQty((prev) => prev + (isSatay ? 5 : 1))}
-                          className="w-8 h-8 rounded-lg neu-btn-primary text-white flex items-center justify-center active:scale-90 shadow-neu-orange"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
                     </div>
 
-                    {/* ATTRIBUTE 2: SUHU / VARIASI */}
+                    {/* SEKSYEN 2: SUHU / VARIASI HIDANGAN (Pill Tanpa Terpotong) */}
                     <div className="space-y-1.5">
-                      <div className="font-bold text-stone-300 flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-stone-400 flex items-center gap-1.5 uppercase tracking-wider">
                         <Thermometer className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>Suhu / Variasi Hidangan</span>
+                        <span>Pilihan Variasi / Suhu</span>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-1.5">
+                      <div className="flex flex-wrap gap-1.5">
                         {tempOptions.map((opt) => {
                           const isSelected = matrixTemp === opt.id;
                           return (
@@ -1245,27 +1243,25 @@ export default function PosPage() {
                               key={opt.id}
                               type="button"
                               onClick={() => setMatrixTemp(opt.id)}
-                              className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                              className={`py-2 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 ${
                                 isSelected
                                   ? 'neu-btn-primary shadow-neu-orange text-white font-black ring-1 ring-orange-400'
                                   : 'neu-btn text-stone-300 hover:text-white'
                               }`}
                             >
                               <span>{opt.icon}</span>
-                              <span className="truncate">{opt.label}</span>
+                              <span className="whitespace-nowrap">{opt.label}</span>
                             </button>
                           );
                         })}
                       </div>
                     </div>
 
-                    {/* ATTRIBUTE 3: NOTA & PERMINTAAN KHAS */}
+                    {/* SEKSYEN 3: NOTA KHAS (Cip Pantas + Input Teks Bersih) */}
                     <div className="space-y-1.5">
-                      <div className="font-bold text-stone-300 flex items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                          <span>✍️</span>
-                          <span>Permintaan Khas (Pilihan Segera / Tulis)</span>
-                        </span>
+                      <div className="text-xs font-bold text-stone-400 flex items-center gap-1.5 uppercase tracking-wider">
+                        <span>✍️</span>
+                        <span>Permintaan Khas (Pilihan)</span>
                       </div>
 
                       {/* Quick Chips */}
@@ -1283,9 +1279,9 @@ export default function PosPage() {
                                   setMatrixNotes((prev) => (prev ? `${prev}, ${chip}` : chip));
                                 }
                               }}
-                              className={`text-xs font-bold px-2.5 py-1 rounded-lg transition-all active:scale-95 ${
+                              className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all active:scale-95 ${
                                 isIncluded
-                                  ? 'neu-btn-primary text-white shadow-neu-orange'
+                                  ? 'neu-btn-primary text-white shadow-neu-orange ring-1 ring-orange-400'
                                   : 'neu-inset-sm text-stone-300 hover:text-white'
                               }`}
                             >
@@ -1295,20 +1291,20 @@ export default function PosPage() {
                         })}
                       </div>
 
-                      {/* Custom input */}
-                      <div className="relative">
+                      {/* Input Teks Terbuka */}
+                      <div className="relative pt-1">
                         <input
                           type="text"
                           value={matrixNotes}
                           onChange={(e) => setMatrixNotes(e.target.value)}
-                          placeholder="Tulis permintaan khas di sini..."
-                          className="neu-input w-full px-3 py-2 text-xs text-white placeholder-stone-500 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500"
+                          placeholder="Tulis nota lain jika ada..."
+                          className="neu-input w-full px-3.5 py-2.5 text-xs text-white placeholder-stone-500 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500"
                         />
                         {matrixNotes && (
                           <button
                             type="button"
                             onClick={() => setMatrixNotes('')}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white text-xs"
+                            className="absolute right-3 top-1/2 translate-y-[-20%] text-stone-400 hover:text-white text-xs"
                           >
                             ✕
                           </button>
@@ -1318,18 +1314,19 @@ export default function PosPage() {
 
                     {/* Senarai Variasi Item Ini Yang Sedang Berada Dalam Troli */}
                     {itemsInCart.length > 0 && (
-                      <div className="neu-inset-sm p-2.5 rounded-xl space-y-1.5">
-                        <div className="text-xs font-bold text-stone-400">
-                          Dalam Troli Sekarang ({totalInCart}x):
+                      <div className="neu-inset-sm p-3 rounded-2xl space-y-2">
+                        <div className="text-xs font-bold text-stone-400 flex items-center justify-between">
+                          <span>Sedang Dalam Troli:</span>
+                          <span className="font-mono text-orange-400 font-black">{totalInCart}x</span>
                         </div>
                         {itemsInCart.map((cItem, cIdx) => (
-                          <div key={cIdx} className="flex items-center justify-between text-xs">
-                            <span className="text-stone-200">
+                          <div key={cIdx} className="flex items-center justify-between text-xs py-0.5">
+                            <span className="text-stone-200 truncate pr-2">
                               <span className="font-black text-orange-400">{cItem.quantity}x</span>{' '}
                               {cItem.notes ? <span className="text-amber-300 font-semibold">({cItem.notes})</span> : ''}
                             </span>
 
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 shrink-0">
                               <button
                                 type="button"
                                 onClick={() => updateCartItemQuantity(activeExpandedItem.id, cItem.notes, isSatay ? -5 : -1)}
@@ -1360,19 +1357,12 @@ export default function PosPage() {
                     )}
                   </div>
 
-                  {/* FOOTER DETAIL PANE DENGAN CTA BESAR */}
-                  <div className="pt-2.5 border-t border-stone-800 shrink-0 flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-xs font-semibold text-stone-400">Jumlah:</div>
-                      <div className="font-mono text-base font-black text-orange-400">
-                        RM {(activeExpandedItem.price * matrixQty).toFixed(2)}
-                      </div>
-                    </div>
-
+                  {/* FOOTER MINIMALIS DENGAN BUTANG LEBAR TUNGGAL (Tiada Line Break) */}
+                  <div className="pt-2 border-t border-stone-800 shrink-0">
                     <button
                       type="button"
                       onClick={() => handleApplyMatrixToCart(activeExpandedItem)}
-                      className="flex-1 py-3 px-4 rounded-2xl neu-btn-primary font-black text-xs sm:text-sm text-white shadow-neu-orange active:scale-95 flex items-center justify-center gap-2 tracking-wide"
+                      className="w-full py-3.5 px-4 rounded-2xl neu-btn-primary font-black text-sm text-white shadow-neu-orange active:scale-95 flex items-center justify-center gap-2 tracking-wide"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Masukkan ke Troli • RM {(activeExpandedItem.price * matrixQty).toFixed(2)}</span>
