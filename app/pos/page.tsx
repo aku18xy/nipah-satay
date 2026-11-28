@@ -1228,19 +1228,19 @@ export default function PosPage() {
       {/* UNIFIED MORPHING BOTTOM SHEET (Master–Detail Concept)    */}
       {/* Morfisme merentasi Tetingkap Meja & Menu                 */}
       {/* ======================================================== */}
-      {/* 1. Backdrop Gelap Lutsinar apabila Sheet Terbuka */}
+      {/* 1. Backdrop Gelap Halus apabila Sheet Terbuka (Tanpa kabur / No backdrop-blur) */}
       {bottomSheetOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-fadeIn"
+          className="fixed inset-0 bg-black/25 z-40 animate-fadeIn"
           onClick={() => {
             setBottomSheetOpen(false);
           }}
         />
       )}
 
-      {/* 2. Kontena Bottom Sheet Morfisme */}
+      {/* 2. Kontena Bottom Sheet Morfisme (z-50 di atas backdrop) */}
       {(posView === 'menu' || (posView === 'tables' && selectedDetailOrder && bottomSheetOpen)) && (
-        <div className="fixed bottom-0 sm:bottom-3 left-0 right-0 sm:left-4 sm:right-4 z-45 max-w-xl mx-auto select-none">
+        <div className="fixed bottom-0 sm:bottom-3 left-0 right-0 sm:left-4 sm:right-4 z-50 max-w-xl mx-auto select-none">
           <div
             className={`transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
               bottomSheetOpen
