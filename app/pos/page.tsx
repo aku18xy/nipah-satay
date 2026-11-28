@@ -1053,8 +1053,6 @@ export default function PosPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
             {filteredMenu.map((item) => {
               const isSelected = expandedItemId === item.id;
-              const isSatay = item.category === 'sate' && !item.name.toLowerCase().includes('ketupat');
-              const unitLabel = isSatay ? 'cucuk' : item.name.toLowerCase().includes('ketupat') ? 'biji' : '';
               const displayIcon = getItemDisplayIcon(item);
               const itemsInCart = cart.filter((c) => c.itemId === item.id);
               const totalInCart = itemsInCart.reduce((sum, c) => sum + c.quantity, 0);
@@ -1073,7 +1071,7 @@ export default function PosPage() {
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     {/* Kotak Ikon Sunken Neumorphic */}
-                    <div className="w-13 h-13 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
+                    <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
                       <span className="filter drop-shadow">{displayIcon.emoji}</span>
                     </div>
 
@@ -1087,16 +1085,6 @@ export default function PosPage() {
                             {totalInCart}x
                           </span>
                         )}
-                      </div>
-
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="font-mono text-sm font-black text-orange-400">
-                          RM {item.price.toFixed(2)}
-                          {unitLabel ? <span className="text-xs text-stone-400 font-sans font-normal"> /{unitLabel}</span> : null}
-                        </span>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded neu-inset-sm text-stone-400 uppercase">
-                          {getStationLabel(item.station)}
-                        </span>
                       </div>
                     </div>
                   </div>
