@@ -292,6 +292,25 @@ export default function PosBackofficePage() {
     }
   };
 
+  const handleQuickUpdateStation = async (item: MenuItem, newStation: 'grill' | 'wok' | 'prep_bar') => {
+    try {
+      const res = await fetch(`/api/menu/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ station: newStation }),
+      });
+      if (res.ok) {
+        setMenuItems((prev) =>
+          prev.map((i) => (i.id === item.id ? { ...i, station: newStation } : i))
+        );
+        const label = newStation === 'grill' ? 'Arang' : newStation === 'wok' ? 'Kuali' : 'Kaunter';
+        showToast(`✅ Stesen "${item.name}" ditukar ke ${label}!`);
+      }
+    } catch {
+      showToast('❌ Ralat mengemas kini stesen');
+    }
+  };
+
   const handleDeleteMenuConfirm = async () => {
     if (!deleteConfirm || deleteConfirm.type !== 'menu') return;
     try {
@@ -629,14 +648,24 @@ export default function PosBackofficePage() {
                       )}
                     </div>
 
-                    {/* Kategori Badge & Stesen */}
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 text-orange-400">
+                    {/* Kategori Badge & Stesen Dapur Boleh Ubah */}
+                    <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 text-orange-400 shrink-0">
                         {catObj?.icon || '🏷️'} {catObj?.label || item.category}
                       </span>
-                      <span className="text-[10px] font-mono text-stone-500 uppercase">
-                        {item.station}
-                      </span>
+
+                      {/* Dropdown Tukar Stesen Pantas Terus Pada Kad */}
+                      <select
+                        value={item.station}
+                        onChange={(e) => handleQuickUpdateStation(item, e.target.value as any)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md neu-btn bg-[#181614] text-stone-200 border border-stone-800 focus:outline-none cursor-pointer"
+                        title="Tukar stesen dapur secara pantas"
+                      >
+                        <option value="grill">🔥 Arang</option>
+                        <option value="wok">🍳 Kuali</option>
+                        <option value="prep_bar">🥤 Kaunter</option>
+                      </select>
                     </div>
 
                     {/* Nama Menu */}
@@ -654,10 +683,19 @@ export default function PosBackofficePage() {
                   <div className="pt-3 border-t border-stone-800/80 mt-2 flex items-center justify-between">
                     <div>
                       <div className="font-mono text-base font-black text-orange-400">
-                        RM {item.price.toFixed(2)}
+                        RM {item.price.toFixed(2)}{' '}
+                        <span className="text-[10px] text-stone-400 font-sans font-normal">
+                          /{item.unit || 'hidangan'}
+                        </span>
                       </div>
-                      <div className="text-[10px] text-stone-500 font-mono">
-                        per {item.unit || 'hidangan'}
+                      <div className="text-[10px] text-stone-500 font-mono flex items-center gap-1.5 mt-0.5">
+                        <span>Kos: RM {(item.costEstimate || 0).toFixed(2)}</span>
+                        {item.minOrder && item.minOrder > 1 ? (
+                          <>
+                            <span>•</span>
+                            <span className="text-amber-400 font-bold">Min: {item.minOrder}</span>
+                          </>
+                        ) : null}
                       </div>
                     </div>
 
@@ -829,21 +867,21 @@ export default function PosBackofficePage() {
 
                 <div>
                   <label className="block text-[11px] font-bold text-stone-300 mb-1">
-                    Stesen Dapur
+                    Stesen Dapur *
                   </label>
                   <select
                     value={menuForm.station}
                     onChange={(e) => setMenuForm({ ...menuForm, station: e.target.value as any })}
                     className="neu-input w-full px-3 py-2.5 rounded-xl text-white focus:outline-none font-bold cursor-pointer"
                   >
-                    <option value="grill">🔥 Grill (Bakar Arang)</option>
-                    <option value="wok">🍳 Wok (Kuali Panas)</option>
-                    <option value="prep_bar">🥤 Prep Bar (Minuman/Kaunter)</option>
+                    <option value="grill">🔥 Arang (Grill / Bakar)</option>
+                    <option value="wok">🍳 Kuali (Wok / Panas)</option>
+                    <option value="prep_bar">🥤 Kaunter (Prep Bar / Air / Kuih)</option>
                   </select>
                 </div>
               </div>
 
-              {/* 3. Harga Jual & Unit */}
+              {/* 3. Kewangan: Harga Jual & Anggaran Kos Mentah */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-stone-300 mb-1">
@@ -868,14 +906,51 @@ export default function PosBackofficePage() {
 
                 <div>
                   <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                    Anggaran Kos Mentah (RM)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-stone-400">
+                      RM
+                    </span>
+                    <input
+                      type="number"
+                      step="0.05"
+                      min="0"
+                      value={menuForm.costEstimate}
+                      onChange={(e) => setMenuForm({ ...menuForm, costEstimate: e.target.value })}
+                      placeholder="0.55"
+                      className="neu-input w-full pl-11 pr-3 py-2.5 rounded-xl text-white font-mono font-bold focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Unit Jualan & Pesanan Minima */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-300 mb-1">
                     Unit Jualan
                   </label>
                   <input
                     type="text"
                     value={menuForm.unit}
                     onChange={(e) => setMenuForm({ ...menuForm, unit: e.target.value })}
-                    placeholder="cucuk / mangkuk / pinggan / cawan"
+                    placeholder="cucuk / biji / mangkuk / bungkus / cawan"
                     className="neu-input w-full px-3 py-2.5 rounded-xl text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                    Pesanan Minima (Kuantiti)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={menuForm.minOrder}
+                    onChange={(e) => setMenuForm({ ...menuForm, minOrder: e.target.value })}
+                    placeholder="1"
+                    className="neu-input w-full px-3 py-2.5 rounded-xl text-white font-mono font-bold focus:outline-none"
                   />
                 </div>
               </div>
