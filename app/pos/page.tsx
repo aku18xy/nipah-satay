@@ -592,50 +592,96 @@ export default function PosPage() {
       {/* SKRIN 1: PILIHAN MEJA & BUNGKUS (MINIMALIS)               */}
       {/* ======================================================== */}
       {posView === 'tables' && (
-        <div className="space-y-3">
-          {/* Top Bar Ringkas (Jimat Ruang, Soft Neumorphic) */}
-          <div className="neu-card px-3.5 py-2.5 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-black text-white flex items-center gap-1.5">
-                <span className="text-orange-500">🔥</span> POS
-              </span>
-              <div className="flex items-center gap-1.5 text-[11px] font-bold">
-                <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-emerald-400">
-                  🟢 {RESTAURANT_TABLES.filter(t => !liveOrders.some(o => o.type === 'dine_in' && o.tableNumber === t.id && !o.isPaid && o.status !== 'cancelled')).length} Kosong
+        <div className="space-y-3 pb-20">
+          {/* ======================================================== */}
+          {/* TOP DYNAMIC ISLAND: HANYA STATUS MEJA                    */}
+          {/* (Gunakan struktur kapsul sama seperti dalam menu)         */}
+          {/* ======================================================== */}
+          <div className="sticky top-16 z-30 max-w-xl mx-auto w-full px-2 select-none flex justify-center">
+            <div className="dynamic-island-top rounded-full px-5 py-2 flex items-center justify-center gap-3 sm:gap-4 shadow-2xl border border-stone-800/80 bg-[#161311]/95 backdrop-blur-md">
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)] animate-pulse" />
+                <span className="text-emerald-400 font-mono">
+                  {RESTAURANT_TABLES.filter(t => !liveOrders.some(o => o.type === 'dine_in' && o.tableNumber === t.id && !o.isPaid && o.status !== 'cancelled')).length}
                 </span>
-                <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-amber-400">
-                  🔴 {liveOrders.filter(o => o.type === 'dine_in' && !o.isPaid && o.status !== 'cancelled').length} Makan
-                </span>
-                {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length > 0 && (
-                  <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-orange-400">
-                    🛍️ {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length} Bungkus
-                  </span>
-                )}
+                <span className="text-stone-300 font-bold">Kosong</span>
               </div>
-            </div>
 
-            <div className="flex items-center gap-1.5">
-              <Link
-                href="/pos/backoffice"
-                className="px-2.5 py-1.5 rounded-xl neu-btn text-stone-200 hover:text-white font-bold text-xs flex items-center gap-1 active:scale-95 transition-all"
-                title="Buka POS Backoffice (Urus Menu & Kategori)"
-              >
-                <span>⚙️</span>
-                <span className="hidden sm:inline">Backoffice</span>
-              </Link>
+              <span className="w-1 h-3.5 rounded-full bg-stone-700/60" />
 
-              <button
-                type="button"
-                onClick={handleSelectTakeawayAndNavigate}
-                className="px-3 py-1.5 rounded-xl neu-btn-primary font-black text-xs flex items-center gap-1 active:scale-95 cursor-pointer shadow-neu-orange"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Bungkus</span>
-              </button>
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse" />
+                <span className="text-amber-400 font-mono">
+                  {liveOrders.filter(o => o.type === 'dine_in' && !o.isPaid && o.status !== 'cancelled').length}
+                </span>
+                <span className="text-stone-300 font-bold">Makan</span>
+              </div>
+
+              {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length > 0 && (
+                <>
+                  <span className="w-1 h-3.5 rounded-full bg-stone-700/60" />
+                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
+                    <span className="text-sm">🛍️</span>
+                    <span className="text-orange-400 font-mono">
+                      {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length}
+                    </span>
+                    <span className="text-stone-300 font-bold">Bungkus</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Senarai Pesanan Bungkus Aktif (Hanya jika wujud) */}
+          {/* Grid Meja 4 Sebaris (Square, Soft Neumorphic) */}
+          <div className="grid grid-cols-4 gap-2 sm:gap-3">
+            {RESTAURANT_TABLES.map((tbl) => {
+              const activeOrd = liveOrders.find(
+                (o) => o.type === 'dine_in' && o.tableNumber === tbl.id && !o.isPaid && o.status !== 'cancelled'
+              );
+              const itemCount = activeOrd
+                ? activeOrd.items.reduce((a, b) => a + b.quantity, 0)
+                : 0;
+
+              return (
+                <button
+                  key={tbl.id}
+                  type="button"
+                  onClick={() => handleSelectTableAndNavigate(tbl.id)}
+                  className={`aspect-square rounded-2xl p-2.5 sm:p-3 text-left transition-all duration-200 flex flex-col justify-between select-none cursor-pointer active:scale-95 active:shadow-neu-pressed ${
+                    activeOrd
+                      ? 'bg-gradient-to-br from-[#221a15] to-[#181411] border border-amber-500/50 shadow-neu-amber hover:border-amber-400'
+                      : 'bg-[#181614] border border-stone-800/40 shadow-neu-flat hover:shadow-neu-flat-lg hover:border-orange-500/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-sm sm:text-base font-black text-white tracking-tight">{tbl.short}</span>
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        activeOrd
+                          ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse'
+                          : 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.85)]'
+                      }`}
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    {activeOrd ? (
+                      <div>
+                        <div className="font-mono text-xs sm:text-sm font-black text-orange-400 leading-tight">
+                          RM {activeOrd.total.toFixed(activeOrd.total % 1 === 0 ? 0 : 2)}
+                        </div>
+                        <div className="text-[10px] text-stone-300 font-bold leading-tight mt-0.5">
+                          {itemCount} item
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Senarai Pesanan Bungkus Aktif di Bawah Meja (Sesuai Rujukan Gambar) */}
           {(() => {
             const activeTakeaways = liveOrders.filter(
               (o) => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))
@@ -644,7 +690,7 @@ export default function PosPage() {
             if (activeTakeaways.length === 0) return null;
 
             return (
-              <div className="neu-card p-2.5 space-y-2 border border-orange-950/40">
+              <div className="neu-card p-2.5 space-y-2 border border-orange-950/40 mt-3">
                 <div className="flex items-center justify-between text-[11px] font-black text-stone-300 px-1">
                   <span>🛍️ Pesanan Bungkus Aktif ({activeTakeaways.length})</span>
                 </div>
@@ -703,53 +749,26 @@ export default function PosPage() {
             );
           })()}
 
-          {/* Grid Meja 4 Sebaris (Square, Soft Neumorphic) */}
-          <div className="grid grid-cols-4 gap-2 sm:gap-3">
-            {RESTAURANT_TABLES.map((tbl) => {
-              const activeOrd = liveOrders.find(
-                (o) => o.type === 'dine_in' && o.tableNumber === tbl.id && !o.isPaid && o.status !== 'cancelled'
-              );
-              const itemCount = activeOrd
-                ? activeOrd.items.reduce((a, b) => a + b.quantity, 0)
-                : 0;
+          {/* FLOATING ACTION BUTTON DI BUCU BAWAH KANAN (Morph Jadi +Bungkus) */}
+          {/* Menggunakan gaya butang jemari terapung yang sama dengan dalam menu */}
+          <div className="fixed right-4 sm:right-6 bottom-6 sm:bottom-8 z-40 select-none">
+            <button
+              type="button"
+              onClick={handleSelectTakeawayAndNavigate}
+              className="group relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer shadow-2xl z-40 bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 text-white shadow-[0_0_25px_rgba(249,115,22,0.7)] ring-4 ring-orange-500/30 hover:scale-105"
+              title="Buat Pesanan Bungkus Baharu (+Bungkus)"
+            >
+              {/* Ikon Beg Bungkus */}
+              <ShoppingBag className="w-6 h-6 text-white filter drop-shadow transition-transform group-hover:scale-110" />
 
-              return (
-                <button
-                  key={tbl.id}
-                  type="button"
-                  onClick={() => handleSelectTableAndNavigate(tbl.id)}
-                  className={`aspect-square rounded-2xl p-2.5 sm:p-3 text-left transition-all duration-200 flex flex-col justify-between select-none cursor-pointer active:scale-95 active:shadow-neu-pressed ${
-                    activeOrd
-                      ? 'bg-gradient-to-br from-[#221a15] to-[#181411] border border-amber-500/50 shadow-neu-amber hover:border-amber-400'
-                      : 'bg-[#181614] border border-stone-800/40 shadow-neu-flat hover:shadow-neu-flat-lg hover:border-orange-500/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-sm sm:text-base font-black text-white tracking-tight">{tbl.short}</span>
-                    <span
-                      className={`w-2.5 h-2.5 rounded-full ${
-                        activeOrd
-                          ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse'
-                          : 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.85)]'
-                      }`}
-                    />
-                  </div>
+              {/* Tanda Plus Mini di Atas */}
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-[#161311] text-[11px] font-black flex items-center justify-center border-2 border-[#161311] shadow-md">
+                +
+              </span>
 
-                  <div className="w-full">
-                    {activeOrd ? (
-                      <div>
-                        <div className="font-mono text-xs sm:text-sm font-black text-orange-400 leading-tight">
-                          RM {activeOrd.total.toFixed(activeOrd.total % 1 === 0 ? 0 : 2)}
-                        </div>
-                        <div className="text-[10px] text-stone-300 font-bold leading-tight mt-0.5">
-                          {itemCount} item
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                </button>
-              );
-            })}
+              {/* Lingkaran Berkilau (Ambient Glow Ring) */}
+              <span className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
+            </button>
           </div>
         </div>
       )}
