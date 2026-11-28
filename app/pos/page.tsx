@@ -1069,19 +1069,19 @@ export default function PosPage() {
                       : 'border border-stone-800/40 shadow-neu-flat hover:shadow-neu-flat-lg hover:border-orange-500/30'
                   }`}
                 >
-                  <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
                     {/* Kotak Ikon Sunken Neumorphic */}
-                    <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
+                    <div className="w-13 h-13 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
                       <span className="filter drop-shadow">{displayIcon.emoji}</span>
                     </div>
 
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className={`font-black text-base sm:text-lg tracking-tight truncate ${isSelected ? 'text-orange-400' : 'text-white'}`}>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className={`font-black text-lg sm:text-xl tracking-tight truncate ${isSelected ? 'text-orange-400' : 'text-white'}`}>
                           {item.name}
                         </h3>
                         {totalInCart > 0 && (
-                          <span className="text-xs font-black px-2 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
+                          <span className="text-xs font-black px-2.5 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
                             {totalInCart}x
                           </span>
                         )}
@@ -1475,22 +1475,22 @@ export default function PosPage() {
                       cart.map((item, idx) => (
                         <div key={`${item.itemId}-${item.notes || ''}-${idx}`} className="neu-inset-sm p-2.5 rounded-2xl flex items-center justify-between text-xs">
                           <div className="min-w-0 pr-2">
-                            <span className="font-bold text-white truncate block">{item.name}</span>
+                            <span className="font-black text-sm sm:text-base text-white truncate block">{item.name}</span>
                             {item.notes && (
                               <span className="block text-xs text-amber-300 font-medium truncate">
                                 {item.notes}
                               </span>
                             )}
-                            <span className="text-xs text-stone-400 font-mono">
-                              RM {item.price.toFixed(2)} × {item.quantity} = RM {(item.price * item.quantity).toFixed(2)}
+                            <span className="text-xs text-orange-400 font-mono font-black mt-0.5 block">
+                              RM {(item.price * item.quantity).toFixed(2)}
                             </span>
                           </div>
                           <div className="flex items-center gap-1 neu-card rounded-xl p-0.5 shrink-0 border border-stone-850">
-                            <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, item.station === 'grill' ? -5 : -1)} className="p-1 text-stone-400 hover:text-white neu-btn rounded-lg">
+                            <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, -1)} className="p-1 text-stone-400 hover:text-white neu-btn rounded-lg">
                               <Minus className="w-3 h-3" />
                             </button>
                             <span className="font-bold font-mono text-xs px-1.5 text-white">{item.quantity}</span>
-                            <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, item.station === 'grill' ? 5 : 1)} className="p-1 text-white neu-btn-primary rounded-lg">
+                            <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, 1)} className="p-1 text-white neu-btn-primary rounded-lg">
                               <Plus className="w-3 h-3" />
                             </button>
                           </div>
