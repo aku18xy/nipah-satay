@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Hand, Compass, ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 
 export interface RadialCategory {
   id: string;
@@ -373,7 +373,7 @@ export default function RadialThumbArc({
           </div>
 
           {/* ======================================================== */}
-          {/* BUTANG JEMARI UTAMA (THE GLOWING THUMB HAND BUTTON)        */}
+          {/* BUTANG UTAMA KATEGORI TERPILIH (SELECTED CATEGORY BUTTON)  */}
           {/* ======================================================== */}
           <button
             ref={buttonRef}
@@ -386,21 +386,16 @@ export default function RadialThumbArc({
                 ? 'bg-gradient-to-br from-indigo-500 via-purple-600 to-purple-700 text-white shadow-[0_0_25px_rgba(168,85,247,0.7)] ring-4 ring-purple-500/30'
                 : 'bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-800 text-white shadow-[0_0_18px_rgba(147,51,234,0.5)] hover:scale-105'
             }`}
-            title={isOpen ? 'Tutup Roda Kategori' : 'Buka Thumb Arc Kategori'}
+            title={isOpen ? `Tutup (${categories[activeIndex]?.label || 'Kategori'})` : `Buka (${categories[activeIndex]?.label || 'Kategori'})`}
           >
-            {/* Ikon Tangan / Thumb Gesture seperti dalam gambar rujukan */}
-            <Hand
-              className={`w-6 h-6 text-white filter drop-shadow transition-transform ${
-                isOpen ? 'rotate-[-10deg] scale-110' : ''
+            {/* Ikon Kategori Terpilih Menggantikan Ikon Tangan */}
+            <span
+              className={`text-2xl leading-none filter drop-shadow transition-transform select-none ${
+                isOpen ? 'scale-115 rotate-[-6deg]' : 'scale-105'
               }`}
-            />
-
-            {/* Lencana Kategori Semasa Bila Kuncup */}
-            {!isOpen && (
-              <span className="absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full bg-[#18161f] border border-orange-500 text-xs flex items-center justify-center shadow-md">
-                {categories[activeIndex]?.icon}
-              </span>
-            )}
+            >
+              {categories[activeIndex]?.icon || '🔥'}
+            </span>
 
             {/* Lingkaran Berkilau (Ambient Glow Ring) */}
             <span className="absolute inset-0 rounded-full border border-white/20 pointer-events-none" />
