@@ -286,7 +286,14 @@ export default function KitchenKdsPage() {
                           .filter((i) => i.station === 'grill')
                           .map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center text-xs font-semibold text-stone-100">
-                              <span>{item.name}</span>
+                              <div>
+                                <span>{item.name}</span>
+                                {item.notes && (
+                                  <span className="block text-[10px] text-orange-300 italic font-normal">
+                                    Nota: {item.notes}
+                                  </span>
+                                )}
+                              </div>
                               <span className="font-mono font-bold text-orange-400 neu-card px-2 py-0.5 rounded">
                                 {item.quantity} cucuk
                               </span>
@@ -389,7 +396,14 @@ export default function KitchenKdsPage() {
                           .filter((i) => i.station === 'prep_bar')
                           .map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center text-xs font-semibold text-stone-200">
-                              <span>{item.name}</span>
+                              <div>
+                                <span>{item.name}</span>
+                                {item.notes && (
+                                  <span className="block text-[10px] text-sky-300 italic font-normal">
+                                    Nota: {item.notes}
+                                  </span>
+                                )}
+                              </div>
                               <span className="font-mono font-bold text-stone-300 neu-card px-2 py-0.5 rounded">
                                 {item.quantity}x
                               </span>

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { 
   Flame, 
   Plus, 
@@ -16,21 +15,16 @@ import {
   Clock, 
   Sparkles, 
   ShoppingBag, 
-  RotateCcw, 
-  Search, 
   CheckCircle2, 
-  Utensils, 
-  Receipt,
   ArrowLeft,
   Send,
-  SlidersHorizontal,
-  ChevronRight,
-  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   X,
-  Layers,
-  Pin,
-  PinOff
+  Thermometer,
+  Layers
 } from 'lucide-react';
+import RadialThumbArc from '@/components/RadialThumbArc';
 import { INITIAL_MENU_ITEMS, INITIAL_ORDERS } from '@/lib/data';
 import { MenuItem, Category, OrderItem, Order } from '@/lib/types';
 
@@ -51,7 +45,7 @@ const RESTAURANT_TABLES = [
   { id: 'VIP-1', name: 'VIP', short: 'VIP' },
 ];
 
-// Helper pemetaan ikon makanan Nipah Satay (format lakaran kotak ikon)
+// Helper pemetaan ikon makanan Nipah Satay
 function getItemDisplayIcon(item: MenuItem): { emoji: string; accentColor: string } {
   const name = item.name.toLowerCase();
   
@@ -78,7 +72,7 @@ function getItemDisplayIcon(item: MenuItem): { emoji: string; accentColor: strin
   return { emoji: '🍢', accentColor: 'text-orange-400' };
 }
 
-// Kategori POS Minimalis
+// Kategori POS Utama Nipah Satay
 const POS_CATEGORIES = [
   { id: 'all', label: 'Semua', icon: '🔥' },
   { id: 'sate', label: 'Sate', icon: '🍢' },
@@ -88,74 +82,69 @@ const POS_CATEGORIES = [
   { id: 'minuman', label: 'Air', icon: '🥤' },
 ];
 
-// Subkategori Kiosk KFC mengikut kategori utama
-const KIOSK_SUBCATEGORIES: Record<string, { id: string; label: string }[]> = {
-  all: [
-    { id: 'all', label: 'SEMUA' },
-    { id: 'sate', label: 'SATE' },
-    { id: 'sup', label: 'SUP/MEE' },
-    { id: 'nasi', label: 'NASI' },
-    { id: 'karipap', label: 'KARIPAP' },
-    { id: 'air', label: 'AIR' },
-  ],
-  sate: [
-    { id: 'all', label: 'SEMUA' },
-    { id: 'ayam', label: 'AYAM' },
-    { id: 'daging', label: 'DAGING' },
-    { id: 'kambing', label: 'KAMBING' },
-    { id: 'perut', label: 'PERUT' },
-    { id: 'ketupat', label: 'KETUPAT' },
-  ],
-  istimewa: [
-    { id: 'all', label: 'SEMUA' },
-    { id: 'sup', label: 'SUP TULANG' },
-    { id: 'soto', label: 'SOTO' },
-    { id: 'mee', label: 'MEE' },
-    { id: 'bihun', label: 'BIHUN' },
-  ],
-  santai: [
-    { id: 'all', label: 'SEMUA' },
-    { id: 'lemak', label: 'NASI LEMAK' },
-    { id: 'goreng', label: 'NASI GORENG' },
-    { id: 'santai', label: 'SET SANTAI' },
-  ],
-  karipap: [
-    { id: 'all', label: 'SEMUA' },
-    { id: 'daging', label: 'DAGING' },
-    { id: 'ayam', label: 'AYAM' },
-    { id: 'kentang', label: 'KENTANG' },
-  ],
-  minuman: [
-    { id: 'all', label: 'SEMUA' },
-    { id: 'ais', label: 'AIS' },
-    { id: 'panas', label: 'PANAS' },
-    { id: 'teh', label: 'TEH' },
-    { id: 'kopi', label: 'KOPI' },
-    { id: 'buah', label: 'JUS / BUAH' },
-  ],
-};
+// Pilihan Suhu & Variasi mengikut Kategori (Attribute Panas / Sejuk)
+function getItemTemperatureOptions(item: MenuItem): { id: string; label: string; icon: string }[] {
+  if (item.category === 'minuman') {
+    return [
+      { id: 'Ais', label: 'Ais / Sejuk', icon: '🧊' },
+      { id: 'Panas', label: 'Panas', icon: '♨️' },
+      { id: 'Biasa', label: 'Suam / Biasa', icon: '🥤' },
+    ];
+  }
+  if (item.category === 'sate') {
+    return [
+      { id: 'Kuah Asing', label: 'Kuah Asing', icon: '🥜' },
+      { id: 'Kuah Campur', label: 'Kuah Campur', icon: '🍲' },
+      { id: 'Pedas Ekstra', label: 'Pedas Ekstra', icon: '🌶️' },
+    ];
+  }
+  if (item.category === 'istimewa' || item.category === 'santai' || item.category === 'soto' || item.category === 'makanan_panas') {
+    return [
+      { id: 'Panas Segar', label: 'Panas Segar', icon: '♨️' },
+      { id: 'Pedas', label: 'Pedas', icon: '🌶️' },
+      { id: 'Kurang Sayur', label: 'Kurang Sayur', icon: '🥬' },
+    ];
+  }
+  if (item.category === 'karipap') {
+    return [
+      { id: 'Panas Garing', label: 'Panas Garing', icon: '♨️' },
+      { id: 'Suhu Bilik', label: 'Suhu Bilik', icon: '🥟' },
+      { id: 'Bungkus Asing', label: 'Bungkus Asing', icon: '📦' },
+    ];
+  }
+  return [
+    { id: 'Panas', label: 'Panas', icon: '♨️' },
+    { id: 'Sejuk', label: 'Sejuk', icon: '🧊' },
+  ];
+}
+
+// Kata kunci cepat untuk Permintaan Khas (Attribute Open-Ended)
+function getItemQuickNotes(item: MenuItem): string[] {
+  if (item.category === 'minuman') {
+    return ['Kurang Manis', 'Kurang Ais', 'Extra Manis', 'Kaw', 'Kosong', 'Bungkus'];
+  }
+  if (item.category === 'sate') {
+    return ['Bakar Garing', 'Kurang Minyak', 'Kuah Lebih', 'Timun Lebih', 'Bawang Lebih'];
+  }
+  if (item.category === 'istimewa' || item.category === 'santai' || item.category === 'soto') {
+    return ['Tanpa Taugeh', 'Kuah Asing', 'Kuah Lebih', 'Sambal Asing', 'Tak Mau Pedas'];
+  }
+  return ['Bungkus Asing', 'Panaskan Dulu', 'Makan Sini', 'Sos Lebih'];
+}
 
 export default function PosPage() {
   const [menu, setMenu] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
   const [categories, setCategories] = useState<{ id: string; label: string; icon: string }[]>(POS_CATEGORIES);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [subCategoryFilter, setSubCategoryFilter] = useState<string>('all');
-  const [showCategorySidebar, setShowCategorySidebar] = useState<boolean>(true); // Papar panel kiri secara lalai seperti KFC Kiosk
-  const [searchQuery, setSearchQuery] = useState('');
   
-  // Navigasi POS Dipermudahkan: 'tables' (Page 1) vs 'menu' (Page 2)
+  // Navigasi POS: 'tables' (Skrin 1) vs 'menu' (Skrin 2)
   const [posView, setPosView] = useState<'tables' | 'menu'>('tables');
-  const [tableFilterTab, setTableFilterTab] = useState<'all' | 'tables' | 'takeaway'>('all');
 
-  // Kategori Sebelah Kiri & Auto-Hide Panel (seperti kiosk KFC)
-  const [categoryPanelOpen, setCategoryPanelOpen] = useState(false);
-  const [categoryAutoHide, setCategoryAutoHide] = useState(true); // Lalai: Auto-hide aktif
-
-  // Tetapan Diperbaharui: 4 Sebaris, Ikon Sederhana, Font Besar
-  const [columnsCount, setColumnsCount] = useState<3 | 4>(4); // Lalai: 4 sebaris
-  const [iconSize, setIconSize] = useState<'sm' | 'md' | 'lg'>('md'); // Lalai: Sederhana
-  const [textSize, setTextSize] = useState<'sm' | 'md' | 'lg'>('lg'); // Lalai: Font Besar
-  const [showSettingsDrawer, setShowSettingsDrawer] = useState(false);
+  // Multi-Attribute Accordion Matrix State
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  const [matrixQty, setMatrixQty] = useState<number>(1);
+  const [matrixTemp, setMatrixTemp] = useState<string>('Ais');
+  const [matrixNotes, setMatrixNotes] = useState<string>('');
   
   // Pilihan Meja, Bungkus & Troli
   const [orderType, setOrderType] = useState<'dine_in' | 'takeaway'>('dine_in');
@@ -209,93 +198,96 @@ export default function PosPage() {
     return () => clearInterval(interval);
   }, [fetchOrders, fetchMenuData]);
 
-  // Muat tetapan dari localStorage jika ada
-  useEffect(() => {
-    try {
-      const savedCols = localStorage.getItem('pos_cols');
-      if (savedCols === '3' || savedCols === '4') setColumnsCount(Number(savedCols) as 3 | 4);
-      const savedIcon = localStorage.getItem('pos_icon_size');
-      if (savedIcon === 'sm' || savedIcon === 'md' || savedIcon === 'lg') setIconSize(savedIcon);
-      const savedText = localStorage.getItem('pos_text_size');
-      if (savedText === 'sm' || savedText === 'md' || savedText === 'lg') setTextSize(savedText);
-    } catch (e) {}
-  }, []);
-
-  const handleSetColumns = (val: 3 | 4) => {
-    setColumnsCount(val);
-    try { localStorage.setItem('pos_cols', String(val)); } catch (e) {}
-  };
-  const handleSetIconSize = (val: 'sm' | 'md' | 'lg') => {
-    setIconSize(val);
-    try { localStorage.setItem('pos_icon_size', val); } catch (e) {}
-  };
-  const handleSetTextSize = (val: 'sm' | 'md' | 'lg') => {
-    setTextSize(val);
-    try { localStorage.setItem('pos_text_size', val); } catch (e) {}
-  };
-
   // Semak pesanan aktif meja yang dipilih
   const activeTableOrder = liveOrders.find(
     (o) => o.type === 'dine_in' && o.tableNumber === tableNumber && !o.isPaid && o.status !== 'cancelled'
   );
 
-  // Tapis katalog menu (mengambil kira kategori, subkategori Kiosk KFC & carian)
+  // Tapis katalog menu mengikut pilihan rotari Radial Thumb Arc
   const filteredMenu = menu.filter((item) => {
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    let matchesSub = true;
-    if (subCategoryFilter !== 'all') {
-      const name = item.name.toLowerCase();
-      if (selectedCategory === 'all') {
-        if (subCategoryFilter === 'sate') matchesSub = item.category === 'sate';
-        else if (subCategoryFilter === 'sup') matchesSub = item.category === 'istimewa';
-        else if (subCategoryFilter === 'nasi') matchesSub = item.category === 'santai';
-        else if (subCategoryFilter === 'karipap') matchesSub = item.category === 'karipap';
-        else if (subCategoryFilter === 'air') matchesSub = item.category === 'minuman';
-      } else if (subCategoryFilter === 'ais') {
-        matchesSub = name.includes('ais') || name.includes('coke') || name.includes('100 plus');
-      } else if (subCategoryFilter === 'panas') {
-        matchesSub = name.includes('panas') || (!name.includes('ais') && (name.includes('teh') || name.includes('kopi') || name.includes('milo')));
-      } else if (subCategoryFilter === 'buah') {
-        matchesSub = name.includes('limau') || name.includes('laici') || name.includes('barli') || name.includes('lai chee kang');
-      } else {
-        matchesSub = name.includes(subCategoryFilter.toLowerCase());
-      }
-    }
-
-    return matchesCategory && matchesSearch && matchesSub;
+    return selectedCategory === 'all' || item.category === selectedCategory;
   });
 
-  // Operasi troli
-  const addToCart = (item: MenuItem, qtyDelta: number = 1) => {
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // Togol Accordion Matrix untuk Item Menu
+  const toggleItemAccordion = (item: MenuItem) => {
+    if (expandedItemId === item.id) {
+      setExpandedItemId(null);
+      return;
+    }
+    setExpandedItemId(item.id);
+    // Kuantiti lalai: Sate 10 cucuk (minOrder 5), Makanan & Minuman 1 unit
+    const defaultQty = item.category === 'sate' ? Math.max(item.minOrder || 5, 10) : 1;
+    setMatrixQty(defaultQty);
+
+    // Suhu/Variasi lalai mengikut kategori
+    if (item.category === 'minuman') {
+      setMatrixTemp(item.name.toLowerCase().includes('panas') ? 'Panas' : 'Ais');
+    } else if (item.category === 'sate') {
+      setMatrixTemp('Kuah Asing');
+    } else if (item.category === 'istimewa' || item.category === 'santai' || item.category === 'soto') {
+      setMatrixTemp('Panas Segar');
+    } else if (item.category === 'karipap') {
+      setMatrixTemp('Panas Garing');
+    } else {
+      setMatrixTemp('Panas');
+    }
+
+    setMatrixNotes('');
+  };
+
+  // Masukkan item dari Multi-Attribute Accordion Matrix ke dalam Troli
+  const handleApplyMatrixToCart = (item: MenuItem) => {
+    const parts: string[] = [];
+    if (matrixTemp) {
+      parts.push(`[${matrixTemp}]`);
+    }
+    if (matrixNotes.trim()) {
+      parts.push(matrixNotes.trim());
+    }
+    const combinedNotes = parts.join(' ');
+
     setCart((prev) => {
-      const existing = prev.find((i) => i.itemId === item.id);
-      if (existing) {
-        const newQty = existing.quantity + qtyDelta;
-        if (newQty <= 0) return prev.filter((i) => i.itemId !== item.id);
-        return prev.map((i) => (i.itemId === item.id ? { ...i, quantity: newQty } : i));
+      const existingIdx = prev.findIndex(
+        (i) => i.itemId === item.id && (i.notes || '') === combinedNotes
+      );
+
+      if (existingIdx >= 0) {
+        const updated = [...prev];
+        updated[existingIdx] = {
+          ...updated[existingIdx],
+          quantity: updated[existingIdx].quantity + matrixQty,
+        };
+        return updated;
       } else {
-        const initialQty = item.category === 'sate' ? Math.max(item.minOrder || 5, qtyDelta) : qtyDelta;
         return [
           ...prev,
           {
             itemId: item.id,
             name: item.name,
             price: item.price,
-            quantity: initialQty,
+            quantity: matrixQty,
             station: item.station,
+            notes: combinedNotes || undefined,
           },
         ];
       }
     });
+
+    showToast(`✅ ${matrixQty}x ${item.name} ${combinedNotes ? `(${combinedNotes})` : ''} ditambah!`);
+    setExpandedItemId(null); // Tutup accordion selepas berjaya ditambah
   };
 
-  const updateQuantity = (itemId: string, delta: number) => {
+  // Kemas kini kuantiti item troli yang spesifik notasinya
+  const updateCartItemQuantity = (itemId: string, notes: string | undefined, delta: number) => {
     setCart((prev) => {
       return prev
         .map((item) => {
-          if (item.itemId === itemId) {
+          if (item.itemId === itemId && (item.notes || '') === (notes || '')) {
             const nextQty = item.quantity + delta;
             return nextQty > 0 ? { ...item, quantity: nextQty } : null;
           }
@@ -305,35 +297,18 @@ export default function PosPage() {
     });
   };
 
+  // Buang item tertentu dari troli
+  const removeCartItem = (itemId: string, notes: string | undefined) => {
+    setCart((prev) => prev.filter((i) => !(i.itemId === itemId && (i.notes || '') === (notes || ''))));
+  };
+
   const clearCart = () => {
     setCart([]);
     setCustomerName('');
   };
 
-  // Pengiraan
+  // Pengiraan Subtotal
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const totalSticks = cart
-    .filter((i) => i.station === 'grill')
-    .reduce((acc, i) => acc + i.quantity, 0);
-  const freeGravyPortions = Math.floor(totalSticks / 10);
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  // Pemilihan Kategori dengan Auto-Hide Panel (seperti susunan Kiosk KFC)
-  const handleSelectCategory = (catId: string) => {
-    setSelectedCategory(catId);
-    setSubCategoryFilter('all');
-    if (categoryAutoHide) {
-      setCategoryPanelOpen(false); // AUTO-HIDE!
-    }
-    const catObj = categories.find((c) => c.id === catId);
-    if (catObj) {
-      showToast(`${catObj.icon} Kategori: ${catObj.label}`);
-    }
-  };
 
   // Navigasi: Pilih Meja -> Masuk ke Menu
   const handleSelectTableAndNavigate = (tblId: string) => {
@@ -342,6 +317,7 @@ export default function PosPage() {
     setTableNumber(tblId);
     setCart([]);
     setCustomerName('');
+    setExpandedItemId(null);
     setPosView('menu');
   };
 
@@ -351,6 +327,7 @@ export default function PosPage() {
     setOrderType('takeaway');
     setCart([]);
     setCustomerName('');
+    setExpandedItemId(null);
     setPosView('menu');
   };
 
@@ -360,6 +337,7 @@ export default function PosPage() {
     setOrderType('takeaway');
     setCustomerName(ord.customerName || '');
     setCart([]);
+    setExpandedItemId(null);
     setPosView('menu');
   };
 
@@ -406,7 +384,6 @@ export default function PosPage() {
           ? `🍽️ Pesanan Meja ${tableNumber} dihantar ke Dapur! Sedia makan dulu.`
           : `🛍️ Pesanan bungkus (${newOrder.orderNumber}) dihantar ke Dapur! Boleh dibayar bila siap/ambil.`
       );
-      // Kembali ke skrin pilihan meja untuk layan pelanggan seterusnya
       setPosView('tables');
     } catch (e) {
       console.error('Failed to submit order:', e);
@@ -422,7 +399,9 @@ export default function PosPage() {
     try {
       const mergedItems = [...targetOrder.items];
       for (const newItem of cart) {
-        const existing = mergedItems.find((i) => i.itemId === newItem.itemId);
+        const existing = mergedItems.find(
+          (i) => i.itemId === newItem.itemId && (i.notes || '') === (newItem.notes || '')
+        );
         if (existing) {
           existing.quantity += newItem.quantity;
         } else {
@@ -518,7 +497,6 @@ export default function PosPage() {
       const isNewUnsavedOrder = !liveOrders.some((o) => o.id === settlingOrder.id);
       
       if (isNewUnsavedOrder) {
-        // Pesanan Bungkus baru yang dibayar terus
         const finalOrder: Order = {
           ...settlingOrder,
           isPaid: true,
@@ -534,7 +512,6 @@ export default function PosPage() {
         clearCart();
         setCartModalOpen(false);
       } else {
-        // Pesanan sedia ada (Meja Makan Dulu atau Bungkus)
         await fetch(`/api/orders/${settlingOrder.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -595,8 +572,10 @@ export default function PosPage() {
     }
   };
 
+  const currentCategoryObj = categories.find((c) => c.id === selectedCategory) || categories[0];
+
   return (
-    <div className="space-y-3 pb-20 sm:pb-16">
+    <div className="space-y-3 pb-24 sm:pb-20">
       {/* Toast Feedback */}
       {toastMessage && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-orange-600 to-amber-600 text-white px-5 py-2.5 rounded-full shadow-2xl font-extrabold text-xs sm:text-sm flex items-center gap-2 border border-orange-400 animate-bounce">
@@ -720,7 +699,7 @@ export default function PosPage() {
             );
           })()}
 
-          {/* Grid Meja 4 Sebaris Melintang (Konsisten Segi Empat / Square, Soft Neumorphic) */}
+          {/* Grid Meja 4 Sebaris (Square, Soft Neumorphic) */}
           <div className="grid grid-cols-4 gap-2 sm:gap-3">
             {RESTAURANT_TABLES.map((tbl) => {
               const activeOrd = liveOrders.find(
@@ -741,7 +720,6 @@ export default function PosPage() {
                       : 'bg-[#181614] border border-stone-800/40 shadow-neu-flat hover:shadow-neu-flat-lg hover:border-orange-500/40'
                   }`}
                 >
-                  {/* Baris Atas: Label Meja (M1, M2...) + Indicator Dot */}
                   <div className="flex items-center justify-between w-full">
                     <span className="text-sm sm:text-base font-black text-white tracking-tight">{tbl.short}</span>
                     <span
@@ -753,7 +731,6 @@ export default function PosPage() {
                     />
                   </div>
 
-                  {/* Bawah: Harga & Jumlah Item (e.g. RM 32 & 20 item) jika diduduki / Bersih Kosong */}
                   <div className="w-full">
                     {activeOrd ? (
                       <div>
@@ -774,26 +751,27 @@ export default function PosPage() {
       )}
 
       {/* ======================================================== */}
-      {/* SKRIN 2: PILIH MENU & HANTAR ORDER (MINIMALIS)           */}
+      {/* SKRIN 2: PILIH MENU DENGAN MULTI-ATTRIBUTE ACCORDION     */}
       {/* ======================================================== */}
       {posView === 'menu' && (
-        <div className="space-y-2.5">
-          {/* Header Navigasi Skrin Menu (Padat & Jimat Ruang, Soft Neumorphic) */}
+        <div className="space-y-3">
+          {/* Header Skrin Menu Bersih (Tanpa bahagian yang dipangkah) */}
           <div className="neu-card p-2 sm:p-2.5 flex items-center justify-between gap-2 sticky top-14 z-30">
             {/* Kiri: Butang Kembali + Label Meja */}
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setPosView('tables')}
-                className="px-2.5 py-1.5 rounded-xl neu-btn text-stone-200 text-xs font-bold flex items-center gap-1 active:scale-95"
+                className="px-3 py-1.5 rounded-xl neu-btn text-stone-200 text-xs font-bold flex items-center gap-1.5 active:scale-95"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Meja</span>
               </button>
 
               <div className="flex items-center gap-1.5">
-                <span className="text-xs sm:text-sm font-black text-white px-2.5 py-1 rounded-xl neu-inset-sm">
-                  {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `M${tableNumber}`) : 'Bungkus'}
+                <span className="text-xs sm:text-sm font-black text-white px-3 py-1 rounded-xl neu-inset-sm flex items-center gap-1.5">
+                  <span className="text-orange-500">🍽️</span>
+                  <span>{orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}</span>
                 </span>
                 {activeTableOrder && (
                   <button
@@ -808,302 +786,349 @@ export default function PosPage() {
               </div>
             </div>
 
-            {/* Tengah: Carian Padat */}
-            <div className="relative flex-1 max-w-xs min-w-0">
-              <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari..."
-                className="neu-input w-full pl-8 pr-6 py-1.5 text-xs text-white placeholder-stone-500 rounded-xl focus:outline-none"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-stone-400 hover:text-white"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            {/* Kanan: Butang Buka Kategori, Backoffice & Tetapan */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => setShowCategorySidebar(!showCategorySidebar)}
-                className={`px-2.5 py-1.5 rounded-xl text-white font-black text-xs flex items-center gap-1 active:scale-95 transition-all ${
-                  showCategorySidebar
-                    ? 'neu-btn-primary shadow-neu-orange'
-                    : 'neu-btn text-stone-300'
-                }`}
-                title="Togol Panel Kategori Kiri"
-              >
-                <span>{categories.find((c) => c.id === selectedCategory)?.icon || '🔥'}</span>
-                <span className="hidden sm:inline">{categories.find((c) => c.id === selectedCategory)?.label || 'Kategori'}</span>
-                <Layers className="w-3.5 h-3.5" />
-              </button>
-
-              <Link
-                href="/pos/backoffice"
-                className="p-2 rounded-xl neu-btn text-stone-300 hover:text-white text-xs active:scale-95 transition-all flex items-center justify-center"
-                title="Buka POS Backoffice (Urus Menu & Kategori)"
-              >
-                ⚙️
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => setShowSettingsDrawer(!showSettingsDrawer)}
-                className={`p-2 rounded-xl text-xs active:scale-95 transition-all ${
-                  showSettingsDrawer ? 'neu-btn-primary shadow-neu-orange' : 'neu-btn text-stone-400'
-                }`}
-                title="Tetapan Saiz"
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-              </button>
+            {/* Kanan: Penunjuk Kategori Aktif Ringkas */}
+            <div className="flex items-center gap-2">
+              <div className="px-3 py-1 rounded-xl neu-inset-sm text-xs font-bold text-stone-300 flex items-center gap-1.5">
+                <span className="text-sm">{currentCategoryObj.icon}</span>
+                <span className="text-orange-400 font-black">{currentCategoryObj.label}</span>
+                <span className="text-[10px] text-stone-500 font-mono">({filteredMenu.length})</span>
+              </div>
             </div>
           </div>
 
-          {/* Drawer Pelaras Saiz & Baris (Bila Diperlukan) */}
-          {showSettingsDrawer && (
-            <div className="bg-stone-950 border border-stone-800 rounded-lg p-2 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-1.5">
-                <span className="text-stone-400 font-bold text-[10px]">Baris:</span>
-                <div className="flex gap-1 bg-stone-900 p-0.5 rounded border border-stone-800">
-                  <button
-                    onClick={() => handleSetColumns(4)}
-                    className={`px-2 py-0.5 rounded font-black text-[10px] ${columnsCount === 4 ? 'bg-orange-600 text-white' : 'text-stone-400'}`}
+          {/* Senarai Menu dengan Multi-Attribute Accordion Matrix (Lebar Penuh) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
+            {filteredMenu.map((item) => {
+              const isExpanded = expandedItemId === item.id;
+              const isSatay = item.category === 'sate';
+              const displayIcon = getItemDisplayIcon(item);
+              const tempOptions = getItemTemperatureOptions(item);
+              const quickNotes = getItemQuickNotes(item);
+              const itemsInCart = cart.filter((c) => c.itemId === item.id);
+              const totalInCart = itemsInCart.reduce((sum, c) => sum + c.quantity, 0);
+
+              // Presets kuantiti
+              const qtyPresets = isSatay ? [5, 10, 15, 20, 30, 50] : [1, 2, 3, 4, 5, 10];
+
+              return (
+                <div
+                  key={item.id}
+                  className={`neu-card transition-all duration-200 overflow-hidden ${
+                    isExpanded
+                      ? 'col-span-full border-2 border-orange-500/70 shadow-neu-flat-lg p-3 sm:p-4'
+                      : 'p-3 hover:shadow-neu-flat-lg cursor-pointer'
+                  } ${totalInCart > 0 && !isExpanded ? 'border border-orange-500/40' : ''}`}
+                >
+                  {/* ============================================== */}
+                  {/* HEADER KAD ITEM (Ketik untuk Accordion Matrix)  */}
+                  {/* ============================================== */}
+                  <div
+                    onClick={() => toggleItemAccordion(item)}
+                    className="flex items-center justify-between gap-3 select-none cursor-pointer"
                   >
-                    4
-                  </button>
-                  <button
-                    onClick={() => handleSetColumns(3)}
-                    className={`px-2 py-0.5 rounded font-black text-[10px] ${columnsCount === 3 ? 'bg-orange-600 text-white' : 'text-stone-400'}`}
-                  >
-                    3
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <span className="text-stone-400 font-bold text-[10px]">Ikon:</span>
-                <div className="flex gap-1 bg-stone-900 p-0.5 rounded border border-stone-800">
-                  <button
-                    onClick={() => handleSetIconSize('sm')}
-                    className={`px-1.5 py-0.5 rounded text-[10px] ${iconSize === 'sm' ? 'bg-amber-600 text-white font-bold' : 'text-stone-400'}`}
-                  >
-                    Kecil
-                  </button>
-                  <button
-                    onClick={() => handleSetIconSize('md')}
-                    className={`px-1.5 py-0.5 rounded text-[10px] ${iconSize === 'md' ? 'bg-amber-600 text-white font-bold' : 'text-stone-400'}`}
-                  >
-                    Sederhana
-                  </button>
-                  <button
-                    onClick={() => handleSetIconSize('lg')}
-                    className={`px-1.5 py-0.5 rounded text-[10px] ${iconSize === 'lg' ? 'bg-amber-600 text-white font-bold' : 'text-stone-400'}`}
-                  >
-                    Besar
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* SUSUN ATUR KIOSK KFC: KATEGORI KIRI + MENU & PIL KANAN   */}
-          {/* ======================================================== */}
-          <div className="flex gap-2 sm:gap-2.5 items-start">
-            {/* 1. SIDEBAR KATEGORI SEBELAH KIRI (SEPERTI KIOSK KFC, Soft Neumorphic) */}
-            {showCategorySidebar && (
-              <aside className="w-16 sm:w-20 md:w-24 shrink-0 neu-card p-1 sm:p-1.5 flex flex-col gap-1 sticky top-28 select-none">
-                {/* Brand / Logo Mini */}
-                <div className="flex flex-col items-center justify-center py-1 border-b border-stone-800/80 text-center">
-                  <span className="text-xl filter drop-shadow">🔥</span>
-                  <span className="text-[8px] sm:text-[9px] font-black text-orange-400 tracking-wider">NIPAH</span>
-                </div>
-
-                {/* Senarai Kategori Vertikal Kiosk */}
-                <div className="flex flex-col gap-1.5 py-1">
-                  {categories.map((cat) => {
-                    const isActive = selectedCategory === cat.id;
-                    const count = cat.id === 'all'
-                      ? menu.length
-                      : menu.filter((m) => m.category === cat.id).length;
-
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => handleSelectCategory(cat.id)}
-                        className={`w-full py-2 px-1 rounded-xl flex flex-col items-center justify-center text-center transition-all cursor-pointer active:scale-95 ${
-                          isActive
-                            ? 'neu-btn-primary shadow-neu-orange font-black'
-                            : 'neu-btn text-stone-300'
-                        }`}
-                      >
-                        <span className="text-base sm:text-lg leading-none">{cat.icon}</span>
-                        <span className="text-[9px] sm:text-[10px] font-bold mt-1 leading-tight tracking-tight line-clamp-1">
-                          {cat.label}
-                        </span>
-                        <span className={`text-[8px] font-mono px-1 rounded-full mt-0.5 ${isActive ? 'bg-black/30 text-white' : 'text-stone-400'}`}>
-                          {count}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </aside>
-            )}
-
-            {/* 2. KAWASAN MENU & SUBKATEGORI (KANAN) */}
-            <div className="flex-1 min-w-0 space-y-2">
-              {/* Header Kategori Terpilih & Sub-filter Horizontal (Soft Neumorphic) */}
-              <div className="neu-card p-2 sm:p-2.5 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-lg">
-                      {categories.find((c) => c.id === selectedCategory)?.icon || '🔥'}
-                    </span>
-                    <h2 className="text-xs sm:text-sm font-black text-white uppercase tracking-wide">
-                      {categories.find((c) => c.id === selectedCategory)?.label || 'SEMUA MENU'}
-                    </h2>
-                    <span className="text-[10px] sm:text-xs text-stone-400 font-mono">
-                      ({filteredMenu.length})
-                    </span>
-                  </div>
-
-                  {/* Butang Auto-Hide Toggle */}
-                  <button
-                    type="button"
-                    onClick={() => setShowCategorySidebar(!showCategorySidebar)}
-                    className="text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-lg neu-btn text-stone-300 hover:text-white flex items-center gap-1 active:scale-95"
-                    title={showCategorySidebar ? 'Sembunyikan Sidebar Kategori' : 'Buka Sidebar Kategori'}
-                  >
-                    <Layers className="w-3 h-3 text-orange-400" />
-                    <span>{showCategorySidebar ? 'Auto-hide' : 'Kategori'}</span>
-                  </button>
-                </div>
-
-                {/* Subcategory Pills (Horizontal Scroll, Soft Neumorphic) */}
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
-                  {(KIOSK_SUBCATEGORIES[selectedCategory] || [{ id: 'all', label: 'SEMUA' }]).map((sub) => {
-                    const isSubActive = subCategoryFilter === sub.id;
-                    return (
-                      <button
-                        key={sub.id}
-                        type="button"
-                        onClick={() => setSubCategoryFilter(sub.id)}
-                        className={`px-3 py-1 rounded-xl text-[9px] sm:text-[11px] font-black tracking-tight whitespace-nowrap transition-all cursor-pointer active:scale-95 ${
-                          isSubActive
-                            ? 'neu-btn-primary shadow-neu-orange text-white'
-                            : 'neu-btn text-stone-300'
-                        }`}
-                      >
-                        {sub.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Grid Menu: Minimalis & Soft Neumorphic */}
-              <div
-                className={`${
-                  columnsCount === 4
-                    ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-2.5'
-                    : 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5'
-                }`}
-              >
-                {filteredMenu.map((item) => {
-                  const inCart = cart.find((i) => i.itemId === item.id);
-                  const isSatay = item.category === 'sate';
-                  const displayIcon = getItemDisplayIcon(item);
-
-                  const iconBoxClass = {
-                    sm: 'h-12 text-2xl',
-                    md: 'h-14 sm:h-16 text-3xl',
-                    lg: 'h-18 sm:h-20 text-4xl',
-                  }[iconSize];
-
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => addToCart(item, isSatay ? 5 : 1)}
-                      className={`group relative neu-card p-2 sm:p-2.5 cursor-pointer select-none transition-all duration-200 flex flex-col justify-between active:scale-95 ${
-                        inCart ? 'border-orange-500/80 shadow-neu-orange' : 'hover:shadow-neu-flat-lg'
-                      }`}
-                    >
-                      {/* Kotak Ikon Menu (Sunken Neumorphic Well) */}
-                      <div
-                        className={`w-full ${iconBoxClass} rounded-xl neu-inset flex items-center justify-center relative overflow-hidden transition-all ${
-                          inCart ? 'border border-orange-500/40' : ''
-                        }`}
-                      >
-                        <span className="filter drop-shadow select-none">
-                          {displayIcon.emoji}
-                        </span>
-
-                        {/* Lencana Kuantiti Jika Dipilih */}
-                        {inCart && (
-                          <span className="absolute top-1 right-1 text-[9px] font-black px-1.5 py-0.5 rounded-lg neu-btn-primary text-white shadow-neu-orange">
-                            {inCart.quantity}x
-                          </span>
-                        )}
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Kotak Ikon Sunken Neumorphic */}
+                      <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
+                        <span className="filter drop-shadow">{displayIcon.emoji}</span>
                       </div>
 
-                      {/* Nama Menu & Harga (Padat & Jelas) */}
-                      <div className="mt-1.5 flex-1 flex flex-col justify-between text-center min-w-0">
-                        <span className="text-[11px] sm:text-xs font-bold text-stone-100 truncate">
-                          {item.name}
-                        </span>
-
-                        <span className="font-mono text-[10px] sm:text-xs font-bold text-orange-400 mt-0.5">
-                          RM {item.price.toFixed(2)}
-                        </span>
-
-                        {/* Stepper Tambah/Tolak Jika Dalam Troli */}
-                        {inCart && (
-                          <div
-                            className="flex items-center justify-between w-full mt-1.5 neu-inset-sm rounded-lg p-0.5 text-xs font-bold border border-orange-500/40"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(item.id, isSatay ? -5 : -1)}
-                              className="w-5 h-5 flex items-center justify-center rounded-lg neu-btn text-orange-400 hover:text-white"
-                            >
-                              <Minus className="w-2.5 h-2.5" />
-                            </button>
-                            <span className="font-mono font-black text-[10px] text-white">
-                              {inCart.quantity}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-black text-sm text-white truncate">{item.name}</h3>
+                          {totalInCart > 0 && (
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
+                              {totalInCart}x
                             </span>
-                            <button
-                              type="button"
-                              onClick={() => addToCart(item, isSatay ? 5 : 1)}
-                              className="w-5 h-5 flex items-center justify-center rounded-lg neu-btn-primary text-white"
-                            >
-                              <Plus className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        )}
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="font-mono text-xs font-black text-orange-400">
+                            RM {item.price.toFixed(2)}
+                            {isSatay ? <span className="text-[10px] text-stone-400 font-sans font-normal"> /cucuk</span> : null}
+                          </span>
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded neu-inset-sm text-stone-400 uppercase">
+                            {item.station === 'grill' ? 'Arang' : item.station === 'wok' ? 'Kuali' : 'Bar Air'}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        className={`p-1.5 rounded-xl neu-btn text-xs font-bold flex items-center gap-1 transition-all ${
+                          isExpanded ? 'text-orange-400 neu-inset' : 'text-stone-300'
+                        }`}
+                        title={isExpanded ? 'Tutup Matrix' : 'Buka Multi-Attribute Matrix'}
+                      >
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ======================================================== */}
+                  {/* MULTI-ATTRIBUTE ACCORDION MATRIX BODY (Attribute Matrix) */}
+                  {/* ======================================================== */}
+                  {isExpanded && (
+                    <div className="mt-3.5 pt-3.5 border-t border-stone-800/80 space-y-3.5 animate-fadeIn">
+                      {/* ---------------------------------------------------- */}
+                      {/* ATTRIBUTE 1: KUANTITI (Matrix Presets & Stepper)      */}
+                      {/* ---------------------------------------------------- */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs font-bold text-stone-300">
+                          <span className="flex items-center gap-1.5 text-orange-400">
+                            <span>📊</span>
+                            <span>Kuantiti ({isSatay ? 'Min. 5 cucuk' : 'Unit'})</span>
+                          </span>
+                          <span className="font-mono font-black text-white text-sm">
+                            {matrixQty} {isSatay ? 'cucuk' : 'unit'}
+                          </span>
+                        </div>
+
+                        {/* Butang Matriks Kuantiti Pantas */}
+                        <div className="grid grid-cols-6 gap-1.5">
+                          {qtyPresets.map((qty) => (
+                            <button
+                              key={qty}
+                              type="button"
+                              onClick={() => setMatrixQty(qty)}
+                              className={`py-1.5 rounded-xl font-mono text-xs font-black transition-all active:scale-95 ${
+                                matrixQty === qty
+                                  ? 'neu-btn-primary shadow-neu-orange text-white'
+                                  : 'neu-btn text-stone-300 hover:text-white'
+                              }`}
+                            >
+                              {qty}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Stepper Presisi Kuantiti */}
+                        <div className="flex items-center justify-between neu-inset-sm p-1 rounded-xl mt-1">
+                          <button
+                            type="button"
+                            onClick={() => setMatrixQty((prev) => Math.max(isSatay ? 5 : 1, prev - (isSatay ? 5 : 1)))}
+                            className="w-8 h-8 rounded-lg neu-btn flex items-center justify-center text-stone-300 hover:text-white active:scale-90"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          
+                          <div className="flex items-center gap-1 font-mono font-black text-sm text-white">
+                            <span>{matrixQty}</span>
+                            <span className="text-[10px] text-stone-400 font-sans font-normal">
+                              (RM {(item.price * matrixQty).toFixed(2)})
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setMatrixQty((prev) => prev + (isSatay ? 5 : 1))}
+                            className="w-8 h-8 rounded-lg neu-btn-primary text-white flex items-center justify-center active:scale-90 shadow-neu-orange"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* ---------------------------------------------------- */}
+                      {/* ATTRIBUTE 2: PANAS / SEJUK (Suhu & Variasi)           */}
+                      {/* ---------------------------------------------------- */}
+                      <div className="space-y-1.5">
+                        <div className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
+                          <Thermometer className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>Suhu / Variasi Hidangan</span>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {tempOptions.map((opt) => {
+                            const isSelected = matrixTemp === opt.id;
+                            return (
+                              <button
+                                key={opt.id}
+                                type="button"
+                                onClick={() => setMatrixTemp(opt.id)}
+                                className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 ${
+                                  isSelected
+                                    ? 'neu-btn-primary shadow-neu-orange text-white font-black ring-1 ring-orange-400'
+                                    : 'neu-btn text-stone-300 hover:text-white'
+                                }`}
+                              >
+                                <span>{opt.icon}</span>
+                                <span className="truncate">{opt.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* ---------------------------------------------------- */}
+                      {/* ATTRIBUTE 3: OPEN-ENDED (Permintaan Khas Pelanggan)  */}
+                      {/* ---------------------------------------------------- */}
+                      <div className="space-y-1.5">
+                        <div className="text-xs font-bold text-stone-300 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <span>✍️</span>
+                            <span>Permintaan Khas (Open-Ended)</span>
+                          </span>
+                          <span className="text-[10px] text-stone-500">Pilihan Segera atau Tulis</span>
+                        </div>
+
+                        {/* Cip Pintas Pantas */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {quickNotes.map((chip) => {
+                            const isIncluded = matrixNotes.includes(chip);
+                            return (
+                              <button
+                                key={chip}
+                                type="button"
+                                onClick={() => {
+                                  if (isIncluded) {
+                                    setMatrixNotes((prev) => prev.replace(chip, '').trim());
+                                  } else {
+                                    setMatrixNotes((prev) => (prev ? `${prev}, ${chip}` : chip));
+                                  }
+                                }}
+                                className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all active:scale-95 ${
+                                  isIncluded
+                                    ? 'neu-btn-primary text-white shadow-neu-orange'
+                                    : 'neu-inset-sm text-stone-300 hover:text-white'
+                                }`}
+                              >
+                                {chip}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Kotak Input Teks Terbuka (Open-Ended Custom Text) */}
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={matrixNotes}
+                            onChange={(e) => setMatrixNotes(e.target.value)}
+                            placeholder="Tulis permintaan khas pelanggan di sini..."
+                            className="neu-input w-full px-3 py-2 text-xs text-white placeholder-stone-500 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500"
+                          />
+                          {matrixNotes && (
+                            <button
+                              type="button"
+                              onClick={() => setMatrixNotes('')}
+                              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white text-xs"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* ---------------------------------------------------- */}
+                      {/* TINDAKAN MATRIX & JUMLAH HARGA SEGERA                */}
+                      {/* ---------------------------------------------------- */}
+                      <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between gap-2">
+                        <div>
+                          <div className="text-[10px] text-stone-400">Subtotal Item:</div>
+                          <div className="font-mono text-base font-black text-orange-400">
+                            RM {(item.price * matrixQty).toFixed(2)}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedItemId(null)}
+                            className="px-3 py-2 rounded-xl neu-btn text-xs font-bold text-stone-400 hover:text-white active:scale-95"
+                          >
+                            Tutup
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleApplyMatrixToCart(item)}
+                            className="px-4 py-2.5 rounded-xl neu-btn-primary font-black text-xs text-white shadow-neu-orange active:scale-95 flex items-center gap-1.5"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Masukkan ke Troli</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Senarai Variasi Item Ini yang Sedang Berada Dalam Troli */}
+                      {itemsInCart.length > 0 && (
+                        <div className="neu-inset-sm p-2.5 rounded-xl space-y-1.5 mt-2">
+                          <div className="text-[10px] font-bold text-stone-400">
+                            Dalam Troli Sekarang ({totalInCart}x):
+                          </div>
+                          {itemsInCart.map((cItem, cIdx) => (
+                            <div key={cIdx} className="flex items-center justify-between text-xs">
+                              <span className="text-stone-200">
+                                <span className="font-black text-orange-400">{cItem.quantity}x</span>{' '}
+                                {cItem.notes ? <span className="text-amber-300 font-semibold">({cItem.notes})</span> : ''}
+                              </span>
+
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => updateCartItemQuantity(item.id, cItem.notes, isSatay ? -5 : -1)}
+                                  className="w-6 h-6 rounded-lg neu-btn flex items-center justify-center text-stone-300 active:scale-90"
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <span className="font-mono font-bold text-xs px-1 text-white">{cItem.quantity}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateCartItemQuantity(item.id, cItem.notes, isSatay ? 5 : 1)}
+                                  className="w-6 h-6 rounded-lg neu-btn-primary flex items-center justify-center text-white active:scale-90"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeCartItem(item.id, cItem.notes)}
+                                  className="w-6 h-6 rounded-lg neu-btn text-rose-400 flex items-center justify-center ml-1 active:scale-90"
+                                  title="Buang"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
+
+          {/* ======================================================== */}
+          {/* RADIAL THUMB ARC ROTARY MOTION (Pemilihan Kategori Jemari) */}
+          {/* ======================================================== */}
+          <RadialThumbArc
+            categories={categories.map((cat) => ({
+              id: cat.id,
+              label: cat.label,
+              icon: cat.icon,
+              count: cat.id === 'all' ? menu.length : menu.filter((m) => m.category === cat.id).length,
+            }))}
+            selectedCategory={selectedCategory}
+            onSelectCategory={(id) => {
+              setSelectedCategory(id);
+              setExpandedItemId(null);
+              const catObj = categories.find((c) => c.id === id);
+              if (catObj) {
+                showToast(`${catObj.icon} Kategori: ${catObj.label}`);
+              }
+            }}
+          />
 
           {/* ======================================================== */}
           {/* FLOATING ACTION BAR: HANTAR ORDER (Soft Neumorphic)       */}
           {/* ======================================================== */}
           <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto">
             <div className="neu-card-lg border border-orange-500/50 rounded-2xl px-3.5 py-2.5 shadow-neu-flat-lg flex items-center justify-between gap-2 text-stone-100">
-              {/* Ringkasan Troli (SHOW BASKET ^) */}
+              {/* Ringkasan Troli */}
               <button
                 type="button"
                 onClick={() => setCartModalOpen(true)}
@@ -1131,7 +1156,7 @@ export default function PosPage() {
                 </div>
               </button>
 
-              {/* Butang Tindakan Kiosk KFC (PLACE ORDER / KIRA BIL) */}
+              {/* Butang Tindakan Kiosk */}
               <div className="flex items-center gap-1.5">
                 {cart.length > 0 ? (
                   orderType === 'takeaway' && !selectedTakeawayOrder ? (
@@ -1197,20 +1222,25 @@ export default function PosPage() {
 
             {/* Senarai Item dalam Troli */}
             <div className="max-h-56 overflow-y-auto space-y-2 pr-0.5">
-              {cart.map((item) => (
-                <div key={item.itemId} className="neu-inset-sm p-2.5 rounded-xl flex items-center justify-between text-xs">
+              {cart.map((item, idx) => (
+                <div key={`${item.itemId}-${item.notes || ''}-${idx}`} className="neu-inset-sm p-2.5 rounded-xl flex items-center justify-between text-xs">
                   <div className="min-w-0 pr-2">
                     <span className="font-bold text-white truncate block">{item.name}</span>
+                    {item.notes && (
+                      <span className="block text-[10px] text-amber-300 font-semibold truncate">
+                        {item.notes}
+                      </span>
+                    )}
                     <span className="text-[10px] text-stone-400 font-mono">
-                      RM {item.price.toFixed(2)} × {item.quantity}
+                      RM {item.price.toFixed(2)} × {item.quantity} = RM {(item.price * item.quantity).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 neu-card rounded-lg p-0.5 shrink-0 border border-stone-850">
-                    <button onClick={() => updateQuantity(item.itemId, item.station === 'grill' ? -5 : -1)} className="p-1 text-stone-400 hover:text-white neu-btn rounded">
+                    <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, item.station === 'grill' ? -5 : -1)} className="p-1 text-stone-400 hover:text-white neu-btn rounded">
                       <Minus className="w-3 h-3" />
                     </button>
                     <span className="font-bold font-mono text-xs px-1 text-white">{item.quantity}</span>
-                    <button onClick={() => addToCart(menu.find(m => m.id === item.itemId)!, item.station === 'grill' ? 5 : 1)} className="p-1 text-white neu-btn-primary rounded">
+                    <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, item.station === 'grill' ? 5 : 1)} className="p-1 text-white neu-btn-primary rounded">
                       <Plus className="w-3 h-3" />
                     </button>
                   </div>
@@ -1223,7 +1253,7 @@ export default function PosPage() {
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Nota / Nama (pilihan)"
+              placeholder="Nota Pelanggan / Nama (pilihan)"
               className="neu-input w-full px-3 py-2 rounded-xl text-xs text-white placeholder-stone-500 focus:outline-none"
             />
 
@@ -1278,7 +1308,7 @@ export default function PosPage() {
             <div className="flex items-center justify-between pb-1 border-b border-stone-800/80">
               <div>
                 <h3 className="font-black text-sm text-white">
-                  Kira Bil: {settlingOrder.tableNumber ? (settlingOrder.tableNumber === 'VIP' ? 'VIP' : `M${settlingOrder.tableNumber}`) : (settlingOrder.customerName || 'Bungkus')}
+                  Kira Bil: {settlingOrder.tableNumber ? (settlingOrder.tableNumber === 'VIP' ? 'VIP' : `Meja ${settlingOrder.tableNumber}`) : (settlingOrder.customerName || 'Bungkus')}
                 </h3>
                 <span className="text-[10px] text-stone-400 font-mono">#{settlingOrder.orderNumber}</span>
               </div>
@@ -1291,7 +1321,10 @@ export default function PosPage() {
             <div className="max-h-36 overflow-y-auto neu-inset-sm p-2.5 rounded-xl space-y-1 text-xs">
               {settlingOrder.items.map((it, i) => (
                 <div key={i} className="flex justify-between text-stone-300 text-[11px]">
-                  <span className="truncate pr-2">{it.name} × {it.quantity}</span>
+                  <div className="truncate pr-2">
+                    <span>{it.name} × {it.quantity}</span>
+                    {it.notes && <span className="text-[10px] text-amber-300 italic block">{it.notes}</span>}
+                  </div>
                   <span className="font-mono font-bold shrink-0">RM {(it.price * it.quantity).toFixed(2)}</span>
                 </div>
               ))}
