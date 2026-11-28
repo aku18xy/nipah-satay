@@ -166,159 +166,84 @@ export default function NavigationHeader() {
 
   return (
     <>
-      <header className="sticky top-2 z-50 px-2 sm:px-4 select-none">
-      <div className="max-w-4xl mx-auto">
-        {/* Dynamic Island Morph Container */}
-        <div 
-          className={`dynamic-island-top transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-            islandExpanded 
-              ? 'rounded-3xl p-3.5 sm:p-4.5 space-y-3 shadow-2xl border-orange-500/50 bg-[#141210]/95' 
-              : 'rounded-full px-3 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between gap-2 shadow-xl'
-          }`}
-        >
-          {!islandExpanded ? (
-            /* COMPACT DYNAMIC ISLAND STATE */
-            <div className="flex items-center justify-between w-full gap-2">
-              {/* Kiri: Logo Api & Modul Aplikasi Semasa */}
-              <div className="flex items-center gap-2 min-w-0">
-                <Link href={homeHref} className="flex items-center gap-2 group shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-neu-orange group-hover:scale-105 transition-transform">
-                    <Flame className="w-4 h-4 text-white animate-pulse" />
-                  </div>
-                  <span className="font-black text-xs sm:text-sm tracking-tight text-white hidden md:inline">
+      <header className="sticky top-0 z-50 neu-nav-bar text-stone-100 select-none">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            {/* Logo & Aplikasi Aktif Semasa */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <Link href={homeHref} className="flex items-center gap-2 group min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-neu-orange group-hover:scale-105 transition-transform flex-shrink-0">
+                  <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-white animate-pulse" />
+                </div>
+                <div className="min-w-0 hidden sm:block">
+                  <span className="font-extrabold text-sm tracking-tight bg-gradient-to-r from-orange-400 via-amber-300 to-amber-500 bg-clip-text text-transparent truncate block">
                     NIPAH SATAY™
                   </span>
-                </Link>
+                </div>
+              </Link>
 
-                {currentApp && (
-                  <button
-                    type="button"
-                    onClick={() => setIslandExpanded(true)}
-                    className="px-2.5 py-1 rounded-full neu-inset-sm text-xs font-black text-orange-400 flex items-center gap-1.5 truncate cursor-pointer hover:border-orange-500/50 transition-all active:scale-95"
-                    title="Ketik untuk kembangkan Top Dynamic Island"
-                  >
+              {/* Lencana Modul Aplikasi Aktif (Single App Indicator) */}
+              {currentApp && (
+                <div className="flex items-center gap-1.5 pl-1 sm:pl-2 border-l border-stone-800/80">
+                  <span className="px-2.5 py-1 rounded-xl neu-inset-sm text-xs font-black text-orange-400 flex items-center gap-1.5 truncate max-w-[140px] sm:max-w-none">
                     <CurrentAppIcon className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-                    <span className="truncate max-w-[120px] sm:max-w-none">{currentApp.label}</span>
-                    <ChevronDown className="w-3 h-3 text-stone-500" />
-                  </button>
-                )}
-              </div>
-
-              {/* Kanan: Kawalan Island Ringkas */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                {/* Indikator Rangkaian Pulau Indah */}
-                <div
-                  className="w-7 h-7 rounded-full neu-inset-sm flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
-                  onClick={() => setIslandExpanded(true)}
-                  title={isOnline ? 'Pulau Indah Online' : 'Luar Talian (Offline)'}
-                >
-                  <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse' : 'bg-amber-400'}`} />
-                </div>
-
-                {/* Peranan Petugas */}
-                <button
-                  type="button"
-                  onClick={() => setShowAuthModal(true)}
-                  className="px-2.5 py-1 rounded-full neu-btn text-xs font-bold flex items-center gap-1 active:scale-95"
-                  title="Tukar Peranan Petugas"
-                >
-                  <span>{roleConfig ? roleConfig.icon : '👤'}</span>
-                  <span className="text-[10px] sm:text-xs font-black text-amber-300 hidden sm:inline">
-                    {roleConfig ? roleConfig.shortLabel : 'Akses'}
+                    <span className="truncate">{currentApp.label}</span>
                   </span>
-                </button>
-
-                {/* Butang Pelancar Aplikasi / Burger */}
-                <button
-                  type="button"
-                  onClick={() => setAppLauncherOpen(true)}
-                  className="px-2.5 py-1 rounded-full neu-btn-primary text-white text-xs font-black flex items-center gap-1 shadow-neu-orange active:scale-95 cursor-pointer"
-                  title="Buka Pusat Aplikasi"
-                >
-                  <MenuIcon className="w-4 h-4" />
-                  <span className="text-[11px] hidden sm:inline">Aplikasi</span>
-                </button>
-              </div>
+                </div>
+              )}
             </div>
-          ) : (
-            /* EXPANDED LIVE DYNAMIC ISLAND HUD */
-            <div className="space-y-3 animate-fadeIn w-full">
-              <div className="flex items-center justify-between pb-2 border-b border-stone-800/80">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-neu-orange">
-                    <Flame className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-black text-white flex items-center gap-1.5">
-                      <span>Nipah Satay™ Top Island</span>
-                      <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800">
-                        Live Active
-                      </span>
-                    </h3>
-                  </div>
-                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setIslandExpanded(false)}
-                  className="p-1.5 rounded-full neu-btn text-stone-400 hover:text-white"
-                  title="Kuncupkan Island"
-                >
-                  <ChevronUp className="w-4 h-4" />
-                </button>
+            {/* Navigasi Utama: Melalui Butang Burger Sahaja (Semua Modul Diuruskan Sebagai Aplikasi Kendiri) */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+              {/* Pulau Indah Connectivity Indicator */}
+              <div
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold ${
+                  isOnline
+                    ? 'neu-inset-sm text-emerald-400'
+                    : 'neu-inset-sm text-amber-300 animate-pulse'
+                }`}
+                title={isOnline ? 'Online' : 'Offline'}
+              >
+                <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-amber-400'}`} />
+                <span className="hidden md:inline">{isOnline ? 'Online' : 'Offline'}</span>
               </div>
 
-              {/* Status Info Grid */}
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="neu-inset-sm p-2 rounded-xl flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-amber-400'}`} />
-                  <div>
-                    <div className="text-[10px] text-stone-400">Rangkaian:</div>
-                    <div className="font-bold text-white text-[11px]">{isOnline ? 'Pulau Indah Online' : 'Luar Talian (Offline)'}</div>
-                  </div>
-                </div>
+              {/* Role Authentication Badge & Switch Button */}
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(true)}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl neu-btn text-stone-200 text-xs font-bold transition-all active:scale-95"
+                title="Tukar Peranan Petugas (Role-Based Auth)"
+              >
+                <span>{roleConfig ? roleConfig.icon : '👤'}</span>
+                <span className="text-[10px] sm:text-xs font-black text-amber-300 hidden sm:inline">
+                  {roleConfig ? roleConfig.shortLabel : 'Akses'}
+                </span>
+              </button>
 
-                <div className="neu-inset-sm p-2 rounded-xl flex items-center justify-between gap-1">
-                  <div>
-                    <div className="text-[10px] text-stone-400">Peranan:</div>
-                    <div className="font-bold text-amber-300 text-[11px]">{roleConfig?.label || 'Petugas'}</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIslandExpanded(false);
-                      setShowAuthModal(true);
-                    }}
-                    className="px-2 py-1 rounded-lg neu-btn text-[9px] font-bold text-orange-400"
-                  >
-                    Tukar
-                  </button>
-                </div>
-              </div>
-
-              {/* Modul Aktif & Tindakan Pantas */}
-              <div className="flex items-center justify-between neu-card p-2 rounded-xl border border-stone-800">
-                <div className="flex items-center gap-2">
-                  <CurrentAppIcon className="w-4 h-4 text-orange-400" />
-                  <span className="text-xs font-black text-white">{currentApp?.label || 'Aplikasi Nipah'}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIslandExpanded(false);
-                    setAppLauncherOpen(true);
-                  }}
-                  className="px-3 py-1.5 rounded-xl neu-btn-primary text-white text-xs font-black shadow-neu-orange flex items-center gap-1 active:scale-95"
-                >
-                  <MenuIcon className="w-3.5 h-3.5" />
-                  <span>Buka Semua Modul</span>
-                </button>
-              </div>
+              {/* BUTANG BURGER UTAMA (Pintu Masuk Semua Aplikasi & Modul) */}
+              <button
+                type="button"
+                onClick={() => setAppLauncherOpen(!appLauncherOpen)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all active:scale-95 cursor-pointer ${
+                  appLauncherOpen
+                    ? 'neu-btn-primary shadow-neu-orange text-white'
+                    : 'neu-btn text-stone-200 hover:text-white'
+                }`}
+                aria-label="Buka Pelancar Aplikasi"
+                title="Buka Menu Modul / Pelancar Aplikasi"
+              >
+                {appLauncherOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <MenuIcon className="w-5 h-5 text-orange-400" />
+                )}
+                <span className="font-extrabold text-xs hidden sm:inline">Aplikasi</span>
+              </button>
             </div>
-          )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
 
       {/* ======================================================== */}
       {/* PELANCAR APLIKASI (PORTAL TOP-LEVEL KE DOCUMENT.BODY)    */}

@@ -140,6 +140,9 @@ export default function PosPage() {
   // Navigasi POS: 'tables' (Skrin 1) vs 'menu' (Skrin 2)
   const [posView, setPosView] = useState<'tables' | 'menu'>('tables');
 
+  // Dynamic Island States (Top & Bottom)
+  const [topIslandExpanded, setTopIslandExpanded] = useState(false);
+
   // Multi-Attribute Accordion Matrix State
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
   const [matrixQty, setMatrixQty] = useState<number>(1);
@@ -755,32 +758,138 @@ export default function PosPage() {
       {/* ======================================================== */}
       {posView === 'menu' && (
         <div className="space-y-3">
-          {/* Header Skrin Menu Bersih (Tanpa bahagian yang dipangkah) */}
-          <div className="neu-card p-2 sm:p-2.5 flex items-center justify-between gap-2 sticky top-14 z-30">
-            {/* Kiri: Butang Kembali + Label Meja */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPosView('tables')}
-                className="px-3 py-1.5 rounded-xl neu-btn text-stone-200 text-xs font-bold flex items-center gap-1.5 active:scale-95"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Meja</span>
-              </button>
+          {/* ======================================================== */}
+          {/* TOP DYNAMIC ISLAND MORPH (Kapsul Atas Boleh Berubah)      */}
+          {/* ======================================================== */}
+          <div className="sticky top-16 z-30 max-w-xl mx-auto w-full select-none">
+            {/* Latar Belakang Semasa Island Atas Mengembang */}
+            {topIslandExpanded && (
+              <div 
+                className="fixed inset-0 bg-black/40 backdrop-blur-[2px] -z-10 animate-fadeIn"
+                onClick={() => setTopIslandExpanded(false)}
+              />
+            )}
 
-              <span className="text-xs sm:text-sm font-black text-white px-3 py-1.5 rounded-xl neu-inset-sm flex items-center gap-1.5">
-                <span className="text-orange-500">🍽️</span>
-                <span>{orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}</span>
-              </span>
-            </div>
+            <div 
+              className={`dynamic-island-top transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                topIslandExpanded
+                  ? 'rounded-3xl p-3.5 sm:p-4.5 space-y-3 shadow-2xl border-orange-500/70 bg-[#161311]'
+                  : 'rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between gap-2 shadow-2xl'
+              }`}
+            >
+              {!topIslandExpanded ? (
+                /* 1. COMPACT TOP ISLAND CAPSULE (Tepat Seperti Bahagian Yang Ditandakan) */
+                <div className="flex items-center justify-between w-full gap-2">
+                  {/* Kiri: Butang Kembali ke Meja */}
+                  <button
+                    type="button"
+                    onClick={() => setPosView('tables')}
+                    className="px-3 py-1.5 rounded-full neu-btn text-stone-200 text-xs font-bold flex items-center gap-1.5 active:scale-95 shrink-0 cursor-pointer"
+                    title="Kembali ke Senarai Meja"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Meja</span>
+                  </button>
 
-            {/* Kanan: Penunjuk Kategori Aktif Ringkas */}
-            <div className="flex items-center gap-2">
-              <div className="px-3 py-1 rounded-xl neu-inset-sm text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                <span className="text-sm">{currentCategoryObj.icon}</span>
-                <span className="text-orange-400 font-black">{currentCategoryObj.label}</span>
-                <span className="text-[10px] text-stone-500 font-mono">({filteredMenu.length})</span>
-              </div>
+                  {/* Tengah: Lencana Meja (Ketik untuk Kembangkan Island) */}
+                  <div
+                    onClick={() => setTopIslandExpanded(true)}
+                    className="px-3.5 py-1.5 rounded-full neu-inset-sm text-xs sm:text-sm font-black text-white flex items-center gap-2 cursor-pointer hover:border-orange-500/50 transition-all active:scale-95 min-w-0"
+                    title="Ketik untuk kembangkan Top Dynamic Island"
+                  >
+                    <span className="text-orange-500 text-sm">🍽️</span>
+                    <span className="truncate">
+                      {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}
+                    </span>
+                    {activeTableOrder && (
+                      <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)] animate-pulse shrink-0" />
+                    )}
+                    <ChevronDown className="w-3 h-3 text-stone-400 shrink-0" />
+                  </div>
+
+                  {/* Kanan: Kategori Aktif (Semua / Sate / dll) */}
+                  <div className="px-3 py-1.5 rounded-full neu-inset-sm text-xs font-bold text-stone-300 flex items-center gap-1.5 shrink-0">
+                    <span className="text-sm">{currentCategoryObj.icon}</span>
+                    <span className="text-orange-400 font-black">{currentCategoryObj.label}</span>
+                    <span className="text-[10px] text-stone-500 font-mono">({filteredMenu.length})</span>
+                  </div>
+                </div>
+              ) : (
+                /* 2. EXPANDED TOP ISLAND HUD (Morfisme ke Bawah) */
+                <div className="space-y-3 animate-fadeIn w-full text-stone-100">
+                  <div className="flex items-center justify-between pb-2 border-b border-stone-800/80">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-neu-orange">
+                        <span className="text-base">🍽️</span>
+                      </div>
+                      <div>
+                        <h3 className="font-black text-xs sm:text-sm text-white">
+                          Status: {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'Bilik VIP' : `Meja ${tableNumber}`) : 'Pesanan Bungkus'}
+                        </h3>
+                        <span className="text-[10px] text-stone-400">
+                          {activeTableOrder ? '🔴 Sedang Menjamu Selera (Makan Dulu)' : '🟢 Meja Bersih & Sedia Memesan'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setTopIslandExpanded(false)}
+                      className="p-1.5 rounded-full neu-btn text-stone-400 hover:text-white"
+                      title="Kuncupkan Island"
+                    >
+                      <ChevronUp className="w-4 h-4 text-orange-400" />
+                    </button>
+                  </div>
+
+                  {/* Butiran Pesanan Aktif jika meja berpenghuni */}
+                  {activeTableOrder ? (
+                    <div className="neu-inset-sm p-2.5 rounded-2xl space-y-2 text-xs">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-stone-400">No. Pesanan:</span>
+                        <span className="font-mono font-black text-orange-400">{activeTableOrder.orderNumber}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-stone-400">Masa Pesan:</span>
+                        <span className="font-mono text-stone-200">{activeTableOrder.createdAt}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-stone-400">Jumlah Makanan:</span>
+                        <span className="font-bold text-white">{activeTableOrder.items.reduce((a, b) => a + b.quantity, 0)} item</span>
+                      </div>
+                      <div className="pt-1.5 border-t border-stone-800/80 flex items-center justify-between font-black">
+                        <span className="text-stone-300">Jumlah Belum Bayar:</span>
+                        <span className="font-mono text-sm text-emerald-400">RM {activeTableOrder.total.toFixed(2)}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTopIslandExpanded(false);
+                          handleOpenSettleModal(activeTableOrder);
+                        }}
+                        className="w-full mt-1 py-2 rounded-xl neu-btn-emerald text-white font-black text-xs shadow-neu-green flex items-center justify-center gap-1.5 active:scale-95"
+                      >
+                        <Banknote className="w-3.5 h-3.5" />
+                        <span>Kira & Selesaikan Bil Sekarang</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="neu-inset-sm p-3 rounded-2xl text-center text-xs text-stone-400 font-medium">
+                      Meja ini belum mempunyai sebarang pesanan. Pilih kuantiti dan suhu makanan di bawah untuk dihantar ke dapur.
+                    </div>
+                  )}
+
+                  {/* Maklumat Kategori Semasa */}
+                  <div className="flex items-center justify-between neu-card p-2 rounded-xl text-xs border border-stone-800">
+                    <span className="text-stone-400">Kategori Aktif:</span>
+                    <span className="font-black text-orange-400 flex items-center gap-1">
+                      <span>{currentCategoryObj.icon}</span>
+                      <span>{currentCategoryObj.label}</span>
+                      <span className="font-mono text-stone-400">({filteredMenu.length} item)</span>
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
