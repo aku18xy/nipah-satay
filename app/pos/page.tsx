@@ -1338,9 +1338,9 @@ export default function PosPage() {
 
           {/* ======================================================== */}
           {/* RADIAL THUMB ARC ROTARY MOTION (Pemilihan Kategori Jemari) */}
-          {/* Sembunyikan semasa Island troli sedang mengembang         */}
+          {/* Disorokkan semasa Troli terbuka tanpa reset/remount state  */}
           {/* ======================================================== */}
-          {!cartModalOpen && (
+          <div className={cartModalOpen ? 'hidden pointer-events-none' : ''}>
             <RadialThumbArc
               categories={categories.map((cat) => ({
                 id: cat.id,
@@ -1359,7 +1359,7 @@ export default function PosPage() {
                 }
               }}
             />
-          )}
+          </div>
 
           {/* ======================================================== */}
           {/* BOTTOM DYNAMIC ISLAND MORPH (Kapsul Bawah Boleh Berubah) */}
@@ -1383,15 +1383,15 @@ export default function PosPage() {
               }`}
             >
               {!cartModalOpen ? (
-                /* 1. COMPACT / STRETCHED BOTTOM ISLAND CAPSULE */
-                <div className="flex items-center justify-between w-full gap-2 text-stone-100">
-                  {/* Bahagian Kiri: Ringkasan Troli & Meja */}
-                  <button
-                    type="button"
-                    onClick={() => setCartModalOpen(true)}
-                    className="flex items-center gap-2.5 text-left active:scale-95 group cursor-pointer min-w-0"
-                    title="Ketik untuk kembangkan Bottom Dynamic Island (Semak Troli)"
-                  >
+                /* 1. COMPACT BOTTOM ISLAND CAPSULE (SELURUH PULAU JADI BUTANG BUKA TROLI) */
+                <button
+                  type="button"
+                  onClick={() => setCartModalOpen(true)}
+                  className="w-full flex items-center justify-between gap-3 text-stone-100 active:scale-[0.98] group cursor-pointer select-none"
+                  title="Ketik untuk buka troli pesanan"
+                >
+                  {/* Bahagian Kiri: Ikon Beg/Bil & Ringkasan Meja / Troli */}
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white shadow-neu-flat relative transition-all shrink-0 ${
                       activeTableOrder && cart.length === 0 ? 'neu-btn-emerald' : 'neu-btn-primary'
                     }`}>
@@ -1403,66 +1403,26 @@ export default function PosPage() {
                       )}
                     </div>
 
-                    <div className="min-w-0">
+                    <div className="text-left min-w-0">
                       <div className="text-[10px] font-black text-stone-300 flex items-center gap-1 uppercase tracking-tight truncate">
                         <span>{orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `Meja ${tableNumber}`) : 'Bungkus'}</span>
                         <span>•</span>
-                        <span className="text-orange-400 flex items-center gap-0.5">
-                          <span>TROLI</span>
-                          <ChevronUp className="w-3 h-3 animate-pulse" />
-                        </span>
+                        <span className="text-orange-400 font-bold">TROLI</span>
                       </div>
                       <div className={`font-mono text-xs sm:text-sm font-black truncate ${activeTableOrder && cart.length === 0 ? 'text-emerald-400' : 'text-white'}`}>
                         RM {(cart.length > 0 ? subtotal : activeTableOrder ? activeTableOrder.total : 0).toFixed(2)}
                       </div>
                     </div>
-                  </button>
-
-                  {/* Bahagian Kanan: Tindakan Pantas Island */}
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {cart.length > 0 ? (
-                      orderType === 'takeaway' && !selectedTakeawayOrder ? (
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={handleSendToKitchen}
-                            className="px-2.5 py-1.5 rounded-full font-bold text-xs neu-btn text-stone-200 active:scale-95"
-                          >
-                            Hantar
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handlePayNowDirectly}
-                            className="px-3.5 py-2 rounded-full font-black text-xs neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center gap-1.5 border border-emerald-400/40"
-                          >
-                            <Banknote className="w-3.5 h-3.5" />
-                            <span>BAYAR RM {subtotal.toFixed(0)}</span>
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={(activeTableOrder || selectedTakeawayOrder) ? handleAppendOrder : handleSendToKitchen}
-                          className="px-3.5 sm:px-4 py-2 rounded-full font-black text-xs neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center gap-1.5 border border-emerald-400/40"
-                        >
-                          <Send className="w-3.5 h-3.5" />
-                          <span>HANTAR RM {subtotal.toFixed(0)}</span>
-                        </button>
-                      )
-                    ) : (
-                      activeTableOrder && (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenSettleModal(activeTableOrder)}
-                          className="px-3.5 sm:px-4 py-2 rounded-full font-black text-xs neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center gap-1.5 border border-emerald-400/40"
-                        >
-                          <Banknote className="w-3.5 h-3.5" />
-                          <span>KIRA BIL RM {activeTableOrder.total.toFixed(0)}</span>
-                        </button>
-                      )
-                    )}
                   </div>
-                </div>
+
+                  {/* Bahagian Kanan: Indikator Buka Troli Bersih (Bahagian Bertanda Telah Dibuang) */}
+                  <div className="flex items-center gap-1.5 text-orange-400 group-hover:text-orange-300 transition-colors pr-1 shrink-0">
+                    <span className="text-xs font-black tracking-wide">
+                      {cart.length > 0 ? `${cart.reduce((a, b) => a + b.quantity, 0)} item` : 'Buka'}
+                    </span>
+                    <ChevronUp className="w-4 h-4 transition-transform group-hover:-translate-y-0.5 animate-pulse" />
+                  </div>
+                </button>
               ) : (
                 /* 2. EXPANDED BOTTOM ISLAND TROLI SHEET */
                 <div className="space-y-3 animate-fadeIn flex flex-col flex-1 min-h-0 text-stone-100">
@@ -1541,41 +1501,38 @@ export default function PosPage() {
                     <span className="font-mono text-base text-orange-400">RM {subtotal.toFixed(2)}</span>
                   </div>
 
-                  {/* Butang Tindakan Hantar */}
-                  {orderType === 'takeaway' && !selectedTakeawayOrder ? (
+                  {/* Butang Tindakan dalam Detail Pane: Pilihan Hantar ATAU Hantar & Bayar */}
+                  {cart.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       <button
                         type="button"
-                        onClick={handleSendToKitchen}
-                        disabled={cart.length === 0}
-                        className="py-2.5 rounded-full font-bold text-xs neu-btn text-stone-200 active:scale-95 flex items-center justify-center gap-1 disabled:opacity-50"
+                        onClick={(activeTableOrder || selectedTakeawayOrder) ? handleAppendOrder : handleSendToKitchen}
+                        className="py-3 rounded-2xl font-black text-xs sm:text-sm neu-btn text-stone-200 active:scale-95 flex items-center justify-center gap-1.5"
                       >
-                        <Send className="w-3.5 h-3.5" />
-                        <span>Hantar</span>
+                        <Send className="w-4 h-4 text-orange-400" />
+                        <span>{(activeTableOrder || selectedTakeawayOrder) ? 'Hantar Tambahan' : 'Hantar ke Dapur'}</span>
                       </button>
                       <button
                         type="button"
                         onClick={handlePayNowDirectly}
-                        disabled={cart.length === 0}
-                        className="py-2.5 rounded-full font-black text-xs neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center justify-center gap-1 border border-emerald-400/40 disabled:opacity-50"
+                        className="py-3 rounded-2xl font-black text-xs sm:text-sm neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center justify-center gap-1.5 border border-emerald-400/40"
                       >
-                        <Banknote className="w-3.5 h-3.5" />
-                        <span>Bayar Terus</span>
+                        <Banknote className="w-4 h-4" />
+                        <span>{orderType === 'takeaway' ? 'Bayar Terus' : 'Hantar & Bayar'}</span>
                       </button>
                     </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={(activeTableOrder || selectedTakeawayOrder) ? handleAppendOrder : handleSendToKitchen}
-                      disabled={cart.length === 0}
-                      className="w-full py-2.5 rounded-full font-black text-xs neu-btn-primary text-white shadow-neu-orange active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>
-                        {(activeTableOrder || selectedTakeawayOrder) ? 'Hantar Tambahan ke Dapur' : 'Hantar Pesanan ke Dapur'}
-                      </span>
-                    </button>
-                  )}
+                  ) : activeTableOrder ? (
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenSettleModal(activeTableOrder)}
+                        className="w-full py-3 rounded-2xl font-black text-xs sm:text-sm neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center justify-center gap-1.5 border border-emerald-400/40"
+                      >
+                        <Banknote className="w-4 h-4" />
+                        <span>Kira Bil RM {activeTableOrder.total.toFixed(2)}</span>
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>

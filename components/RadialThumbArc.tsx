@@ -21,7 +21,7 @@ export default function RadialThumbArc({
   selectedCategory,
   onSelectCategory,
 }: RadialThumbArcProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
