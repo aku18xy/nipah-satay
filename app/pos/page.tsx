@@ -829,12 +829,23 @@ export default function PosPage() {
           {/* ======================================================== */}
           {/* MASTER–DETAIL SPLIT PANE (KOTAK PERINCIAN DOCK BAWAH)    */}
           {/* Master di atas boleh discroll bebas sampai ke bawah      */}
-          {/* Detail di bawah terapung kemas tanpa halang scroll       */}
+          {/* Detail di bawah terapung kemas dengan backdrop blur split*/}
           {/* ======================================================== */}
           {selectedDetailOrder && (
-            <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto select-none animate-fadeIn pointer-events-auto">
-              {/* Kotak Terapung: Gaya Persis Rujukan Gambar (rounded-3xl, border-orange-500/80, bg-[#161311]) */}
-              <div className="rounded-3xl p-4 sm:p-5 max-h-[48vh] sm:max-h-[52vh] flex flex-col space-y-3 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
+            <>
+              {/* Backdrop Blur di Belakang Detail Pane (Membahagi Skrin Dua Bahagian) */}
+              <div 
+                className="fixed inset-x-0 bottom-0 h-[52vh] sm:h-[56vh] z-30 bg-[#0c0a09]/80 backdrop-blur-md border-t-2 border-orange-500/40 shadow-[0_-16px_40px_rgba(0,0,0,0.85)] animate-fadeIn transition-all pointer-events-none"
+              >
+                {/* Pemegang Garisan Split-Screen */}
+                <div className="flex items-center justify-center pt-2">
+                  <div className="w-12 h-1 bg-stone-500/50 rounded-full" />
+                </div>
+              </div>
+
+              <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto select-none animate-fadeIn pointer-events-auto">
+                {/* Kotak Terapung: Gaya Persis Rujukan Gambar (rounded-3xl, border-orange-500/80, bg-[#161311]/95) */}
+                <div className="rounded-3xl p-4 sm:p-5 max-h-[48vh] sm:max-h-[52vh] flex flex-col space-y-3 shadow-2xl border border-orange-500/80 bg-[#161311]/95 backdrop-blur-xl text-stone-100">
                 {/* Header Kotak */}
                 <div className="flex items-center justify-between pb-2 border-b border-stone-800/80">
                   <div className="flex items-center gap-2.5">
@@ -967,6 +978,7 @@ export default function PosPage() {
                 </div>
               </div>
             </div>
+            </>
           )}
         </div>
       )}
@@ -1099,8 +1111,8 @@ export default function PosPage() {
 
           {/* ======================================================== */}
           {/* DETAIL PANE: MODIFIER & ATTRIBUTE CUSTOMIZER DOCK         */}
-          {/* (Master-Detail Split Pane: Tetap terapung di bawah tanpa  */}
-          {/* mengganggu skrol menu utama di belakangnya)               */}
+          {/* (Master-Detail Split Pane: Tetap terapung di bawah dengan */}
+          {/* backdrop blur split tanpa mengganggu skrol menu utama)    */}
           {/* ======================================================== */}
           {activeExpandedItem && (() => {
             const isSatay = activeExpandedItem.category === 'sate';
@@ -1112,8 +1124,19 @@ export default function PosPage() {
             const totalInCart = itemsInCart.reduce((sum, c) => sum + c.quantity, 0);
 
             return (
-              <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto select-none animate-fadeIn pointer-events-auto">
-                <div className="rounded-3xl p-4 sm:p-5 max-h-[52vh] sm:max-h-[56vh] flex flex-col space-y-3.5 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
+              <>
+                {/* Backdrop Blur di Belakang Detail Pane (Membahagi Skrin Dua Bahagian) */}
+                <div 
+                  className="fixed inset-x-0 bottom-0 h-[56vh] sm:h-[60vh] z-30 bg-[#0c0a09]/80 backdrop-blur-md border-t-2 border-orange-500/40 shadow-[0_-16px_40px_rgba(0,0,0,0.85)] animate-fadeIn transition-all pointer-events-none"
+                >
+                  {/* Pemegang Garisan Split-Screen */}
+                  <div className="flex items-center justify-center pt-2">
+                    <div className="w-12 h-1 bg-stone-500/50 rounded-full" />
+                  </div>
+                </div>
+
+                <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto select-none animate-fadeIn pointer-events-auto">
+                  <div className="rounded-3xl p-4 sm:p-5 max-h-[52vh] sm:max-h-[56vh] flex flex-col space-y-3.5 shadow-2xl border border-orange-500/80 bg-[#161311]/95 backdrop-blur-xl text-stone-100">
                   {/* HEADER DETAIL PANE */}
                   <div className="flex items-center justify-between pb-2.5 border-b border-stone-800 shrink-0">
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -1360,6 +1383,7 @@ export default function PosPage() {
                   </div>
                 </div>
               </div>
+              </>
             );
           })()}
 
@@ -1394,10 +1418,10 @@ export default function PosPage() {
           {/* ======================================================== */}
           {!activeExpandedItem && (
             <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto">
-            {/* Latar Belakang Gelap Semasa Island Mengembang (Tanpa Blur) */}
+            {/* Latar Belakang Gelap Semasa Island Mengembang */}
             {cartModalOpen && (
               <div 
-                className="fixed inset-0 bg-black/40 -z-10 animate-fadeIn"
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm -z-10 animate-fadeIn"
                 onClick={() => setCartModalOpen(false)}
               />
             )}
