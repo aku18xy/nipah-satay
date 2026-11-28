@@ -1338,9 +1338,9 @@ export default function PosPage() {
 
           {/* ======================================================== */}
           {/* RADIAL THUMB ARC ROTARY MOTION (Pemilihan Kategori Jemari) */}
-          {/* Disorokkan semasa Troli terbuka tanpa reset/remount state  */}
+          {/* Dinyahlekap semasa Troli terbuka supaya tiada detection   */}
           {/* ======================================================== */}
-          <div className={cartModalOpen ? 'hidden pointer-events-none' : ''}>
+          {!cartModalOpen && (
             <RadialThumbArc
               categories={categories.map((cat) => ({
                 id: cat.id,
@@ -1359,7 +1359,7 @@ export default function PosPage() {
                 }
               }}
             />
-          </div>
+          )}
 
           {/* ======================================================== */}
           {/* BOTTOM DYNAMIC ISLAND MORPH (Kapsul Bawah Boleh Berubah) */}

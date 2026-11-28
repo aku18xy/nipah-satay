@@ -169,6 +169,7 @@ export default function RadialThumbArc({
 
   // Sokongan Roda Tetikus / Trackpad (Mouse Wheel Scrolling)
   const handleWheel = (e: React.WheelEvent) => {
+    if (!isOpen) return;
     e.stopPropagation();
     setIsDragging(false);
 
@@ -218,27 +219,28 @@ export default function RadialThumbArc({
       {/* Kontena Utama Thumb Arc di Bucu Bawah Kanan (Zon Ergonomik Ibu Jari) */}
       <div
         className="fixed right-4 sm:right-6 bottom-20 sm:bottom-22 z-40 select-none"
-        style={{ touchAction: 'none' }}
+        style={{ touchAction: isOpen ? 'none' : 'auto' }}
       >
         <div className="relative flex items-center justify-center">
           {/* ======================================================== */}
           {/* BUSUR ORBIT & KAD KATEGORI RADIAL SCROLLABLE              */}
+          {/* Hanya dipaparkan & aktif semasa isOpen = true supaya tiada */}
+          {/* sebarang pengesanan gesture / touch semasa tersembunyi   */}
           {/* ======================================================== */}
-          <div
-            ref={arcContainerRef}
-            onPointerDown={handlePointerDown}
-            onWheel={handleWheel}
-            className={`absolute transition-all duration-300 cursor-grab active:cursor-grabbing ${
-              isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75 pointer-events-none'
-            }`}
-            style={{
-              width: RADIUS * 2,
-              height: RADIUS * 2,
-              right: -(RADIUS - BUTTON_SIZE / 2),
-              bottom: -(RADIUS - BUTTON_SIZE / 2),
-              touchAction: 'none',
-            }}
-          >
+          {isOpen && (
+            <div
+              ref={arcContainerRef}
+              onPointerDown={handlePointerDown}
+              onWheel={handleWheel}
+              className="absolute transition-all duration-300 cursor-grab active:cursor-grabbing opacity-100 scale-100"
+              style={{
+                width: RADIUS * 2,
+                height: RADIUS * 2,
+                right: -(RADIUS - BUTTON_SIZE / 2),
+                bottom: -(RADIUS - BUTTON_SIZE / 2),
+                touchAction: 'none',
+              }}
+            >
             {/* Garisan Orbit Bulatan Berbintik (Dashed Orbital Trajectory Arc) */}
             <div
               className="absolute inset-0 rounded-full border border-dashed border-indigo-400/40 pointer-events-none"
@@ -371,16 +373,18 @@ export default function RadialThumbArc({
               );
             })}
           </div>
+          )}
 
           {/* ======================================================== */}
           {/* BUTANG UTAMA KATEGORI TERPILIH (SELECTED CATEGORY BUTTON)  */}
+          {/* Tiada pengesanan pointer/wheel semasa isOpen = false       */}
           {/* ======================================================== */}
           <button
             ref={buttonRef}
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            onPointerDown={handlePointerDown}
-            onWheel={handleWheel}
+            onPointerDown={isOpen ? handlePointerDown : undefined}
+            onWheel={isOpen ? handleWheel : undefined}
             className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer shadow-2xl z-40 ${
               isOpen
                 ? 'bg-gradient-to-br from-indigo-500 via-purple-600 to-purple-700 text-white shadow-[0_0_25px_rgba(168,85,247,0.7)] ring-4 ring-purple-500/30'
