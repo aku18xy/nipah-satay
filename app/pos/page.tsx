@@ -1071,13 +1071,13 @@ export default function PosPage() {
                 >
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
                     {/* Kotak Ikon Sunken Neumorphic */}
-                    <div className="w-13 h-13 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
+                    <div className="w-14 h-14 rounded-2xl neu-inset flex items-center justify-center text-3xl shrink-0">
                       <span className="filter drop-shadow">{displayIcon.emoji}</span>
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className={`font-black text-lg sm:text-xl tracking-tight truncate ${isSelected ? 'text-orange-400' : 'text-white'}`}>
+                        <h3 className={`font-black text-xl sm:text-2xl tracking-tight truncate ${isSelected ? 'text-orange-400' : 'text-white'}`}>
                           {item.name}
                         </h3>
                         {totalInCart > 0 && (
@@ -1473,25 +1473,22 @@ export default function PosPage() {
                       </div>
                     ) : (
                       cart.map((item, idx) => (
-                        <div key={`${item.itemId}-${item.notes || ''}-${idx}`} className="neu-inset-sm p-2.5 rounded-2xl flex items-center justify-between text-xs">
+                        <div key={`${item.itemId}-${item.notes || ''}-${idx}`} className="neu-inset-sm p-3 rounded-2xl flex items-center justify-between text-xs">
                           <div className="min-w-0 pr-2">
-                            <span className="font-black text-sm sm:text-base text-white truncate block">{item.name}</span>
+                            <span className="font-black text-base sm:text-lg text-white truncate block">{item.name}</span>
                             {item.notes && (
-                              <span className="block text-xs text-amber-300 font-medium truncate">
+                              <span className="block text-xs text-amber-300 font-medium truncate mt-0.5">
                                 {item.notes}
                               </span>
                             )}
-                            <span className="text-xs text-orange-400 font-mono font-black mt-0.5 block">
-                              RM {(item.price * item.quantity).toFixed(2)}
-                            </span>
                           </div>
-                          <div className="flex items-center gap-1 neu-card rounded-xl p-0.5 shrink-0 border border-stone-850">
-                            <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, -1)} className="p-1 text-stone-400 hover:text-white neu-btn rounded-lg">
-                              <Minus className="w-3 h-3" />
+                          <div className="flex items-center gap-1.5 neu-card rounded-xl p-1 shrink-0 border border-stone-850">
+                            <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, -1)} className="w-7 h-7 flex items-center justify-center text-stone-400 hover:text-white neu-btn rounded-lg active:scale-90">
+                              <Minus className="w-3.5 h-3.5" />
                             </button>
-                            <span className="font-bold font-mono text-xs px-1.5 text-white">{item.quantity}</span>
-                            <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, 1)} className="p-1 text-white neu-btn-primary rounded-lg">
-                              <Plus className="w-3 h-3" />
+                            <span className="font-black font-mono text-sm px-2 text-white">{item.quantity}</span>
+                            <button onClick={() => updateCartItemQuantity(item.itemId, item.notes, 1)} className="w-7 h-7 flex items-center justify-center text-white neu-btn-primary rounded-lg active:scale-90 shadow-neu-orange">
+                              <Plus className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </div>
@@ -1508,15 +1505,9 @@ export default function PosPage() {
                     className="neu-input w-full px-3 py-2 rounded-xl text-xs text-white placeholder-stone-500 focus:outline-none"
                   />
 
-                  {/* Subtotal & Butang Tindakan */}
-                  <div className="pt-2 border-t border-stone-800/80 flex justify-between items-center text-xs font-black">
-                    <span className="text-stone-400">Jumlah Keseluruhan:</span>
-                    <span className="font-mono text-base text-orange-400">RM {subtotal.toFixed(2)}</span>
-                  </div>
-
                   {/* Butang Tindakan dalam Detail Pane: Pilihan Hantar ATAU Hantar & Bayar */}
                   {cart.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-stone-800/80">
                       <button
                         type="button"
                         onClick={(activeTableOrder || selectedTakeawayOrder) ? handleAppendOrder : handleSendToKitchen}
