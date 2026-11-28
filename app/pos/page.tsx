@@ -609,22 +609,22 @@ export default function PosPage() {
       {/* SKRIN 1: PILIHAN MEJA & BUNGKUS (MINIMALIS)               */}
       {/* ======================================================== */}
       {posView === 'tables' && (
-        <div className="space-y-2.5">
-          {/* Top Bar Ringkas (Jimat Ruang) */}
-          <div className="bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 flex items-center justify-between gap-2 shadow-sm">
+        <div className="space-y-3">
+          {/* Top Bar Ringkas (Jimat Ruang, Soft Neumorphic) */}
+          <div className="neu-card px-3.5 py-2.5 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-black text-white flex items-center gap-1">
+              <span className="text-sm font-black text-white flex items-center gap-1.5">
                 <span className="text-orange-500">🔥</span> POS
               </span>
-              <div className="flex items-center gap-1 text-[11px] font-bold">
-                <span className="px-1.5 py-0.5 rounded bg-stone-950 text-emerald-400 border border-emerald-900/50">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-emerald-400">
                   🟢 {RESTAURANT_TABLES.filter(t => !liveOrders.some(o => o.type === 'dine_in' && o.tableNumber === t.id && !o.isPaid && o.status !== 'cancelled')).length} Kosong
                 </span>
-                <span className="px-1.5 py-0.5 rounded bg-stone-950 text-amber-400 border border-amber-900/50">
+                <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-amber-400">
                   🔴 {liveOrders.filter(o => o.type === 'dine_in' && !o.isPaid && o.status !== 'cancelled').length} Makan
                 </span>
                 {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length > 0 && (
-                  <span className="px-1.5 py-0.5 rounded bg-stone-950 text-orange-400 border border-orange-900/50">
+                  <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-orange-400">
                     🛍️ {liveOrders.filter(o => o.type === 'takeaway' && (!o.isPaid || (o.status !== 'completed' && o.status !== 'cancelled'))).length} Bungkus
                   </span>
                 )}
@@ -634,7 +634,7 @@ export default function PosPage() {
             <div className="flex items-center gap-1.5">
               <Link
                 href="/pos/backoffice"
-                className="px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white font-bold text-xs border border-stone-700 shadow flex items-center gap-1 active:scale-95 transition-all"
+                className="px-2.5 py-1.5 rounded-xl neu-btn text-stone-200 hover:text-white font-bold text-xs flex items-center gap-1 active:scale-95 transition-all"
                 title="Buka POS Backoffice (Urus Menu & Kategori)"
               >
                 <span>⚙️</span>
@@ -644,7 +644,7 @@ export default function PosPage() {
               <button
                 type="button"
                 onClick={handleSelectTakeawayAndNavigate}
-                className="px-2.5 py-1 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-black text-xs shadow flex items-center gap-1 active:scale-95 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl neu-btn-primary font-black text-xs flex items-center gap-1 active:scale-95 cursor-pointer shadow-neu-orange"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Bungkus</span>
@@ -661,21 +661,21 @@ export default function PosPage() {
             if (activeTakeaways.length === 0) return null;
 
             return (
-              <div className="bg-stone-900/80 border border-orange-900/40 rounded-xl p-2 space-y-1.5">
+              <div className="neu-card p-2.5 space-y-2 border border-orange-950/40">
                 <div className="flex items-center justify-between text-[11px] font-black text-stone-300 px-1">
                   <span>🛍️ Pesanan Bungkus Aktif ({activeTakeaways.length})</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {activeTakeaways.map((ord) => (
                     <div
                       key={ord.id}
-                      className="bg-stone-950 border border-stone-800 rounded-lg p-2 flex items-center justify-between gap-2 text-xs"
+                      className="neu-inset-sm p-2.5 flex items-center justify-between gap-2 text-xs"
                     >
                       <div className="min-w-0">
-                        <div className="flex items-center gap-1 font-mono text-[11px]">
+                        <div className="flex items-center gap-1.5 font-mono text-[11px]">
                           <span className="text-orange-400 font-black">{ord.orderNumber}</span>
-                          <span className="text-stone-300 truncate font-sans">{ord.customerName}</span>
+                          <span className="text-stone-300 truncate font-sans font-bold">{ord.customerName}</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-[11px] mt-0.5">
                           <span className="font-mono font-bold text-white">RM {ord.total.toFixed(2)}</span>
@@ -685,12 +685,12 @@ export default function PosPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         {!ord.isPaid ? (
                           <button
                             type="button"
                             onClick={() => handleOpenSettleModal(ord)}
-                            className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[11px] flex items-center gap-1 shadow active:scale-95"
+                            className="px-2.5 py-1 rounded-xl neu-btn-emerald font-black text-[11px] flex items-center gap-1 shadow-neu-green active:scale-95"
                           >
                             <Banknote className="w-3 h-3" />
                             <span>Bayar</span>
@@ -699,7 +699,7 @@ export default function PosPage() {
                           <button
                             type="button"
                             onClick={() => handleCompleteTakeawayHandover(ord)}
-                            className="px-2 py-1 rounded bg-stone-800 text-stone-300 text-[11px] font-bold active:scale-95"
+                            className="px-2.5 py-1 rounded-xl neu-btn text-stone-300 text-[11px] font-bold active:scale-95"
                           >
                             Selesai
                           </button>
@@ -707,10 +707,10 @@ export default function PosPage() {
                         <button
                           type="button"
                           onClick={() => handleSelectExistingTakeawayAndNavigate(ord)}
-                          className="p-1 rounded bg-stone-900 border border-stone-700 text-orange-400 active:scale-95"
+                          className="p-1.5 rounded-xl neu-btn text-orange-400 active:scale-95"
                           title="Tambah item"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -720,8 +720,8 @@ export default function PosPage() {
             );
           })()}
 
-          {/* Grid Meja 4 Sebaris Melintang (Konsisten Segi Empat / Square) */}
-          <div className="grid grid-cols-4 gap-2 sm:gap-2.5">
+          {/* Grid Meja 4 Sebaris Melintang (Konsisten Segi Empat / Square, Soft Neumorphic) */}
+          <div className="grid grid-cols-4 gap-2 sm:gap-3">
             {RESTAURANT_TABLES.map((tbl) => {
               const activeOrd = liveOrders.find(
                 (o) => o.type === 'dine_in' && o.tableNumber === tbl.id && !o.isPaid && o.status !== 'cancelled'
@@ -735,40 +735,36 @@ export default function PosPage() {
                   key={tbl.id}
                   type="button"
                   onClick={() => handleSelectTableAndNavigate(tbl.id)}
-                  className={`aspect-square rounded-2xl p-2.5 sm:p-3 border text-left transition-all flex flex-col justify-between select-none cursor-pointer active:scale-95 shadow-sm ${
+                  className={`aspect-square rounded-2xl p-2.5 sm:p-3 text-left transition-all duration-200 flex flex-col justify-between select-none cursor-pointer active:scale-95 active:shadow-neu-pressed ${
                     activeOrd
-                      ? 'bg-amber-950/30 border-amber-500/80 hover:border-amber-400 ring-1 ring-amber-500/50'
-                      : 'bg-stone-900/90 border-stone-800 hover:border-orange-500 hover:bg-stone-850'
+                      ? 'bg-gradient-to-br from-[#221a15] to-[#181411] border border-amber-500/50 shadow-neu-amber hover:border-amber-400'
+                      : 'bg-[#181614] border border-stone-800/40 shadow-neu-flat hover:shadow-neu-flat-lg hover:border-orange-500/40'
                   }`}
                 >
                   {/* Baris Atas: Label Meja (M1, M2...) + Indicator Dot */}
                   <div className="flex items-center justify-between w-full">
-                    <span className="text-sm sm:text-base font-black text-white">{tbl.short}</span>
+                    <span className="text-sm sm:text-base font-black text-white tracking-tight">{tbl.short}</span>
                     <span
                       className={`w-2.5 h-2.5 rounded-full ${
                         activeOrd
-                          ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]'
-                          : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]'
+                          ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse'
+                          : 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.85)]'
                       }`}
                     />
                   </div>
 
-                  {/* Bawah: Harga & Jumlah Item jika diduduki / + Pesan jika kosong */}
+                  {/* Bawah: Harga & Jumlah Item (e.g. RM 32 & 20 item) jika diduduki / Bersih Kosong */}
                   <div className="w-full">
                     {activeOrd ? (
                       <div>
                         <div className="font-mono text-xs sm:text-sm font-black text-orange-400 leading-tight">
                           RM {activeOrd.total.toFixed(activeOrd.total % 1 === 0 ? 0 : 2)}
                         </div>
-                        <div className="text-[10px] text-stone-400 font-bold leading-tight mt-0.5">
+                        <div className="text-[10px] text-stone-300 font-bold leading-tight mt-0.5">
                           {itemCount} item
                         </div>
                       </div>
-                    ) : (
-                      <div className="text-[10px] sm:text-xs text-stone-500 font-medium leading-tight">
-                        + Pesan
-                      </div>
-                    )}
+                    ) : null}
                   </div>
                 </button>
               );
@@ -782,28 +778,28 @@ export default function PosPage() {
       {/* ======================================================== */}
       {posView === 'menu' && (
         <div className="space-y-2.5">
-          {/* Header Navigasi Skrin Menu (Padat & Jimat Ruang) */}
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-2 sm:p-2.5 shadow-lg flex items-center justify-between gap-2 sticky top-14 z-30 backdrop-blur-md bg-stone-900/95">
+          {/* Header Navigasi Skrin Menu (Padat & Jimat Ruang, Soft Neumorphic) */}
+          <div className="neu-card p-2 sm:p-2.5 flex items-center justify-between gap-2 sticky top-14 z-30">
             {/* Kiri: Butang Kembali + Label Meja */}
             <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
                 onClick={() => setPosView('tables')}
-                className="px-2 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-bold flex items-center gap-1 border border-stone-700 active:scale-95"
+                className="px-2.5 py-1.5 rounded-xl neu-btn text-stone-200 text-xs font-bold flex items-center gap-1 active:scale-95"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Meja</span>
               </button>
 
               <div className="flex items-center gap-1.5">
-                <span className="text-xs sm:text-sm font-black text-white px-2 py-0.5 rounded bg-stone-800 border border-stone-700">
+                <span className="text-xs sm:text-sm font-black text-white px-2.5 py-1 rounded-xl neu-inset-sm">
                   {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `M${tableNumber}`) : 'Bungkus'}
                 </span>
                 {activeTableOrder && (
                   <button
                     type="button"
                     onClick={() => handleOpenSettleModal(activeTableOrder)}
-                    className="text-[10px] font-black px-2 py-1 rounded bg-emerald-600 text-white flex items-center gap-1 active:scale-95 shadow"
+                    className="text-[10px] font-black px-2.5 py-1 rounded-xl neu-btn-emerald text-white flex items-center gap-1 active:scale-95 shadow-neu-green"
                   >
                     <Banknote className="w-3 h-3" />
                     <span>Bil RM {activeTableOrder.total.toFixed(0)}</span>
@@ -820,12 +816,12 @@ export default function PosPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari..."
-                className="w-full pl-8 pr-6 py-1.5 bg-stone-950 border border-stone-800 rounded-lg text-xs text-white placeholder-stone-500 focus:outline-none focus:border-orange-500"
+                className="neu-input w-full pl-8 pr-6 py-1.5 text-xs text-white placeholder-stone-500 rounded-xl focus:outline-none"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-stone-400 hover:text-white"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-stone-400 hover:text-white"
                 >
                   ✕
                 </button>
@@ -837,10 +833,10 @@ export default function PosPage() {
               <button
                 type="button"
                 onClick={() => setShowCategorySidebar(!showCategorySidebar)}
-                className={`px-2.5 py-1.5 rounded-lg text-white font-black text-xs flex items-center gap-1 shadow active:scale-95 border transition-all ${
+                className={`px-2.5 py-1.5 rounded-xl text-white font-black text-xs flex items-center gap-1 active:scale-95 transition-all ${
                   showCategorySidebar
-                    ? 'bg-orange-600 border-orange-400 hover:bg-orange-500'
-                    : 'bg-stone-800 border-stone-700 text-stone-300'
+                    ? 'neu-btn-primary shadow-neu-orange'
+                    : 'neu-btn text-stone-300'
                 }`}
                 title="Togol Panel Kategori Kiri"
               >
@@ -851,7 +847,7 @@ export default function PosPage() {
 
               <Link
                 href="/pos/backoffice"
-                className="p-1.5 rounded-lg bg-stone-950 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-800 text-xs active:scale-95 transition-all flex items-center justify-center"
+                className="p-2 rounded-xl neu-btn text-stone-300 hover:text-white text-xs active:scale-95 transition-all flex items-center justify-center"
                 title="Buka POS Backoffice (Urus Menu & Kategori)"
               >
                 ⚙️
@@ -860,8 +856,8 @@ export default function PosPage() {
               <button
                 type="button"
                 onClick={() => setShowSettingsDrawer(!showSettingsDrawer)}
-                className={`p-1.5 rounded-lg border text-xs ${
-                  showSettingsDrawer ? 'bg-orange-600 text-white border-orange-500' : 'bg-stone-950 text-stone-400 border-stone-800'
+                className={`p-2 rounded-xl text-xs active:scale-95 transition-all ${
+                  showSettingsDrawer ? 'neu-btn-primary shadow-neu-orange' : 'neu-btn text-stone-400'
                 }`}
                 title="Tetapan Saiz"
               >
@@ -921,17 +917,17 @@ export default function PosPage() {
           {/* SUSUN ATUR KIOSK KFC: KATEGORI KIRI + MENU & PIL KANAN   */}
           {/* ======================================================== */}
           <div className="flex gap-2 sm:gap-2.5 items-start">
-            {/* 1. SIDEBAR KATEGORI SEBELAH KIRI (SEPERTI KIOSK KFC) */}
+            {/* 1. SIDEBAR KATEGORI SEBELAH KIRI (SEPERTI KIOSK KFC, Soft Neumorphic) */}
             {showCategorySidebar && (
-              <aside className="w-16 sm:w-20 md:w-24 shrink-0 bg-stone-900/95 border border-stone-800 rounded-2xl p-1 sm:p-1.5 flex flex-col gap-1 shadow-xl sticky top-28 select-none">
-                {/* Brand / Logo Mini (seperti Logo KFC di atas gambar) */}
-                <div className="flex flex-col items-center justify-center py-1 border-b border-stone-800 text-center">
+              <aside className="w-16 sm:w-20 md:w-24 shrink-0 neu-card p-1 sm:p-1.5 flex flex-col gap-1 sticky top-28 select-none">
+                {/* Brand / Logo Mini */}
+                <div className="flex flex-col items-center justify-center py-1 border-b border-stone-800/80 text-center">
                   <span className="text-xl filter drop-shadow">🔥</span>
                   <span className="text-[8px] sm:text-[9px] font-black text-orange-400 tracking-wider">NIPAH</span>
                 </div>
 
                 {/* Senarai Kategori Vertikal Kiosk */}
-                <div className="flex flex-col gap-1 py-1">
+                <div className="flex flex-col gap-1.5 py-1">
                   {categories.map((cat) => {
                     const isActive = selectedCategory === cat.id;
                     const count = cat.id === 'all'
@@ -945,15 +941,15 @@ export default function PosPage() {
                         onClick={() => handleSelectCategory(cat.id)}
                         className={`w-full py-2 px-1 rounded-xl flex flex-col items-center justify-center text-center transition-all cursor-pointer active:scale-95 ${
                           isActive
-                            ? 'bg-gradient-to-b from-orange-600 to-amber-600 text-white shadow-lg border border-orange-400 font-black'
-                            : 'bg-stone-950/80 hover:bg-stone-800 text-stone-300 border border-stone-850 hover:border-stone-700'
+                            ? 'neu-btn-primary shadow-neu-orange font-black'
+                            : 'neu-btn text-stone-300'
                         }`}
                       >
                         <span className="text-base sm:text-lg leading-none">{cat.icon}</span>
                         <span className="text-[9px] sm:text-[10px] font-bold mt-1 leading-tight tracking-tight line-clamp-1">
                           {cat.label}
                         </span>
-                        <span className={`text-[8px] font-mono px-1 rounded-full mt-0.5 ${isActive ? 'bg-black/30 text-white' : 'text-stone-500'}`}>
+                        <span className={`text-[8px] font-mono px-1 rounded-full mt-0.5 ${isActive ? 'bg-black/30 text-white' : 'text-stone-400'}`}>
                           {count}
                         </span>
                       </button>
@@ -965,8 +961,8 @@ export default function PosPage() {
 
             {/* 2. KAWASAN MENU & SUBKATEGORI (KANAN) */}
             <div className="flex-1 min-w-0 space-y-2">
-              {/* Header Kategori Terpilih & Sub-filter Horizontal (seperti BURGERS & ALL/ZINGER/GRANDER di Kiosk KFC) */}
-              <div className="bg-stone-900 border border-stone-800 rounded-xl p-2 sm:p-2.5 shadow-sm space-y-2">
+              {/* Header Kategori Terpilih & Sub-filter Horizontal (Soft Neumorphic) */}
+              <div className="neu-card p-2 sm:p-2.5 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg">
@@ -984,7 +980,7 @@ export default function PosPage() {
                   <button
                     type="button"
                     onClick={() => setShowCategorySidebar(!showCategorySidebar)}
-                    className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 text-stone-400 hover:text-white flex items-center gap-1 active:scale-95"
+                    className="text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-lg neu-btn text-stone-300 hover:text-white flex items-center gap-1 active:scale-95"
                     title={showCategorySidebar ? 'Sembunyikan Sidebar Kategori' : 'Buka Sidebar Kategori'}
                   >
                     <Layers className="w-3 h-3 text-orange-400" />
@@ -992,7 +988,7 @@ export default function PosPage() {
                   </button>
                 </div>
 
-                {/* Subcategory Pills (Horizontal Scroll seperti di Gambar Kiosk KFC) */}
+                {/* Subcategory Pills (Horizontal Scroll, Soft Neumorphic) */}
                 <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
                   {(KIOSK_SUBCATEGORIES[selectedCategory] || [{ id: 'all', label: 'SEMUA' }]).map((sub) => {
                     const isSubActive = subCategoryFilter === sub.id;
@@ -1001,10 +997,10 @@ export default function PosPage() {
                         key={sub.id}
                         type="button"
                         onClick={() => setSubCategoryFilter(sub.id)}
-                        className={`px-2.5 py-1 rounded-full text-[9px] sm:text-[11px] font-black tracking-tight whitespace-nowrap transition-all cursor-pointer active:scale-95 border ${
+                        className={`px-3 py-1 rounded-xl text-[9px] sm:text-[11px] font-black tracking-tight whitespace-nowrap transition-all cursor-pointer active:scale-95 ${
                           isSubActive
-                            ? 'bg-orange-600 text-white border-orange-400 shadow-sm'
-                            : 'bg-stone-950 text-stone-400 border-stone-800 hover:text-stone-200 hover:border-stone-700'
+                            ? 'neu-btn-primary shadow-neu-orange text-white'
+                            : 'neu-btn text-stone-300'
                         }`}
                       >
                         {sub.label}
@@ -1014,12 +1010,12 @@ export default function PosPage() {
                 </div>
               </div>
 
-              {/* Grid Menu: Minimalis & Sesuai dengan Kiosk KFC */}
+              {/* Grid Menu: Minimalis & Soft Neumorphic */}
               <div
                 className={`${
                   columnsCount === 4
-                    ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2'
-                    : 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2'
+                    ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-2.5'
+                    : 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5'
                 }`}
               >
                 {filteredMenu.map((item) => {
@@ -1037,16 +1033,14 @@ export default function PosPage() {
                     <div
                       key={item.id}
                       onClick={() => addToCart(item, isSatay ? 5 : 1)}
-                      className={`group relative bg-stone-900 border rounded-xl p-1.5 sm:p-2 cursor-pointer select-none transition-all flex flex-col justify-between active:scale-95 ${
-                        inCart ? 'border-orange-500 ring-1 ring-orange-500/60 shadow bg-stone-900' : 'border-stone-800 hover:border-orange-500/60'
+                      className={`group relative neu-card p-2 sm:p-2.5 cursor-pointer select-none transition-all duration-200 flex flex-col justify-between active:scale-95 ${
+                        inCart ? 'border-orange-500/80 shadow-neu-orange' : 'hover:shadow-neu-flat-lg'
                       }`}
                     >
-                      {/* Kotak Ikon Menu */}
+                      {/* Kotak Ikon Menu (Sunken Neumorphic Well) */}
                       <div
-                        className={`w-full ${iconBoxClass} rounded-lg border flex items-center justify-center relative overflow-hidden transition-all ${
-                          inCart
-                            ? 'border-orange-500 bg-orange-950/20'
-                            : 'border-stone-850 bg-stone-950 group-hover:border-stone-700'
+                        className={`w-full ${iconBoxClass} rounded-xl neu-inset flex items-center justify-center relative overflow-hidden transition-all ${
+                          inCart ? 'border border-orange-500/40' : ''
                         }`}
                       >
                         <span className="filter drop-shadow select-none">
@@ -1055,14 +1049,14 @@ export default function PosPage() {
 
                         {/* Lencana Kuantiti Jika Dipilih */}
                         {inCart && (
-                          <span className="absolute top-1 right-1 text-[9px] font-black px-1 rounded bg-orange-600 text-white shadow">
+                          <span className="absolute top-1 right-1 text-[9px] font-black px-1.5 py-0.5 rounded-lg neu-btn-primary text-white shadow-neu-orange">
                             {inCart.quantity}x
                           </span>
                         )}
                       </div>
 
                       {/* Nama Menu & Harga (Padat & Jelas) */}
-                      <div className="mt-1 flex-1 flex flex-col justify-between text-center min-w-0">
+                      <div className="mt-1.5 flex-1 flex flex-col justify-between text-center min-w-0">
                         <span className="text-[11px] sm:text-xs font-bold text-stone-100 truncate">
                           {item.name}
                         </span>
@@ -1074,13 +1068,13 @@ export default function PosPage() {
                         {/* Stepper Tambah/Tolak Jika Dalam Troli */}
                         {inCart && (
                           <div
-                            className="flex items-center justify-between w-full mt-1 bg-orange-950/90 border border-orange-600/70 rounded p-0.5 text-xs font-bold"
+                            className="flex items-center justify-between w-full mt-1.5 neu-inset-sm rounded-lg p-0.5 text-xs font-bold border border-orange-500/40"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <button
                               type="button"
                               onClick={() => updateQuantity(item.id, isSatay ? -5 : -1)}
-                              className="w-4 h-4 flex items-center justify-center rounded bg-stone-900 text-orange-400 hover:bg-orange-600 hover:text-white"
+                              className="w-5 h-5 flex items-center justify-center rounded-lg neu-btn text-orange-400 hover:text-white"
                             >
                               <Minus className="w-2.5 h-2.5" />
                             </button>
@@ -1090,7 +1084,7 @@ export default function PosPage() {
                             <button
                               type="button"
                               onClick={() => addToCart(item, isSatay ? 5 : 1)}
-                              className="w-4 h-4 flex items-center justify-center rounded bg-orange-600 text-white hover:bg-orange-500"
+                              className="w-5 h-5 flex items-center justify-center rounded-lg neu-btn-primary text-white"
                             >
                               <Plus className="w-2.5 h-2.5" />
                             </button>
@@ -1105,22 +1099,22 @@ export default function PosPage() {
           </div>
 
           {/* ======================================================== */}
-          {/* FLOATING ACTION BAR: HANTAR ORDER (SEPERTI KIOSK KFC)     */}
+          {/* FLOATING ACTION BAR: HANTAR ORDER (Soft Neumorphic)       */}
           {/* ======================================================== */}
           <div className="fixed bottom-[4.75rem] left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto">
-            <div className="bg-stone-900 border border-orange-500/80 rounded-2xl px-3 py-2.5 shadow-2xl flex items-center justify-between gap-2 text-stone-100 backdrop-blur-md">
+            <div className="neu-card-lg border border-orange-500/50 rounded-2xl px-3.5 py-2.5 shadow-neu-flat-lg flex items-center justify-between gap-2 text-stone-100">
               {/* Ringkasan Troli (SHOW BASKET ^) */}
               <button
                 type="button"
                 onClick={() => setCartModalOpen(true)}
                 className="flex items-center gap-2.5 text-left active:scale-95 group cursor-pointer"
               >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white shadow relative transition-all ${
-                  activeTableOrder && cart.length === 0 ? 'bg-emerald-600' : 'bg-orange-600 group-hover:bg-orange-500'
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-neu-flat relative transition-all ${
+                  activeTableOrder && cart.length === 0 ? 'neu-btn-emerald' : 'neu-btn-primary'
                 }`}>
                   {activeTableOrder && cart.length === 0 ? <Banknote className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
                   {cart.length > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-stone-900 shadow">
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-[#181614] shadow">
                       {cart.reduce((a, b) => a + b.quantity, 0)}
                     </span>
                   )}
@@ -1145,14 +1139,14 @@ export default function PosPage() {
                       <button
                         type="button"
                         onClick={handleSendToKitchen}
-                        className="px-2.5 py-2 rounded-xl font-bold text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 active:scale-95"
+                        className="px-3 py-2 rounded-xl font-bold text-xs neu-btn text-stone-200 active:scale-95"
                       >
                         Hantar
                       </button>
                       <button
                         type="button"
                         onClick={handlePayNowDirectly}
-                        className="px-3.5 py-2 rounded-xl font-black text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg active:scale-95 flex items-center gap-1.5 border border-emerald-400"
+                        className="px-3.5 py-2 rounded-xl font-black text-xs neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center gap-1.5 border border-emerald-400/40"
                       >
                         <Banknote className="w-3.5 h-3.5" />
                         <span>PLACE ORDER RM {subtotal.toFixed(2)}</span>
@@ -1162,7 +1156,7 @@ export default function PosPage() {
                     <button
                       type="button"
                       onClick={(activeTableOrder || selectedTakeawayOrder) ? handleAppendOrder : handleSendToKitchen}
-                      className="px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl active:scale-95 flex items-center gap-1.5 border border-emerald-400"
+                      className="px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center gap-1.5 border border-emerald-400/40"
                     >
                       <Send className="w-3.5 h-3.5" />
                       <span>PLACE ORDER RM {subtotal.toFixed(2)}</span>
@@ -1173,7 +1167,7 @@ export default function PosPage() {
                     <button
                       type="button"
                       onClick={() => handleOpenSettleModal(activeTableOrder)}
-                      className="px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white shadow-xl active:scale-95 flex items-center gap-1.5 border border-emerald-400"
+                      className="px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center gap-1.5 border border-emerald-400/40"
                     >
                       <Banknote className="w-4 h-4" />
                       <span>KIRA BIL RM {activeTableOrder.total.toFixed(activeTableOrder.total % 1 === 0 ? 0 : 2)}</span>
@@ -1187,36 +1181,36 @@ export default function PosPage() {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL SEMAKAN TROLI PESANAN (MINIMALIS)                  */}
+      {/* MODAL SEMAKAN TROLI PESANAN (Soft Neumorphic)            */}
       {/* ======================================================== */}
       {cartModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3">
-          <div className="bg-stone-900 border border-stone-800 rounded-xl max-w-sm w-full p-4 space-y-3 shadow-2xl relative text-stone-100">
-            <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 animate-fadeIn">
+          <div className="neu-card-lg max-w-sm w-full p-4 sm:p-5 space-y-3.5 relative text-stone-100 rounded-3xl">
+            <div className="flex items-center justify-between pb-2 border-b border-stone-800/80">
               <h3 className="font-black text-sm text-white">
                 Pesanan: {orderType === 'dine_in' ? (tableNumber === 'VIP' ? 'VIP' : `M${tableNumber}`) : 'Bungkus'}
               </h3>
-              <button onClick={() => setCartModalOpen(false)} className="text-stone-400 hover:text-white text-xs font-bold">
+              <button onClick={() => setCartModalOpen(false)} className="p-1 rounded-lg neu-btn text-stone-400 hover:text-white text-xs">
                 ✕
               </button>
             </div>
 
             {/* Senarai Item dalam Troli */}
-            <div className="max-h-56 overflow-y-auto space-y-1.5 pr-0.5">
+            <div className="max-h-56 overflow-y-auto space-y-2 pr-0.5">
               {cart.map((item) => (
-                <div key={item.itemId} className="bg-stone-950 p-2 rounded-lg border border-stone-800 flex items-center justify-between text-xs">
+                <div key={item.itemId} className="neu-inset-sm p-2.5 rounded-xl flex items-center justify-between text-xs">
                   <div className="min-w-0 pr-2">
                     <span className="font-bold text-white truncate block">{item.name}</span>
                     <span className="text-[10px] text-stone-400 font-mono">
                       RM {item.price.toFixed(2)} × {item.quantity}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 bg-stone-900 border border-stone-800 rounded p-0.5 shrink-0">
-                    <button onClick={() => updateQuantity(item.itemId, item.station === 'grill' ? -5 : -1)} className="p-0.5 text-stone-400 hover:text-white">
+                  <div className="flex items-center gap-1 neu-card rounded-lg p-0.5 shrink-0 border border-stone-850">
+                    <button onClick={() => updateQuantity(item.itemId, item.station === 'grill' ? -5 : -1)} className="p-1 text-stone-400 hover:text-white neu-btn rounded">
                       <Minus className="w-3 h-3" />
                     </button>
                     <span className="font-bold font-mono text-xs px-1 text-white">{item.quantity}</span>
-                    <button onClick={() => addToCart(menu.find(m => m.id === item.itemId)!, item.station === 'grill' ? 5 : 1)} className="p-0.5 text-orange-400 hover:text-white">
+                    <button onClick={() => addToCart(menu.find(m => m.id === item.itemId)!, item.station === 'grill' ? 5 : 1)} className="p-1 text-white neu-btn-primary rounded">
                       <Plus className="w-3 h-3" />
                     </button>
                   </div>
@@ -1230,11 +1224,11 @@ export default function PosPage() {
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               placeholder="Nota / Nama (pilihan)"
-              className="w-full px-2.5 py-1.5 bg-stone-950 border border-stone-800 rounded-lg text-xs text-white placeholder-stone-500 focus:outline-none focus:border-orange-500"
+              className="neu-input w-full px-3 py-2 rounded-xl text-xs text-white placeholder-stone-500 focus:outline-none"
             />
 
             {/* Subtotal */}
-            <div className="pt-2 border-t border-stone-800 flex justify-between items-center text-xs font-black">
+            <div className="pt-2 border-t border-stone-800/80 flex justify-between items-center text-xs font-black">
               <span className="text-stone-400">Jumlah:</span>
               <span className="font-mono text-base text-orange-400">RM {subtotal.toFixed(2)}</span>
             </div>
@@ -1245,7 +1239,7 @@ export default function PosPage() {
                 <button
                   type="button"
                   onClick={handleSendToKitchen}
-                  className="py-2.5 rounded-lg font-bold text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 active:scale-95 flex items-center justify-center gap-1"
+                  className="py-2.5 rounded-xl font-bold text-xs neu-btn text-stone-200 active:scale-95 flex items-center justify-center gap-1"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Hantar</span>
@@ -1253,7 +1247,7 @@ export default function PosPage() {
                 <button
                   type="button"
                   onClick={handlePayNowDirectly}
-                  className="py-2.5 rounded-lg font-black text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow active:scale-95 flex items-center justify-center gap-1"
+                  className="py-2.5 rounded-xl font-black text-xs neu-btn-emerald text-white shadow-neu-green active:scale-95 flex items-center justify-center gap-1 border border-emerald-400/40"
                 >
                   <Banknote className="w-3.5 h-3.5" />
                   <span>Bayar</span>
@@ -1263,7 +1257,7 @@ export default function PosPage() {
               <button
                 type="button"
                 onClick={(activeTableOrder || selectedTakeawayOrder) ? handleAppendOrder : handleSendToKitchen}
-                className="w-full py-2.5 rounded-lg font-black text-xs bg-orange-600 hover:bg-orange-500 text-white shadow active:scale-95 flex items-center justify-center gap-1.5"
+                className="w-full py-3 rounded-xl font-black text-xs neu-btn-primary text-white shadow-neu-orange active:scale-95 flex items-center justify-center gap-1.5"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>
@@ -1276,53 +1270,54 @@ export default function PosPage() {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL KIRA BIL & BAYARAN (MINIMALIS)                     */}
+      {/* MODAL KIRA BIL & BAYARAN (Soft Neumorphic)               */}
       {/* ======================================================== */}
       {paymentModalOpen && settlingOrder && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3">
-          <div className="bg-stone-900 border border-stone-800 rounded-xl max-w-sm w-full p-4 space-y-3 shadow-2xl relative text-stone-100">
-            <div className="flex items-center justify-between pb-1 border-b border-stone-800">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 animate-fadeIn">
+          <div className="neu-card-lg max-w-sm w-full p-4 sm:p-5 space-y-3.5 relative text-stone-100 rounded-3xl">
+            <div className="flex items-center justify-between pb-1 border-b border-stone-800/80">
               <div>
                 <h3 className="font-black text-sm text-white">
                   Kira Bil: {settlingOrder.tableNumber ? (settlingOrder.tableNumber === 'VIP' ? 'VIP' : `M${settlingOrder.tableNumber}`) : (settlingOrder.customerName || 'Bungkus')}
                 </h3>
                 <span className="text-[10px] text-stone-400 font-mono">#{settlingOrder.orderNumber}</span>
               </div>
-              <button onClick={() => setPaymentModalOpen(false)} className="text-stone-400 hover:text-white text-xs font-bold">
+              <button onClick={() => setPaymentModalOpen(false)} className="p-1 rounded-lg neu-btn text-stone-400 hover:text-white text-xs">
                 ✕
               </button>
             </div>
 
             {/* Senarai Makanan */}
-            <div className="max-h-36 overflow-y-auto bg-stone-950 p-2 rounded-lg border border-stone-800 space-y-1 text-xs">
+            <div className="max-h-36 overflow-y-auto neu-inset-sm p-2.5 rounded-xl space-y-1 text-xs">
               {settlingOrder.items.map((it, i) => (
                 <div key={i} className="flex justify-between text-stone-300 text-[11px]">
                   <span className="truncate pr-2">{it.name} × {it.quantity}</span>
                   <span className="font-mono font-bold shrink-0">RM {(it.price * it.quantity).toFixed(2)}</span>
                 </div>
               ))}
-              <div className="pt-1.5 border-t border-stone-800 flex justify-between font-black text-xs text-orange-400">
+              <div className="pt-1.5 border-t border-stone-800/80 flex justify-between font-black text-xs text-orange-400">
                 <span>Perlu Dibayar:</span>
                 <span className="font-mono text-sm">RM {settlingOrder.total.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Kaedah Bayaran */}
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-3 gap-2">
               {[
                 { id: 'cash', label: 'Tunai', icon: Banknote },
                 { id: 'duitnow_qr', label: 'QR Pay', icon: QrCode },
                 { id: 'card', label: 'Kad', icon: CreditCard },
               ].map((m) => {
                 const Icon = m.icon;
+                const isSelected = paymentMethod === m.id;
                 return (
                   <button
                     key={m.id}
                     onClick={() => setPaymentMethod(m.id as any)}
-                    className={`py-2 rounded-lg border flex flex-col items-center gap-1 text-[11px] font-bold transition-all ${
-                      paymentMethod === m.id
-                        ? 'bg-orange-600 text-white border-orange-500 shadow'
-                        : 'bg-stone-950 text-stone-400 border-stone-800 hover:text-white'
+                    className={`py-2.5 rounded-xl flex flex-col items-center gap-1 text-[11px] font-bold transition-all active:scale-95 ${
+                      isSelected
+                        ? 'neu-btn-primary shadow-neu-orange text-white'
+                        : 'neu-btn text-stone-400 hover:text-white'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -1334,21 +1329,21 @@ export default function PosPage() {
 
             {/* Input Tunai & Baki */}
             {paymentMethod === 'cash' && (
-              <div className="space-y-1.5 bg-stone-950 border border-stone-800 rounded-lg p-2 text-xs">
-                <div className="grid grid-cols-4 gap-1">
+              <div className="space-y-2 neu-inset-sm rounded-xl p-2.5 text-xs">
+                <div className="grid grid-cols-4 gap-1.5">
                   {[settlingOrder.total, Math.ceil(settlingOrder.total / 10) * 10, 50, 100].map((amt, idx) => (
                     <button
                       key={idx}
                       onClick={() => setCashTendered(amt)}
-                      className={`py-1 rounded font-mono font-bold text-[10px] ${
-                        cashTendered === amt ? 'bg-orange-600 text-white' : 'bg-stone-900 text-stone-300 border border-stone-800'
+                      className={`py-1.5 rounded-lg font-mono font-bold text-[10px] transition-all active:scale-95 ${
+                        cashTendered === amt ? 'neu-btn-primary shadow-neu-orange text-white' : 'neu-btn text-stone-300'
                       }`}
                     >
                       RM {amt.toFixed(0)}
                     </button>
                   ))}
                 </div>
-                <div className="flex justify-between items-center pt-1 border-t border-stone-800 text-[11px]">
+                <div className="flex justify-between items-center pt-1.5 border-t border-stone-800/80 text-[11px]">
                   <span className="text-stone-400">Baki:</span>
                   <span className="font-mono text-sm font-black text-emerald-400">
                     RM {Math.max(0, cashTendered - settlingOrder.total).toFixed(2)}
@@ -1358,16 +1353,16 @@ export default function PosPage() {
             )}
 
             {paymentMethod === 'duitnow_qr' && (
-              <div className="bg-stone-950 border border-stone-800 rounded-lg p-2 text-center">
-                <div className="w-20 h-20 mx-auto bg-white p-1 rounded-lg flex items-center justify-center">
+              <div className="neu-inset-sm rounded-xl p-2.5 text-center">
+                <div className="w-20 h-20 mx-auto bg-white p-1 rounded-xl shadow-neu-flat flex items-center justify-center">
                   <span className="text-[9px] font-black text-rose-600 font-mono">DuitNow QR</span>
                 </div>
               </div>
             )}
 
             {paymentMethod === 'card' && (
-              <div className="bg-stone-950 border border-stone-800 rounded-lg p-2 text-center text-xs text-stone-300">
-                Tap kad pada terminal.
+              <div className="neu-inset-sm rounded-xl p-3 text-center text-xs text-stone-300">
+                Tap kad pada terminal POS.
               </div>
             )}
 
@@ -1375,10 +1370,10 @@ export default function PosPage() {
             <button
               onClick={handleConfirmSettlement}
               disabled={paymentSuccess}
-              className={`w-full py-2.5 rounded-lg font-black text-xs flex items-center justify-center gap-1.5 transition-all ${
+              className={`w-full py-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-neu-green border border-emerald-400/40 active:scale-95 ${
                 paymentSuccess
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow active:scale-95'
+                  ? 'neu-btn-emerald text-white'
+                  : 'neu-btn-emerald text-white hover:brightness-110'
               }`}
             >
               {paymentSuccess ? (

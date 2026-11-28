@@ -61,12 +61,12 @@ export default function NavigationHeader() {
   const homeHref = roleConfig?.id === 'executive' ? '/' : roleConfig?.id === 'kitchen' ? '/kitchen' : roleConfig?.id === 'production' ? '/production' : '/pos';
 
   return (
-    <header className="sticky top-0 z-50 bg-[#121110]/95 backdrop-blur-md border-b border-orange-950/40 text-stone-100">
+    <header className="sticky top-0 z-50 neu-nav-bar text-stone-100">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo & Outlet Location */}
           <Link href={homeHref} className="flex items-center gap-2 sm:gap-3 group min-w-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md shadow-orange-950/60 group-hover:scale-105 transition-transform flex-shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-neu-orange group-hover:scale-105 transition-transform flex-shrink-0">
               <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-pulse" />
             </div>
             <div className="min-w-0">
@@ -74,7 +74,7 @@ export default function NavigationHeader() {
                 <span className="font-extrabold text-sm sm:text-base tracking-tight bg-gradient-to-r from-orange-400 via-amber-300 to-amber-500 bg-clip-text text-transparent truncate">
                   NIPAH SATAY™
                 </span>
-                <span className="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange-950/80 text-orange-400 border border-orange-800/40">
+                <span className="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded neu-inset-sm text-orange-400">
                   Operasi
                 </span>
               </div>
@@ -94,16 +94,16 @@ export default function NavigationHeader() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                     isActive
-                      ? 'bg-orange-600/25 text-orange-400 border border-orange-500/40 shadow-sm'
-                      : 'text-stone-300 hover:text-white hover:bg-stone-800/60'
+                      ? 'neu-inset text-orange-400 border border-orange-500/30'
+                      : 'text-stone-300 hover:text-white hover:neu-surface hover:shadow-neu-flat-sm'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{link.label}</span>
                   {link.badge && (
-                    <span className="text-[10px] bg-orange-500/20 text-orange-300 px-1 rounded font-mono">
+                    <span className="text-[10px] bg-orange-500/20 text-orange-300 px-1.5 py-0.5 rounded-full font-mono">
                       {link.badge}
                     </span>
                   )}
@@ -117,10 +117,10 @@ export default function NavigationHeader() {
             {/* Senior Mode Toggle (Tulisan Besar) */}
             <button
               onClick={toggleSeniorMode}
-              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold border transition-all active:scale-95 ${
+              className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                 isSeniorMode
-                  ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-md font-black'
-                  : 'bg-stone-900 text-stone-300 border-stone-800 hover:text-white hover:border-orange-500'
+                  ? 'bg-amber-500 text-stone-950 shadow-neu-amber font-black'
+                  : 'neu-btn text-stone-300'
               }`}
               title="Tukar Mod Warga Emas (A+)"
             >
@@ -132,14 +132,14 @@ export default function NavigationHeader() {
 
             {/* Pulau Indah Connectivity Indicator */}
             <div
-              className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] sm:text-xs font-bold border ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold ${
                 isOnline
-                  ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/40'
-                  : 'bg-amber-950/50 text-amber-300 border-amber-800/50 animate-pulse'
+                  ? 'neu-inset-sm text-emerald-400'
+                  : 'neu-inset-sm text-amber-300 animate-pulse'
               }`}
               title={isOnline ? 'Online' : 'Offline'}
             >
-              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-amber-400'}`} />
               <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
             </div>
 
@@ -147,7 +147,7 @@ export default function NavigationHeader() {
             <button
               type="button"
               onClick={() => setShowAuthModal(true)}
-              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-stone-900 border border-stone-800 hover:border-orange-500 text-stone-200 text-xs font-bold transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl neu-btn text-stone-200 text-xs font-bold transition-all active:scale-95"
               title="Tukar Peranan Petugas (Role-Based Auth)"
             >
               <span>{roleConfig ? roleConfig.icon : '👤'}</span>
@@ -160,7 +160,7 @@ export default function NavigationHeader() {
             {canAccess('/pos') && (
               <Link
                 href="/pos"
-                className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-sm transition-all"
+                className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-xl neu-btn-primary text-xs font-bold"
               >
                 <Store className="w-3.5 h-3.5" />
                 <span>POS</span>
@@ -170,7 +170,7 @@ export default function NavigationHeader() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-1.5 sm:p-2 rounded-lg bg-stone-900 border border-stone-800 text-stone-200 hover:text-white active:scale-90"
+              className="xl:hidden p-2 rounded-xl neu-btn text-stone-200 hover:text-white"
               aria-label="Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}

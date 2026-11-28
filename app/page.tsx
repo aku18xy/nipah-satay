@@ -44,8 +44,8 @@ export default function DashboardPage() {
   if (isInitialized && role !== 'executive') {
     return (
       <div className="min-h-[65vh] flex items-center justify-center p-4">
-        <div className="bg-stone-900 border-2 border-rose-600/70 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl animate-fadeIn">
-          <div className="w-16 h-16 rounded-2xl bg-rose-950/90 border border-rose-500/50 flex items-center justify-center text-rose-400 mx-auto shadow-inner">
+        <div className="neu-card-lg p-6 sm:p-8 max-w-md w-full text-center space-y-4 rounded-3xl border border-rose-600/40 animate-fadeIn">
+          <div className="w-16 h-16 rounded-2xl neu-inset text-rose-400 flex items-center justify-center mx-auto shadow-neu-pressed">
             <ShieldAlert className="w-8 h-8" />
           </div>
           <div>
@@ -58,7 +58,7 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={() => setShowAuthModal(true)}
-              className="w-full py-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:from-orange-500 text-white shadow-lg active:scale-95 flex items-center justify-center gap-2 border border-orange-400 cursor-pointer"
+              className="neu-btn-primary w-full py-3.5 rounded-2xl font-black text-xs sm:text-sm shadow-neu-orange flex items-center justify-center gap-2 border border-orange-400/50 cursor-pointer active:scale-95"
             >
               <Lock className="w-4 h-4" />
               <span>Log Masuk Eksekutif (PIN: 1990)</span>
@@ -66,13 +66,13 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 gap-2 mt-1">
               <Link
                 href="/pos"
-                className="py-2.5 rounded-xl font-bold text-xs bg-stone-950 hover:bg-stone-850 text-stone-300 border border-stone-800 text-center block active:scale-95"
+                className="py-2.5 rounded-xl font-bold text-xs neu-btn text-stone-300 text-center block active:scale-95"
               >
                 Ke POS Kaunter
               </Link>
               <Link
                 href="/kitchen"
-                className="py-2.5 rounded-xl font-bold text-xs bg-stone-950 hover:bg-stone-850 text-stone-300 border border-stone-800 text-center block active:scale-95"
+                className="py-2.5 rounded-xl font-bold text-xs neu-btn text-stone-300 text-center block active:scale-95"
               >
                 Ke Dapur KDS
               </Link>
@@ -99,13 +99,13 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Top Welcome & Operational Status Banner */}
-      <div className="bg-gradient-to-r from-orange-950/60 via-stone-900 to-amber-950/50 border border-orange-900/40 rounded-2xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
+      {/* Top Welcome & Operational Status Banner (Soft Neumorphic) */}
+      <div className="neu-card-lg p-5 sm:p-6 shadow-neu-flat-lg relative overflow-hidden rounded-3xl">
         <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-orange-600/10 via-transparent to-transparent pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-orange-600 text-white tracking-wide uppercase">
+              <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-bold neu-btn-primary text-white tracking-wide uppercase">
                 Pusat Kawalan Operasi
               </span>
               <span className="text-xs text-amber-300 font-mono font-bold">
@@ -131,14 +131,14 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href="/pos"
-              className="px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-lg shadow-orange-950/50 flex items-center gap-2 transition-all transform hover:scale-105"
+              className="px-4 py-2.5 rounded-2xl neu-btn-primary text-white font-bold text-sm shadow-neu-orange flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95"
             >
               <Store className="w-4 h-4" />
               <span>POS Pesanan Baru</span>
             </Link>
             <Link
               href="/kitchen"
-              className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-orange-400 border border-orange-900/40 font-bold text-sm flex items-center gap-2 transition-all"
+              className="px-4 py-2.5 rounded-2xl neu-btn text-orange-400 font-bold text-sm flex items-center gap-2 transition-all active:scale-95"
             >
               <CookingPot className="w-4 h-4" />
               <span>Skrin KDS Dapur</span>
@@ -147,13 +147,13 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 4 Core Stat Cards */}
+      {/* 4 Core Stat Cards (Soft Neumorphic) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Jualan Hari Ini */}
-        <div className="bg-stone-900/90 border border-stone-800/80 rounded-xl p-4 flex flex-col justify-between shadow-md">
+        <div className="neu-card p-4 flex flex-col justify-between rounded-2xl hover:shadow-neu-flat-lg transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-stone-400">Jualan Semasa (POS)</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-950/60 text-emerald-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl neu-inset text-emerald-400 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
@@ -166,10 +166,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 2: Giliran Sate Dapur (Grill Queue) */}
-        <div className="bg-stone-900/90 border border-orange-900/40 rounded-xl p-4 flex flex-col justify-between shadow-md">
+        <div className="neu-card p-4 flex flex-col justify-between rounded-2xl hover:shadow-neu-flat-lg transition-all border border-orange-900/40">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-stone-400">Giliran Api Sate</span>
-            <div className="w-8 h-8 rounded-lg bg-orange-950/70 text-orange-500 flex items-center justify-center animate-pulse">
+            <div className="w-8 h-8 rounded-xl neu-inset text-orange-500 flex items-center justify-center animate-pulse">
               <Flame className="w-4 h-4" />
             </div>
           </div>
@@ -182,10 +182,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 3: Stok Sate Siap Cucuk (Chiller) */}
-        <div className="bg-stone-900/90 border border-stone-800/80 rounded-xl p-4 flex flex-col justify-between shadow-md">
+        <div className="neu-card p-4 flex flex-col justify-between rounded-2xl hover:shadow-neu-flat-lg transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-stone-400">Stok Sate Siap (Chiller)</span>
-            <div className="w-8 h-8 rounded-lg bg-sky-950/60 text-sky-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl neu-inset text-sky-400 flex items-center justify-center">
               <ThermometerSnowflake className="w-4 h-4" />
             </div>
           </div>
@@ -198,10 +198,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 4: Hasil Potong Daging (Yield) */}
-        <div className="bg-stone-900/90 border border-stone-800/80 rounded-xl p-4 flex flex-col justify-between shadow-md">
+        <div className="neu-card p-4 flex flex-col justify-between rounded-2xl hover:shadow-neu-flat-lg transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-stone-400">Hasil Trimming Kilang</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-950/60 text-amber-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl neu-inset text-amber-400 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>

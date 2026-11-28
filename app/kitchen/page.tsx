@@ -125,8 +125,8 @@ export default function KitchenKdsPage() {
 
   return (
     <div className="space-y-5 pb-12">
-      {/* Top KDS Station Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-900 border border-stone-800 rounded-xl p-3 sm:p-4">
+      {/* Top KDS Station Filter Bar (Soft Neumorphic) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 neu-card p-3.5 sm:p-4 rounded-2xl">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-extrabold text-xl text-white">Sistem Paparan Dapur (KDS Live)</h1>
@@ -134,7 +134,7 @@ export default function KitchenKdsPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-800 flex items-center gap-1">
+            <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-lg neu-inset-sm text-emerald-400 flex items-center gap-1">
               <Database className="w-3 h-3" />
               {isDbLive ? 'Neon Postgres Live' : 'Live Sync'}
               {lastSynced && <span className="opacity-70 font-mono text-[9px]">• {lastSynced}</span>}
@@ -146,7 +146,7 @@ export default function KitchenKdsPage() {
         </div>
 
         {/* Station Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto bg-stone-950 p-1 rounded-xl border border-stone-800 text-xs font-bold">
+        <div className="flex items-center gap-1.5 overflow-x-auto neu-inset-sm p-1 rounded-2xl text-xs font-bold">
           {[
             { id: 'all', label: 'Semua Tiket' },
             { id: 'grill', label: '🔥 Stesen Sate Arang' },
@@ -156,9 +156,9 @@ export default function KitchenKdsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveStation(tab.id as any)}
-              className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
+              className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all active:scale-95 ${
                 activeStation === tab.id
-                  ? 'bg-orange-600 text-white shadow-md'
+                  ? 'neu-btn-primary shadow-neu-orange text-white'
                   : 'text-stone-400 hover:text-white'
               }`}
             >
@@ -170,10 +170,10 @@ export default function KitchenKdsPage() {
 
       {/* Grill Pit Live Skewer Aggregate (Only if on 'all' or 'grill') */}
       {(activeStation === 'all' || activeStation === 'grill') && totalGrillSticks > 0 && (
-        <div className="bg-gradient-to-r from-orange-950/80 via-stone-900 to-amber-950/70 border border-orange-700/50 rounded-2xl p-4 sm:p-5 shadow-lg">
+        <div className="neu-card-lg p-4 sm:p-5 shadow-neu-flat-lg rounded-3xl border border-orange-700/40">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-orange-600 text-white animate-pulse">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2.5 rounded-2xl neu-btn-primary text-white shadow-neu-orange animate-pulse">
                 <Flame className="w-5 h-5" />
               </div>
               <div>
@@ -185,7 +185,7 @@ export default function KitchenKdsPage() {
                 </p>
               </div>
             </div>
-            <div className="bg-orange-600/30 border border-orange-500/40 px-3 py-1 rounded-xl font-mono text-sm font-black text-orange-300">
+            <div className="neu-inset-sm px-3.5 py-1.5 rounded-xl font-mono text-sm font-black text-orange-300 border border-orange-500/30">
               Jumlah: {totalGrillSticks} Cucuk
             </div>
           </div>
@@ -194,10 +194,10 @@ export default function KitchenKdsPage() {
             {Object.entries(skewerSummary).map(([name, count]) => (
               <div
                 key={name}
-                className="bg-stone-950/90 border border-orange-900/50 rounded-xl p-3 flex items-center justify-between"
+                className="neu-card p-3 rounded-xl flex items-center justify-between"
               >
                 <span className="text-xs font-bold text-stone-200">{name}</span>
-                <span className="font-mono text-lg font-black text-orange-400 bg-orange-950/80 px-2 py-0.5 rounded border border-orange-800/40">
+                <span className="font-mono text-lg font-black text-orange-400 neu-inset-sm px-2.5 py-0.5 rounded-lg">
                   {count}
                 </span>
               </div>
@@ -223,33 +223,33 @@ export default function KitchenKdsPage() {
             return (
               <div
                 key={order.id}
-                className={`bg-stone-900 border rounded-2xl flex flex-col justify-between overflow-hidden shadow-lg transition-all ${
+                className={`neu-card flex flex-col justify-between overflow-hidden rounded-2xl transition-all duration-200 ${
                   order.status === 'ready'
-                    ? 'border-emerald-600/80 ring-1 ring-emerald-500/30'
-                    : 'border-stone-800 hover:border-stone-700'
+                    ? 'border-emerald-600/60 shadow-neu-green ring-1 ring-emerald-500/40'
+                    : 'hover:shadow-neu-flat-lg'
                 }`}
               >
                 {/* Ticket Top */}
-                <div className="p-4 border-b border-stone-800 bg-stone-950/70">
+                <div className="p-4 border-b border-stone-800/80 neu-surface">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-base font-black text-orange-400">
                         {order.orderNumber}
                       </span>
-                      <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                      <span className={`px-2 py-0.5 rounded-lg text-[11px] font-bold neu-inset-sm ${
                         order.type === 'dine_in'
-                          ? 'bg-amber-950 text-amber-300 border border-amber-800/50'
-                          : 'bg-blue-950 text-blue-300 border border-blue-800/50'
+                          ? 'text-amber-300'
+                          : 'text-blue-300'
                       }`}>
                         {order.type === 'dine_in' ? `Meja ${order.tableNumber}` : 'Bungkus'}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         order.isPaid
-                          ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800/60'
-                          : 'bg-amber-950/90 text-amber-300 border-amber-700/80 font-black'
+                          ? 'neu-inset-sm text-emerald-400'
+                          : 'neu-btn-primary text-white font-black'
                       }`}>
                         {order.isPaid ? 'Lunas' : 'Makan Dulu'}
                       </span>
@@ -262,7 +262,7 @@ export default function KitchenKdsPage() {
 
                   {order.customerName && (
                     <div className="text-xs text-stone-400 mt-1 font-medium">
-                      Pelanggan: <span className="text-stone-200">{order.customerName}</span>
+                      Pelanggan: <span className="text-stone-200 font-bold">{order.customerName}</span>
                     </div>
                   )}
                 </div>
@@ -271,13 +271,13 @@ export default function KitchenKdsPage() {
                 <div className="p-4 flex-1 space-y-3">
                   {/* Grill Station Items */}
                   {hasGrill && (activeStation === 'all' || activeStation === 'grill') && (
-                    <div className="bg-orange-950/30 border border-orange-900/40 rounded-xl p-2.5 space-y-1.5">
+                    <div className="neu-inset-sm rounded-xl p-2.5 space-y-2 border border-orange-950/40">
                       <div className="flex items-center justify-between text-[11px] font-bold text-orange-400">
                         <span className="flex items-center gap-1">
                           <Flame className="w-3.5 h-3.5" />
                           Bahagian Sate Arang
                         </span>
-                        <span className="font-mono uppercase text-[10px] px-1.5 py-0.5 rounded bg-orange-900/60">
+                        <span className="font-mono uppercase text-[10px] px-2 py-0.5 rounded-lg neu-card text-orange-300">
                           {order.stationStatus.grill}
                         </span>
                       </div>
@@ -287,7 +287,7 @@ export default function KitchenKdsPage() {
                           .map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center text-xs font-semibold text-stone-100">
                               <span>{item.name}</span>
-                              <span className="font-mono font-bold text-orange-400 bg-stone-900 px-2 py-0.5 rounded">
+                              <span className="font-mono font-bold text-orange-400 neu-card px-2 py-0.5 rounded">
                                 {item.quantity} cucuk
                               </span>
                             </div>
@@ -296,10 +296,10 @@ export default function KitchenKdsPage() {
 
                       <button
                         onClick={() => advanceStationStatus(order.id, 'grill')}
-                        className={`w-full mt-2 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                        className={`w-full mt-2 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 ${
                           order.stationStatus.grill === 'done'
-                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                            : 'bg-orange-600 hover:bg-orange-500 text-white'
+                            ? 'neu-btn-emerald shadow-neu-green text-white'
+                            : 'neu-btn-primary shadow-neu-orange text-white'
                         }`}
                       >
                         {order.stationStatus.grill === 'done' ? (
@@ -321,13 +321,13 @@ export default function KitchenKdsPage() {
 
                   {/* Wok Station Items (Soto, Mee Goreng, Bihun) */}
                   {hasWok && (activeStation === 'all' || activeStation === 'wok') && (
-                    <div className="bg-amber-950/30 border border-amber-900/40 rounded-xl p-2.5 space-y-1.5">
+                    <div className="neu-inset-sm rounded-xl p-2.5 space-y-2 border border-amber-950/40">
                       <div className="flex items-center justify-between text-[11px] font-bold text-amber-400">
                         <span className="flex items-center gap-1">
                           <CookingPot className="w-3.5 h-3.5" />
                           Dapur Soto & Wok Kuali
                         </span>
-                        <span className="font-mono uppercase text-[10px] px-1.5 py-0.5 rounded bg-amber-900/60">
+                        <span className="font-mono uppercase text-[10px] px-2 py-0.5 rounded-lg neu-card text-amber-300">
                           {order.stationStatus.wok}
                         </span>
                       </div>
@@ -340,7 +340,7 @@ export default function KitchenKdsPage() {
                                 {item.name}
                                 {item.notes && <span className="block text-[10px] text-amber-300 italic font-normal">Nota: {item.notes}</span>}
                               </span>
-                              <span className="font-mono font-bold text-amber-400 bg-stone-900 px-2 py-0.5 rounded">
+                              <span className="font-mono font-bold text-amber-400 neu-card px-2 py-0.5 rounded">
                                 {item.quantity}x
                               </span>
                             </div>
@@ -349,10 +349,10 @@ export default function KitchenKdsPage() {
 
                       <button
                         onClick={() => advanceStationStatus(order.id, 'wok')}
-                        className={`w-full mt-2 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                        className={`w-full mt-2 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 ${
                           order.stationStatus.wok === 'done'
-                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                            : 'bg-amber-600 hover:bg-amber-500 text-stone-950'
+                            ? 'neu-btn-emerald shadow-neu-green text-white'
+                            : 'neu-btn bg-amber-600 hover:bg-amber-500 text-stone-950 font-black shadow-neu-amber'
                         }`}
                       >
                         {order.stationStatus.wok === 'done' ? (
@@ -374,13 +374,13 @@ export default function KitchenKdsPage() {
 
                   {/* Prep Bar / Drinks Items */}
                   {hasPrep && (activeStation === 'all' || activeStation === 'prep_bar') && (
-                    <div className="bg-stone-950/70 border border-stone-800 rounded-xl p-2.5 space-y-1.5">
+                    <div className="neu-inset-sm rounded-xl p-2.5 space-y-2 border border-stone-850">
                       <div className="flex items-center justify-between text-[11px] font-bold text-stone-300">
                         <span className="flex items-center gap-1">
                           <Coffee className="w-3.5 h-3.5 text-sky-400" />
                           Bar Air & Kuah Nasi Impit
                         </span>
-                        <span className="font-mono uppercase text-[10px] px-1.5 py-0.5 rounded bg-stone-800">
+                        <span className="font-mono uppercase text-[10px] px-2 py-0.5 rounded-lg neu-card text-stone-300">
                           {order.stationStatus.prep_bar}
                         </span>
                       </div>
@@ -390,7 +390,7 @@ export default function KitchenKdsPage() {
                           .map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center text-xs font-semibold text-stone-200">
                               <span>{item.name}</span>
-                              <span className="font-mono font-bold text-stone-300 bg-stone-900 px-2 py-0.5 rounded">
+                              <span className="font-mono font-bold text-stone-300 neu-card px-2 py-0.5 rounded">
                                 {item.quantity}x
                               </span>
                             </div>
@@ -399,10 +399,10 @@ export default function KitchenKdsPage() {
 
                       <button
                         onClick={() => advanceStationStatus(order.id, 'prep_bar')}
-                        className={`w-full mt-2 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                        className={`w-full mt-2 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 ${
                           order.stationStatus.prep_bar === 'done'
-                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                            : 'bg-stone-800 hover:bg-stone-700 text-stone-200'
+                            ? 'neu-btn-emerald shadow-neu-green text-white'
+                            : 'neu-btn text-white'
                         }`}
                       >
                         {order.stationStatus.prep_bar === 'done' ? (
@@ -420,10 +420,10 @@ export default function KitchenKdsPage() {
                 </div>
 
                 {/* Ticket Action Bottom */}
-                <div className="p-3 bg-stone-950 border-t border-stone-800">
+                <div className="p-3.5 neu-surface border-t border-stone-800/80">
                   <button
                     onClick={() => markOrderCompleted(order.id)}
-                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.01]"
+                    className="w-full py-3 rounded-xl neu-btn-emerald text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-neu-green transition-all active:scale-95 border border-emerald-400/40"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Selesai & Hantar ke Meja / Kaunter</span>

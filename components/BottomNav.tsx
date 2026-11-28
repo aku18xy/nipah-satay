@@ -33,10 +33,10 @@ export default function BottomNav() {
   return (
     <nav 
       aria-label="Navigasi Mudah Alih"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#121110]/98 backdrop-blur-lg border-t border-orange-950/60 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1.5 px-2 shadow-2xl"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 neu-bottom-nav pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 px-3 shadow-neu-flat-lg"
     >
       <div 
-        className="grid gap-1 max-w-md mx-auto"
+        className="grid gap-1.5 max-w-md mx-auto"
         style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
         {tabs.map((tab) => {
@@ -49,7 +49,7 @@ export default function BottomNav() {
               href={tab.href}
               className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all active:scale-90 ${
                 isActive
-                  ? 'bg-orange-600/25 text-orange-400 font-extrabold'
+                  ? 'neu-inset text-orange-400 font-extrabold shadow-neu-pressed-sm border border-orange-500/30'
                   : 'text-stone-400 hover:text-stone-200'
               }`}
             >
@@ -60,7 +60,7 @@ export default function BottomNav() {
                 {tab.label}
               </span>
               {isActive && (
-                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-0.5" />
+                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-0.5 shadow-[0_0_6px_rgba(249,115,22,0.8)]" />
               )}
             </Link>
           );

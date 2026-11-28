@@ -47,7 +47,7 @@ export default function RootLayout({
         <meta name="application-name" content="Nipah Satay" />
         <meta name="theme-color" content="#ea580c" />
       </head>
-      <body className="min-h-screen bg-[#0c0a09] text-stone-100 flex flex-col antialiased selection:bg-orange-600 selection:text-white">
+      <body className="min-h-screen bg-[#151311] text-stone-100 flex flex-col antialiased selection:bg-orange-600 selection:text-white">
         <SeniorModeProvider>
           <AuthRoleProvider>
             <RoleAuthModal />

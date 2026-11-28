@@ -417,27 +417,27 @@ export default function PosBackofficePage() {
         </div>
       )}
 
-      {/* Header Utama Backoffice */}
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Header Utama Backoffice (Soft Neumorphic) */}
+      <div className="neu-card-lg p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Link
               href="/pos"
-              className="p-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white border border-stone-700 active:scale-95 transition-all flex items-center gap-1 text-xs font-bold"
+              className="p-2 rounded-xl neu-btn text-stone-300 hover:text-white active:scale-95 transition-all flex items-center gap-1.5 text-xs font-bold"
               title="Kembali ke POS Kaunter"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Ke POS</span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-base shadow">
+            <div className="flex items-center gap-2.5">
+              <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-base shadow-neu-orange">
                 ⚙️
               </span>
               <div>
                 <h1 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
                   POS Backoffice
-                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-orange-950 text-orange-400 border border-orange-800/50">
+                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-lg neu-inset-sm text-orange-400">
                     Katalog & Menu
                   </span>
                 </h1>
@@ -451,7 +451,7 @@ export default function PosBackofficePage() {
 
         {/* Quick Stats & Refresh */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center gap-2 bg-stone-950 px-3 py-1.5 rounded-xl border border-stone-800 text-xs">
+          <div className="flex items-center gap-2 neu-inset-sm px-3.5 py-2 text-xs">
             <span className="text-stone-400 font-medium">Menu:</span>
             <span className="font-mono font-black text-white">{menuItems.length}</span>
             <span className="text-stone-600">|</span>
@@ -465,7 +465,7 @@ export default function PosBackofficePage() {
             type="button"
             onClick={() => fetchData(true)}
             disabled={refreshing}
-            className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 active:scale-95"
+            className="p-2.5 rounded-xl neu-btn text-stone-300 active:scale-95"
             title="Segerakkan Semula Data"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-orange-400' : ''}`} />
@@ -474,15 +474,15 @@ export default function PosBackofficePage() {
       </div>
 
       {/* Tabs Pilihan: Pengurusan Menu vs Pengurusan Kategori */}
-      <div className="flex items-center justify-between gap-2 border-b border-stone-800 pb-2">
+      <div className="flex items-center justify-between gap-2 border-b border-stone-800/80 pb-2">
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => setActiveTab('menu')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === 'menu'
-                ? 'bg-orange-600 text-white shadow-lg border border-orange-500'
-                : 'bg-stone-900 text-stone-400 hover:text-white border border-stone-800'
+                ? 'neu-btn-primary shadow-neu-orange text-white'
+                : 'neu-btn text-stone-400 hover:text-white'
             }`}
           >
             <Utensils className="w-4 h-4" />
@@ -492,10 +492,10 @@ export default function PosBackofficePage() {
           <button
             type="button"
             onClick={() => setActiveTab('categories')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === 'categories'
-                ? 'bg-orange-600 text-white shadow-lg border border-orange-500'
-                : 'bg-stone-900 text-stone-400 hover:text-white border border-stone-800'
+                ? 'neu-btn-primary shadow-neu-orange text-white'
+                : 'neu-btn text-stone-400 hover:text-white'
             }`}
           >
             <Layers className="w-4 h-4" />
@@ -508,7 +508,7 @@ export default function PosBackofficePage() {
           <button
             type="button"
             onClick={handleOpenAddMenuModal}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-lg active:scale-95 border border-emerald-400 cursor-pointer"
+            className="px-4 py-2.5 rounded-2xl neu-btn-emerald text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-neu-green active:scale-95 border border-emerald-400/40 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Menu</span>
@@ -517,7 +517,7 @@ export default function PosBackofficePage() {
           <button
             type="button"
             onClick={handleOpenAddCategoryModal}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-lg active:scale-95 border border-emerald-400 cursor-pointer"
+            className="px-4 py-2.5 rounded-2xl neu-btn-emerald text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-neu-green active:scale-95 border border-emerald-400/40 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Kategori</span>
@@ -530,8 +530,8 @@ export default function PosBackofficePage() {
       {/* ======================================================== */}
       {activeTab === 'menu' && (
         <div className="space-y-4">
-          {/* Baris Carian & Filter Kategori */}
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+          {/* Baris Carian & Filter Kategori (Soft Neumorphic) */}
+          <div className="neu-card p-3 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:max-w-xs">
               <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -539,12 +539,12 @@ export default function PosBackofficePage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari nama menu..."
-                className="w-full pl-9 pr-7 py-2 bg-stone-950 border border-stone-800 rounded-lg text-xs text-white placeholder-stone-500 focus:outline-none focus:border-orange-500"
+                className="neu-input w-full pl-9 pr-7 py-2 rounded-xl text-xs text-white placeholder-stone-500 focus:outline-none"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-stone-400 hover:text-white"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-stone-400 hover:text-white"
                 >
                   ✕
                 </button>
@@ -558,19 +558,21 @@ export default function PosBackofficePage() {
                   ? menuItems.length
                   : menuItems.filter((i) => i.category === cat.id).length;
 
+                const isCatActive = selectedCategoryFilter === cat.id;
+
                 return (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedCategoryFilter(cat.id)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all border ${
-                      selectedCategoryFilter === cat.id
-                        ? 'bg-orange-600 text-white border-orange-400 shadow'
-                        : 'bg-stone-950 text-stone-400 border-stone-800 hover:text-stone-200'
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all active:scale-95 ${
+                      isCatActive
+                        ? 'neu-btn-primary shadow-neu-orange text-white'
+                        : 'neu-btn text-stone-300'
                     }`}
                   >
                     <span>{cat.icon} {cat.label}</span>
-                    <span className="ml-1 text-[10px] opacity-70 font-mono">({count})</span>
+                    <span className="ml-1 text-[10px] opacity-75 font-mono">({count})</span>
                   </button>
                 );
               })}
@@ -585,19 +587,19 @@ export default function PosBackofficePage() {
               return (
                 <div
                   key={item.id}
-                  className={`bg-stone-900 border rounded-2xl p-3 flex flex-col justify-between transition-all hover:border-orange-500/50 shadow-sm relative group ${
-                    item.available ? 'border-stone-800' : 'border-stone-800/60 opacity-75 bg-stone-950'
+                  className={`neu-card p-3.5 flex flex-col justify-between transition-all duration-200 relative group ${
+                    item.available ? 'hover:shadow-neu-flat-lg' : 'opacity-75'
                   }`}
                 >
                   {/* Status Ketersediaan Tag */}
-                  <div className="absolute top-2 right-2 z-10">
+                  <div className="absolute top-2.5 right-2.5 z-10">
                     <button
                       type="button"
                       onClick={() => handleToggleAvailability(item)}
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black border transition-all ${
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-black transition-all active:scale-95 ${
                         item.available
-                          ? 'bg-emerald-950/80 text-emerald-400 border-emerald-700/60 hover:bg-emerald-900'
-                          : 'bg-rose-950/80 text-rose-400 border-rose-700/60 hover:bg-rose-900'
+                          ? 'neu-btn-emerald shadow-neu-green text-white'
+                          : 'neu-btn bg-rose-950/80 text-rose-300 border border-rose-700/60'
                       }`}
                       title="Klik untuk ubah status ketersediaan"
                     >
@@ -605,9 +607,9 @@ export default function PosBackofficePage() {
                     </button>
                   </div>
 
-                  {/* Bahagian Atas: Gambar / Ikon Menu */}
+                  {/* Bahagian Atas: Gambar / Ikon Menu (Sunken Well) */}
                   <div>
-                    <div className="w-full h-32 rounded-xl bg-stone-950 border border-stone-800 overflow-hidden relative mb-2 flex items-center justify-center">
+                    <div className="w-full h-32 rounded-xl neu-inset overflow-hidden relative mb-2.5 flex items-center justify-center">
                       {item.image ? (
                         <Image
                           src={item.image}
@@ -660,11 +662,11 @@ export default function PosBackofficePage() {
                     </div>
 
                     {/* Butang Tindakan */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       <button
                         type="button"
                         onClick={() => handleOpenEditMenuModal(item)}
-                        className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 active:scale-95 transition-all"
+                        className="p-2 rounded-xl neu-btn text-stone-200 active:scale-95 transition-all"
                         title="Ubah Suai (Modify) Menu"
                       >
                         <Edit3 className="w-3.5 h-3.5 text-amber-400" />
@@ -678,7 +680,7 @@ export default function PosBackofficePage() {
                             name: item.name,
                           })
                         }
-                        className="p-1.5 rounded-lg bg-stone-800 hover:bg-rose-950 text-stone-400 hover:text-rose-400 border border-stone-700 active:scale-95 transition-all"
+                        className="p-2 rounded-xl neu-btn text-stone-400 hover:text-rose-400 active:scale-95 transition-all"
                         title="Buang (Padam) Menu"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -691,7 +693,7 @@ export default function PosBackofficePage() {
           </div>
 
           {filteredMenuItems.length === 0 && (
-            <div className="p-8 text-center bg-stone-900 border border-stone-800 rounded-2xl space-y-2">
+            <div className="p-8 text-center neu-card space-y-2 rounded-2xl">
               <span className="text-3xl">🔍</span>
               <p className="text-sm font-bold text-stone-300">Tiada menu dijumpai</p>
               <p className="text-xs text-stone-500">
@@ -717,10 +719,10 @@ export default function PosBackofficePage() {
               return (
                 <div
                   key={cat.id}
-                  className="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm hover:border-orange-500/40 transition-all"
+                  className="neu-card p-4 flex items-center justify-between gap-3 rounded-2xl hover:shadow-neu-flat-lg transition-all"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-3xl w-12 h-12 rounded-xl bg-stone-950 border border-stone-800 flex items-center justify-center shrink-0">
+                    <span className="text-3xl w-12 h-12 rounded-xl neu-inset flex items-center justify-center shrink-0">
                       {cat.icon}
                     </span>
                     <div className="min-w-0">
@@ -737,11 +739,11 @@ export default function PosBackofficePage() {
 
                   {/* Tindakan (Kecuali kategori asas 'all') */}
                   {!isAllCat && (
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         type="button"
                         onClick={() => handleOpenEditCategoryModal(cat)}
-                        className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 active:scale-95 transition-all"
+                        className="p-2 rounded-xl neu-btn text-stone-200 active:scale-95 transition-all"
                         title="Ubah Kategori"
                       >
                         <Edit3 className="w-3.5 h-3.5 text-amber-400" />
@@ -770,19 +772,19 @@ export default function PosBackofficePage() {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL: TAMBAH / UBAH SUAI MENU                           */}
+      {/* MODAL: TAMBAH / UBAH SUAI MENU (Soft Neumorphic)         */}
       {/* ======================================================== */}
       {menuModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
-          <div className="bg-stone-900 border border-stone-800 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl relative text-stone-100 my-8">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 overflow-y-auto animate-fadeIn">
+          <div className="neu-card-lg max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-neu-flat-lg relative text-stone-100 my-8 rounded-3xl">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-800/80">
               <h2 className="text-base font-black text-white flex items-center gap-2">
                 <span>{editingMenuItem ? '✏️ Ubah Suai Menu' : '✨ Tambah Menu Baru'}</span>
               </h2>
               <button
                 type="button"
                 onClick={() => setMenuModalOpen(false)}
-                className="p-1 rounded-lg bg-stone-800 text-stone-400 hover:text-white"
+                className="p-1.5 rounded-xl neu-btn text-stone-400 hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -800,7 +802,7 @@ export default function PosBackofficePage() {
                   value={menuForm.name}
                   onChange={(e) => setMenuForm({ ...menuForm, name: e.target.value })}
                   placeholder="Cth: Sate Ayam Istimewa / Kopi Tarik"
-                  className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-white placeholder-stone-600 focus:outline-none focus:border-orange-500 font-bold"
+                  className="neu-input w-full px-3.5 py-2.5 rounded-xl text-white placeholder-stone-600 focus:outline-none font-bold"
                 />
               </div>
 
@@ -813,7 +815,7 @@ export default function PosBackofficePage() {
                   <select
                     value={menuForm.category}
                     onChange={(e) => setMenuForm({ ...menuForm, category: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-white focus:outline-none focus:border-orange-500 font-bold cursor-pointer"
+                    className="neu-input w-full px-3 py-2.5 rounded-xl text-white focus:outline-none font-bold cursor-pointer"
                   >
                     {categories
                       .filter((c) => c.id !== 'all')
@@ -832,7 +834,7 @@ export default function PosBackofficePage() {
                   <select
                     value={menuForm.station}
                     onChange={(e) => setMenuForm({ ...menuForm, station: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-white focus:outline-none focus:border-orange-500 font-bold cursor-pointer"
+                    className="neu-input w-full px-3 py-2.5 rounded-xl text-white focus:outline-none font-bold cursor-pointer"
                   >
                     <option value="grill">🔥 Grill (Bakar Arang)</option>
                     <option value="wok">🍳 Wok (Kuali Panas)</option>
@@ -848,7 +850,7 @@ export default function PosBackofficePage() {
                     Harga Jual (RM) *
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-stone-400">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-stone-400">
                       RM
                     </span>
                     <input
@@ -859,7 +861,7 @@ export default function PosBackofficePage() {
                       value={menuForm.price}
                       onChange={(e) => setMenuForm({ ...menuForm, price: e.target.value })}
                       placeholder="1.20"
-                      className="w-full pl-10 pr-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-white font-mono font-bold focus:outline-none focus:border-orange-500"
+                      className="neu-input w-full pl-11 pr-3 py-2.5 rounded-xl text-white font-mono font-bold focus:outline-none"
                     />
                   </div>
                 </div>
@@ -873,7 +875,7 @@ export default function PosBackofficePage() {
                     value={menuForm.unit}
                     onChange={(e) => setMenuForm({ ...menuForm, unit: e.target.value })}
                     placeholder="cucuk / mangkuk / pinggan / cawan"
-                    className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-white focus:outline-none focus:border-orange-500"
+                    className="neu-input w-full px-3 py-2.5 rounded-xl text-white focus:outline-none"
                   />
                 </div>
               </div>
@@ -889,9 +891,9 @@ export default function PosBackofficePage() {
                       key={preset.path}
                       type="button"
                       onClick={() => setMenuForm({ ...menuForm, image: preset.path })}
-                      className={`relative w-14 h-14 rounded-lg overflow-hidden border shrink-0 transition-all ${
+                      className={`relative w-14 h-14 rounded-xl overflow-hidden border shrink-0 transition-all ${
                         menuForm.image === preset.path
-                          ? 'border-orange-500 ring-2 ring-orange-500/50 scale-105'
+                          ? 'border-orange-500 ring-2 ring-orange-500/50 scale-105 shadow-neu-orange'
                           : 'border-stone-800 opacity-60 hover:opacity-100'
                       }`}
                       title={preset.label}
@@ -908,7 +910,7 @@ export default function PosBackofficePage() {
                     value={menuForm.image}
                     onChange={(e) => setMenuForm({ ...menuForm, image: e.target.value })}
                     placeholder="URL gambar atau pilih gambar di atas"
-                    className="w-full pl-9 pr-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-white font-mono text-[11px] focus:outline-none focus:border-orange-500"
+                    className="neu-input w-full pl-9 pr-3 py-2 rounded-xl text-white font-mono text-[11px] focus:outline-none"
                   />
                 </div>
               </div>
@@ -923,12 +925,12 @@ export default function PosBackofficePage() {
                   value={menuForm.description}
                   onChange={(e) => setMenuForm({ ...menuForm, description: e.target.value })}
                   placeholder="Cth: Daging ayam segar perapan serai kunyit hidup tradisi Nipah Satay."
-                  className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-white placeholder-stone-600 focus:outline-none focus:border-orange-500 resize-none"
+                  className="neu-input w-full px-3 py-2.5 rounded-xl text-white placeholder-stone-600 focus:outline-none resize-none"
                 />
               </div>
 
               {/* 6. Status Ketersediaan */}
-              <div className="flex items-center justify-between p-2.5 bg-stone-950 border border-stone-800 rounded-xl">
+              <div className="flex items-center justify-between p-3 neu-inset-sm rounded-xl">
                 <div>
                   <div className="font-bold text-white text-xs">Status Menu Sedia Ada</div>
                   <div className="text-[10px] text-stone-400">
@@ -938,10 +940,10 @@ export default function PosBackofficePage() {
                 <button
                   type="button"
                   onClick={() => setMenuForm({ ...menuForm, available: !menuForm.available })}
-                  className={`px-3 py-1 rounded-lg font-black text-xs border transition-all ${
+                  className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all active:scale-95 ${
                     menuForm.available
-                      ? 'bg-emerald-600 text-white border-emerald-400'
-                      : 'bg-stone-800 text-stone-400 border-stone-700'
+                      ? 'neu-btn-emerald shadow-neu-green text-white'
+                      : 'neu-btn text-stone-400'
                   }`}
                 >
                   {menuForm.available ? '🟢 Ada Stok' : '🔴 Habis'}
@@ -949,17 +951,17 @@ export default function PosBackofficePage() {
               </div>
 
               {/* Butang Tindakan Form */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800/80">
                 <button
                   type="button"
                   onClick={() => setMenuModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold active:scale-95"
+                  className="px-4 py-2.5 rounded-xl neu-btn text-stone-300 font-bold active:scale-95"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-lg border border-emerald-400 active:scale-95"
+                  className="px-5 py-2.5 rounded-xl neu-btn-emerald text-white font-black shadow-neu-green border border-emerald-400/40 active:scale-95"
                 >
                   Simpan Menu
                 </button>
@@ -970,19 +972,19 @@ export default function PosBackofficePage() {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL: TAMBAH / UBAH SUAI KATEGORI                       */}
+      {/* MODAL: TAMBAH / UBAH SUAI KATEGORI (Soft Neumorphic)     */}
       {/* ======================================================== */}
       {categoryModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3">
-          <div className="bg-stone-900 border border-stone-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl relative text-stone-100">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 animate-fadeIn">
+          <div className="neu-card-lg max-w-md w-full p-5 sm:p-6 space-y-4 shadow-neu-flat-lg relative text-stone-100 rounded-3xl">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-800/80">
               <h2 className="text-base font-black text-white flex items-center gap-2">
                 <span>{editingCategory ? '✏️ Ubah Kategori' : '🏷️ Tambah Kategori Baru'}</span>
               </h2>
               <button
                 type="button"
                 onClick={() => setCategoryModalOpen(false)}
-                className="p-1 rounded-lg bg-stone-800 text-stone-400 hover:text-white"
+                className="p-1.5 rounded-xl neu-btn text-stone-400 hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1000,7 +1002,7 @@ export default function PosBackofficePage() {
                   value={categoryForm.label}
                   onChange={(e) => setCategoryForm({ ...categoryForm, label: e.target.value })}
                   placeholder="Cth: Pencuci Mulut / Masakan Barat / Set Keluarga"
-                  className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-white placeholder-stone-600 focus:outline-none focus:border-orange-500 font-bold"
+                  className="neu-input w-full px-3.5 py-2.5 rounded-xl text-white placeholder-stone-600 focus:outline-none font-bold"
                 />
               </div>
 
@@ -1010,7 +1012,7 @@ export default function PosBackofficePage() {
                   Ikon Emoji
                 </label>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-2xl w-10 h-10 rounded-xl bg-stone-950 border border-stone-800 flex items-center justify-center shrink-0">
+                  <span className="text-2xl w-11 h-11 rounded-xl neu-inset flex items-center justify-center shrink-0">
                     {categoryForm.icon}
                   </span>
                   <input
@@ -1018,18 +1020,18 @@ export default function PosBackofficePage() {
                     value={categoryForm.icon}
                     onChange={(e) => setCategoryForm({ ...categoryForm, icon: e.target.value })}
                     placeholder="Pilih atau taip emoji"
-                    className="flex-1 px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500"
+                    className="neu-input flex-1 px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none"
                   />
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 p-2 bg-stone-950 border border-stone-850 rounded-xl max-h-24 overflow-y-auto">
+                <div className="flex flex-wrap gap-1.5 p-2.5 neu-inset-sm rounded-xl max-h-24 overflow-y-auto">
                   {PRESET_ICONS.map((emoji) => (
                     <button
                       key={emoji}
                       type="button"
                       onClick={() => setCategoryForm({ ...categoryForm, icon: emoji })}
                       className={`w-8 h-8 rounded-lg flex items-center justify-center text-base hover:bg-stone-800 transition-all ${
-                        categoryForm.icon === emoji ? 'bg-orange-600/30 border border-orange-500' : ''
+                        categoryForm.icon === emoji ? 'neu-btn-primary shadow-neu-orange text-white' : 'neu-btn'
                       }`}
                     >
                       {emoji}
@@ -1039,17 +1041,17 @@ export default function PosBackofficePage() {
               </div>
 
               {/* Butang Tindakan Form */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800/80">
                 <button
                   type="button"
                   onClick={() => setCategoryModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold active:scale-95"
+                  className="px-4 py-2.5 rounded-xl neu-btn text-stone-300 font-bold active:scale-95"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-lg border border-emerald-400 active:scale-95"
+                  className="px-5 py-2.5 rounded-xl neu-btn-emerald text-white font-black shadow-neu-green border border-emerald-400/40 active:scale-95"
                 >
                   Simpan Kategori
                 </button>
@@ -1060,13 +1062,13 @@ export default function PosBackofficePage() {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL: PENGESAHAN PADAM (DELETE CONFIRMATION)            */}
+      {/* MODAL: PENGESAHAN PADAM (Soft Neumorphic)                */}
       {/* ======================================================== */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3">
-          <div className="bg-stone-900 border border-rose-900/60 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative text-stone-100">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 animate-fadeIn">
+          <div className="neu-card-lg max-w-sm w-full p-5 space-y-4 shadow-neu-flat-lg relative text-stone-100 rounded-3xl border border-rose-900/60">
             <div className="flex items-center gap-3">
-              <span className="w-10 h-10 rounded-xl bg-rose-950 border border-rose-700 flex items-center justify-center text-rose-400 text-xl shrink-0">
+              <span className="w-11 h-11 rounded-2xl neu-inset text-rose-400 flex items-center justify-center text-xl shrink-0">
                 ⚠️
               </span>
               <div>
@@ -1077,23 +1079,23 @@ export default function PosBackofficePage() {
               </div>
             </div>
 
-            <p className="text-xs text-stone-300 bg-stone-950 p-3 rounded-xl border border-stone-800">
+            <p className="text-xs text-stone-300 neu-inset-sm p-3 rounded-xl border border-stone-850">
               Adakah anda pasti mahu memadamkan{' '}
               <strong className="text-rose-400">&quot;{deleteConfirm.name}&quot;</strong>?
             </p>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800/80">
               <button
                 type="button"
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs active:scale-95"
+                className="px-4 py-2.5 rounded-xl neu-btn text-stone-300 font-bold text-xs active:scale-95"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={deleteConfirm.type === 'menu' ? handleDeleteMenuConfirm : handleDeleteCategoryConfirm}
-                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-lg active:scale-95"
+                className="px-4 py-2.5 rounded-xl neu-btn bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-lg active:scale-95 border border-rose-500/50"
               >
                 Ya, Padamkan
               </button>

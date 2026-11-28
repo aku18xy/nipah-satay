@@ -52,12 +52,12 @@ export default function RoleAuthModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
-      <div className="bg-stone-900 border-2 border-orange-600/80 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative text-stone-100 flex flex-col max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+      <div className="bg-[#181614] border border-stone-800/80 shadow-neu-flat-lg rounded-3xl max-w-md w-full p-5 sm:p-6 relative text-stone-100 flex flex-col max-h-[92vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-start justify-between pb-3 border-b border-stone-800">
+        <div className="flex items-start justify-between pb-3 border-b border-stone-800/80">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center text-xl shadow-lg border border-orange-400">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-xl shadow-neu-orange border border-orange-400/40">
               <ShieldCheck className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -75,7 +75,7 @@ export default function RoleAuthModal() {
             <button
               type="button"
               onClick={() => setShowAuthModal(false)}
-              className="p-1.5 rounded-lg bg-stone-800 text-stone-400 hover:text-white border border-stone-700"
+              className="p-2 rounded-xl neu-btn text-stone-400 hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
@@ -83,7 +83,7 @@ export default function RoleAuthModal() {
         </div>
 
         {/* Roles List */}
-        <div className="space-y-2 my-4">
+        <div className="space-y-2.5 my-4">
           <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider block px-1">
             Pilih Peranan Anda:
           </span>
@@ -97,17 +97,17 @@ export default function RoleAuthModal() {
                 key={rKey}
                 type="button"
                 onClick={() => handleSelectRole(rKey)}
-                className={`w-full p-3 rounded-xl border text-left transition-all flex items-center gap-3 relative cursor-pointer active:scale-98 ${
+                className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center gap-3 relative cursor-pointer active:scale-98 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-orange-600/30 to-amber-600/20 border-orange-500 ring-2 ring-orange-500/60 shadow-md'
-                    : 'bg-stone-950/80 border-stone-800 hover:border-stone-700 text-stone-300'
+                    ? 'neu-inset border-orange-500/80 shadow-neu-pressed text-white ring-1 ring-orange-500/40'
+                    : 'neu-card hover:shadow-neu-flat-sm text-stone-300 hover:text-white'
                 }`}
               >
                 <div
                   className={`w-11 h-11 rounded-xl flex items-center justify-center text-2xl border ${
                     isSelected
-                      ? 'bg-orange-600 text-white border-orange-400 shadow'
-                      : 'bg-stone-900 border-stone-800 text-stone-300'
+                      ? 'neu-btn-primary shadow-neu-orange border-orange-400'
+                      : 'neu-inset-sm border-stone-800 text-stone-300'
                   }`}
                 >
                   {cfg.icon}
@@ -119,7 +119,7 @@ export default function RoleAuthModal() {
                       {cfg.label}
                     </span>
                     {cfg.requiresPin && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-lg neu-inset-sm text-amber-300 border border-amber-500/30 flex items-center gap-1">
                         <Lock className="w-2.5 h-2.5" />
                         PIN
                       </span>
@@ -136,7 +136,7 @@ export default function RoleAuthModal() {
 
         {/* PIN Entry for Executive */}
         {selectedRole === 'executive' && (
-          <div className="bg-stone-950 border border-amber-500/40 rounded-xl p-3.5 space-y-2 mb-3">
+          <div className="neu-inset rounded-2xl p-3.5 space-y-2 mb-3 border border-amber-500/30">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-amber-400" />
@@ -155,14 +155,14 @@ export default function RoleAuthModal() {
               }}
               placeholder="••••"
               autoFocus
-              className="w-full text-center tracking-[0.5em] text-lg font-mono font-black py-2.5 bg-stone-900 border border-stone-700 rounded-lg text-white placeholder-stone-600 focus:outline-none focus:border-orange-500"
+              className="neu-input w-full text-center tracking-[0.5em] text-lg font-mono font-black py-2.5 rounded-xl text-white placeholder-stone-600 focus:outline-none"
             />
           </div>
         )}
 
         {/* Error message */}
         {errorMsg && (
-          <div className="bg-rose-950/80 border border-rose-600/70 text-rose-200 text-xs p-2.5 rounded-lg flex items-center gap-2 mb-3">
+          <div className="neu-card border border-rose-600/70 text-rose-200 text-xs p-2.5 rounded-xl flex items-center gap-2 mb-3 bg-rose-950/40">
             <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
             <span>{errorMsg}</span>
           </div>
@@ -172,13 +172,13 @@ export default function RoleAuthModal() {
         <button
           type="button"
           onClick={() => handleSubmit()}
-          className="w-full py-3 rounded-xl font-black text-sm bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-xl shadow-orange-950/60 active:scale-95 flex items-center justify-center gap-2 border border-orange-400"
+          className="neu-btn-primary w-full py-3.5 rounded-2xl font-black text-sm active:scale-95 flex items-center justify-center gap-2 shadow-neu-orange border border-orange-400/50"
         >
           <span>Sahkan & Masuk Sebagai {ROLES_CONFIG[selectedRole].shortLabel}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
 
-        <p className="text-[10px] text-stone-400 text-center mt-3">
+        <p className="text-[10px] text-stone-500 text-center mt-3">
           Nipah Satay™ @ Pulau Indah • Kawalan Keselamatan Petugas
         </p>
       </div>
