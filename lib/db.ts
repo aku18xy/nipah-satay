@@ -5,7 +5,8 @@ import {
   INITIAL_SKEWER_LOGS, 
   INITIAL_STORAGE, 
   INITIAL_MENU_ITEMS, 
-  INITIAL_CATEGORIES 
+  INITIAL_CATEGORIES,
+  INITIAL_STATIONS
 } from '@/lib/data';
 import { 
   Order, 
@@ -13,7 +14,8 @@ import {
   SkeweringWorkerLog, 
   ColdStorageInventory, 
   MenuItem, 
-  MenuCategory 
+  MenuCategory,
+  KitchenStation
 } from '@/lib/types';
 
 // Detect Neon Postgres connection string from any possible Vercel env variable name
@@ -48,6 +50,7 @@ let memorySkewerLogs: SkeweringWorkerLog[] = [...INITIAL_SKEWER_LOGS];
 let memoryStorage: ColdStorageInventory = { ...INITIAL_STORAGE };
 let memoryMenuItems: MenuItem[] = [...INITIAL_MENU_ITEMS];
 let memoryCategories: MenuCategory[] = [...INITIAL_CATEGORIES];
+let memoryStations: KitchenStation[] = [...INITIAL_STATIONS];
 
 // Initialize Database Schema if not exists
 export async function initDatabase() {
@@ -157,6 +160,35 @@ export async function initDatabase() {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `;
+
+    // 7. Create kitchen_stations table
+    await sql`
+      CREATE TABLE IF NOT EXISTS kitchen_stations (
+        id VARCHAR(64) PRIMARY KEY,
+        name VARCHAR(128) NOT NULL,
+        label VARCHAR(128) NOT NULL,
+        icon VARCHAR(32) NOT NULL,
+        description TEXT,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `;
+
+    // Seed initial stations if empty
+    try {
+      const existingStations = await sql`SELECT count(*) FROM kitchen_stations;`;
+      if (Number(existingStations[0].count) === 0) {
+        for (const st of INITIAL_STATIONS) {
+          await sql`
+            INSERT INTO kitchen_stations (id, name, label, icon, description, sort_order)
+            VALUES (${st.id}, ${st.name}, ${st.label}, ${st.icon}, ${st.description || ''}, ${st.sortOrder || 0})
+            ON CONFLICT (id) DO NOTHING;
+          `;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
 
     // Seed initial orders if empty
     const existingOrders = await sql`SELECT count(*) FROM orders;`;
@@ -722,6 +754,104 @@ export async function deleteDbCategory(id: string): Promise<boolean> {
     return true;
   } catch (err) {
     console.error('Error deleting category:', err);
+    return true;
+  }
+}
+
+// ----------------- KITCHEN STATIONS SERVICE -----------------
+export async function getDbStations(): Promise<KitchenStation[]> {
+  const sql = getSql();
+  if (!sql) return memoryStations;
+
+  try {
+    await initDatabase();
+    const rows = await sql`
+      SELECT 
+        id, name, label, icon, description, sort_order as "sortOrder"
+      FROM kitchen_stations
+      ORDER BY sort_order ASC, name ASC;
+    `;
+    if (rows.length === 0) return memoryStations;
+    return rows as unknown as KitchenStation[];
+  } catch (err) {
+    console.error('Error fetching stations:', err);
+    return memoryStations;
+  }
+}
+
+export async function createDbStation(station: KitchenStation): Promise<KitchenStation> {
+  const sql = getSql();
+  if (!sql) {
+    memoryStations = [...memoryStations.filter(s => s.id !== station.id), station];
+    return station;
+  }
+
+  try {
+    await initDatabase();
+    await sql`
+      INSERT INTO kitchen_stations (
+        id, name, label, icon, description, sort_order
+      ) VALUES (
+        ${station.id}, ${station.name}, ${station.label}, ${station.icon},
+        ${station.description || ''}, ${station.sortOrder || 0}
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        name = EXCLUDED.name,
+        label = EXCLUDED.label,
+        icon = EXCLUDED.icon,
+        description = EXCLUDED.description,
+        sort_order = EXCLUDED.sort_order;
+    `;
+    memoryStations = [...memoryStations.filter(s => s.id !== station.id), station];
+    return station;
+  } catch (err) {
+    console.error('Error creating station:', err);
+    memoryStations = [...memoryStations.filter(s => s.id !== station.id), station];
+    return station;
+  }
+}
+
+export async function updateDbStation(id: string, updates: Partial<KitchenStation>): Promise<KitchenStation | null> {
+  const sql = getSql();
+  const existing = memoryStations.find(s => s.id === id);
+  const updatedStation = existing ? { ...existing, ...updates } : (updates as KitchenStation);
+
+  if (!sql) {
+    memoryStations = memoryStations.map(s => s.id === id ? { ...s, ...updates } : s);
+    return updatedStation;
+  }
+
+  try {
+    await initDatabase();
+    await sql`
+      UPDATE kitchen_stations SET
+        name = COALESCE(${updates.name}, name),
+        label = COALESCE(${updates.label}, label),
+        icon = COALESCE(${updates.icon}, icon),
+        description = COALESCE(${updates.description}, description),
+        sort_order = COALESCE(${updates.sortOrder}, sort_order)
+      WHERE id = ${id};
+    `;
+    memoryStations = memoryStations.map(s => s.id === id ? { ...s, ...updates } : s);
+    return updatedStation;
+  } catch (err) {
+    console.error('Error updating station:', err);
+    memoryStations = memoryStations.map(s => s.id === id ? { ...s, ...updates } : s);
+    return updatedStation;
+  }
+}
+
+export async function deleteDbStation(id: string): Promise<boolean> {
+  const sql = getSql();
+  memoryStations = memoryStations.filter(s => s.id !== id);
+  if (!sql) return true;
+
+  try {
+    await initDatabase();
+    await sql`DELETE FROM kitchen_stations WHERE id = ${id};`;
+    return true;
+  } catch (err) {
+    console.error('Error deleting station:', err);
     return true;
   }
 }

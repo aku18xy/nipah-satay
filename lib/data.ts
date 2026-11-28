@@ -1,4 +1,4 @@
-import { MenuItem, MenuCategory, MeatIntakeRecord, SkeweringWorkerLog, ColdStorageInventory, Order } from './types';
+import { MenuItem, MenuCategory, KitchenStation, MeatIntakeRecord, SkeweringWorkerLog, ColdStorageInventory, Order } from './types';
 
 export const INITIAL_CATEGORIES: MenuCategory[] = [
   { id: 'all', label: 'Semua', icon: '🔥', sortOrder: 0 },
@@ -7,6 +7,12 @@ export const INITIAL_CATEGORIES: MenuCategory[] = [
   { id: 'santai', label: 'Nasi', icon: '🍙', sortOrder: 3 },
   { id: 'karipap', label: 'Karipap', icon: '🥟', sortOrder: 4 },
   { id: 'minuman', label: 'Air', icon: '🥤', sortOrder: 5 },
+];
+
+export const INITIAL_STATIONS: KitchenStation[] = [
+  { id: 'grill', name: 'Arang', label: 'Arang (Grill)', icon: '🔥', description: 'Stesen membakar sate guna arang bakau', sortOrder: 1 },
+  { id: 'wok', name: 'Kuali', label: 'Kuali (Wok)', icon: '🍳', description: 'Stesen masakan kuali panas, sup & mee', sortOrder: 2 },
+  { id: 'prep_bar', name: 'Kaunter', label: 'Kaunter (Prep Bar)', icon: '🥤', description: 'Stesen penyediaan minuman, ketupat, kuih & bungkusan', sortOrder: 3 },
 ];
 
 export const STORE_INFO = {

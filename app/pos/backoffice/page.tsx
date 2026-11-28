@@ -29,8 +29,8 @@ import {
   Coffee,
   HelpCircle
 } from 'lucide-react';
-import { MenuItem, MenuCategory, Category } from '@/lib/types';
-import { INITIAL_MENU_ITEMS, INITIAL_CATEGORIES } from '@/lib/data';
+import { MenuItem, MenuCategory, KitchenStation, Category } from '@/lib/types';
+import { INITIAL_MENU_ITEMS, INITIAL_CATEGORIES, INITIAL_STATIONS } from '@/lib/data';
 import { useAuthRole } from '@/components/AuthRoleContext';
 
 // Preset gambar makanan rasmi Nipah Satay
@@ -50,18 +50,19 @@ const PRESET_IMAGES = [
 // Preset ikon emoji kategori
 const PRESET_ICONS = [
   '🔥', '🍢', '🍲', '🍙', '🥟', '🥤', '🍛', '🍜', '🥩', '🍗', 
-  '☕', '🍨', '🍧', '🍟', '🍔', '🥪', '🥣', '🥢', '🍱', '📦'
+  '☕', '🍨', '🍧', '🍟', '🍔', '🥪', '🥣', '🥢', '🍱', '📦', '🍳', '🏪'
 ];
 
 export default function PosBackofficePage() {
   const { roleConfig } = useAuthRole();
 
-  // State data menu & kategori
+  // State data menu, kategori & stesen
   const [menuItems, setMenuItems] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
   const [categories, setCategories] = useState<MenuCategory[]>(INITIAL_CATEGORIES);
+  const [stations, setStations] = useState<KitchenStation[]>(INITIAL_STATIONS);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'menu' | 'categories'>('menu');
+  const [activeTab, setActiveTab] = useState<'menu' | 'categories' | 'stations'>('menu');
 
   // Filter & Carian
   const [searchQuery, setSearchQuery] = useState('');
@@ -81,7 +82,7 @@ export default function PosBackofficePage() {
     minOrder: string;
     image: string;
     description: string;
-    station: 'grill' | 'wok' | 'prep_bar';
+    station: string;
     available: boolean;
     costEstimate: string;
   }>({
@@ -110,9 +111,26 @@ export default function PosBackofficePage() {
     icon: '🍢',
   });
 
+  // Modal Stesen Dapur (Tambah / Edit)
+  const [stationModalOpen, setStationModalOpen] = useState(false);
+  const [editingStation, setEditingStation] = useState<KitchenStation | null>(null);
+  const [stationForm, setStationForm] = useState<{
+    id: string;
+    name: string;
+    label: string;
+    icon: string;
+    description: string;
+  }>({
+    id: '',
+    name: '',
+    label: '',
+    icon: '🍳',
+    description: '',
+  });
+
   // Modal Pengesahan Padam (Delete Confirmation)
   const [deleteConfirm, setDeleteConfirm] = useState<{
-    type: 'menu' | 'category';
+    type: 'menu' | 'category' | 'station';
     id: string;
     name: string;
   } | null>(null);
@@ -136,6 +154,9 @@ export default function PosBackofficePage() {
         }
         if (Array.isArray(data.categories) && data.categories.length > 0) {
           setCategories(data.categories);
+        }
+        if (Array.isArray(data.stations) && data.stations.length > 0) {
+          setStations(data.stations);
         }
       }
     } catch (e) {
@@ -292,7 +313,7 @@ export default function PosBackofficePage() {
     }
   };
 
-  const handleQuickUpdateStation = async (item: MenuItem, newStation: 'grill' | 'wok' | 'prep_bar') => {
+  const handleQuickUpdateStation = async (item: MenuItem, newStation: string) => {
     try {
       const res = await fetch(`/api/menu/${item.id}`, {
         method: 'PUT',
@@ -303,7 +324,8 @@ export default function PosBackofficePage() {
         setMenuItems((prev) =>
           prev.map((i) => (i.id === item.id ? { ...i, station: newStation } : i))
         );
-        const label = newStation === 'grill' ? 'Arang' : newStation === 'wok' ? 'Kuali' : 'Kaunter';
+        const stObj = stations.find((s) => s.id === newStation);
+        const label = stObj ? stObj.name : newStation;
         showToast(`✅ Stesen "${item.name}" ditukar ke ${label}!`);
       }
     } catch {
@@ -419,6 +441,119 @@ export default function PosBackofficePage() {
     }
   };
 
+  // ==========================================
+  // PENGURUSAN STESEN DAPUR (CRUD)
+  // ==========================================
+  const handleOpenAddStationModal = () => {
+    setEditingStation(null);
+    setStationForm({
+      id: '',
+      name: '',
+      label: '',
+      icon: '🍳',
+      description: '',
+    });
+    setStationModalOpen(true);
+  };
+
+  const handleOpenEditStationModal = (st: KitchenStation) => {
+    setEditingStation(st);
+    setStationForm({
+      id: st.id,
+      name: st.name,
+      label: st.label,
+      icon: st.icon,
+      description: st.description || '',
+    });
+    setStationModalOpen(true);
+  };
+
+  const handleSaveStation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stationForm.name.trim()) {
+      showToast('⚠️ Sila isikan nama stesen!');
+      return;
+    }
+
+    try {
+      if (editingStation) {
+        // Kemaskini Stesen
+        const res = await fetch(`/api/stations/${editingStation.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: stationForm.name.trim(),
+            label: stationForm.label.trim() || stationForm.name.trim(),
+            icon: stationForm.icon,
+            description: stationForm.description,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setStations((prev) =>
+            prev.map((s) => (s.id === editingStation.id ? (data.station || {
+              ...s,
+              name: stationForm.name.trim(),
+              label: stationForm.label.trim() || stationForm.name.trim(),
+              icon: stationForm.icon,
+              description: stationForm.description,
+            }) : s))
+          );
+          showToast(`✅ Stesen "${stationForm.name}" dikemas kini!`);
+        } else {
+          const err = await res.json();
+          showToast(`⚠️ ${err.error || 'Gagal mengemaskini stesen'}`);
+        }
+      } else {
+        // Tambah Stesen Baru
+        const res = await fetch('/api/stations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: stationForm.id || undefined,
+            name: stationForm.name.trim(),
+            label: stationForm.label.trim() || stationForm.name.trim(),
+            icon: stationForm.icon,
+            description: stationForm.description,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.station) {
+            setStations((prev) => [...prev, data.station]);
+          }
+          showToast(`✅ Stesen "${stationForm.name}" berjaya ditambah!`);
+        } else {
+          const err = await res.json();
+          showToast(`⚠️ ${err.error || 'Gagal menambah stesen'}`);
+        }
+      }
+      setStationModalOpen(false);
+    } catch {
+      showToast('❌ Ralat semasa menyimpan stesen dapur');
+    }
+  };
+
+  const handleDeleteStationConfirm = async () => {
+    if (!deleteConfirm || deleteConfirm.type !== 'station') return;
+    try {
+      const res = await fetch(`/api/stations/${deleteConfirm.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setStations((prev) => prev.filter((s) => s.id !== deleteConfirm.id));
+        showToast(`🗑️ Stesen "${deleteConfirm.name}" telah dipadam!`);
+      } else {
+        const err = await res.json();
+        showToast(`⚠️ ${err.error || 'Gagal memadam stesen'}`);
+      }
+    } catch {
+      showToast('Ralat memadam stesen dapur');
+    } finally {
+      setDeleteConfirm(null);
+    }
+  };
+
   // Filter Menu Items
   const filteredMenuItems = menuItems.filter((item) => {
     const matchesCat = selectedCategoryFilter === 'all' || item.category === selectedCategoryFilter;
@@ -478,6 +613,11 @@ export default function PosBackofficePage() {
             <span className="font-mono font-black text-orange-400">
               {categories.filter(c => c.id !== 'all').length}
             </span>
+            <span className="text-stone-600">|</span>
+            <span className="text-stone-400 font-medium">Stesen:</span>
+            <span className="font-mono font-black text-amber-400">
+              {stations.length}
+            </span>
           </div>
 
           <button
@@ -492,9 +632,9 @@ export default function PosBackofficePage() {
         </div>
       </div>
 
-      {/* Tabs Pilihan: Pengurusan Menu vs Pengurusan Kategori */}
-      <div className="flex items-center justify-between gap-2 border-b border-stone-800/80 pb-2">
-        <div className="flex gap-2">
+      {/* Tabs Pilihan: Pengurusan Menu vs Kategori vs Stesen Dapur */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-800/80 pb-2">
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setActiveTab('menu')}
@@ -520,6 +660,18 @@ export default function PosBackofficePage() {
             <Layers className="w-4 h-4" />
             <span>Kategori Menu ({categories.filter(c => c.id !== 'all').length})</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('stations')}
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'stations'
+                ? 'neu-btn-primary shadow-neu-orange text-white'
+                : 'neu-btn text-stone-400 hover:text-white'
+            }`}
+          >
+            <span>🍳 Stesen Dapur ({stations.length})</span>
+          </button>
         </div>
 
         {/* Butang Tambah Utama Mengikut Tab */}
@@ -527,19 +679,28 @@ export default function PosBackofficePage() {
           <button
             type="button"
             onClick={handleOpenAddMenuModal}
-            className="px-4 py-2.5 rounded-2xl neu-btn-emerald text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-neu-green active:scale-95 border border-emerald-400/40 cursor-pointer"
+            className="px-4 py-2.5 rounded-2xl neu-btn-emerald text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-neu-green active:scale-95 border border-emerald-400/40 cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Menu</span>
           </button>
-        ) : (
+        ) : activeTab === 'categories' ? (
           <button
             type="button"
             onClick={handleOpenAddCategoryModal}
-            className="px-4 py-2.5 rounded-2xl neu-btn-emerald text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-neu-green active:scale-95 border border-emerald-400/40 cursor-pointer"
+            className="px-4 py-2.5 rounded-2xl neu-btn-emerald text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-neu-green active:scale-95 border border-emerald-400/40 cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Kategori</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleOpenAddStationModal}
+            className="px-4 py-2.5 rounded-2xl neu-btn-emerald text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-neu-green active:scale-95 border border-emerald-400/40 cursor-pointer shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Stesen</span>
           </button>
         )}
       </div>
@@ -657,14 +818,16 @@ export default function PosBackofficePage() {
                       {/* Dropdown Tukar Stesen Pantas Terus Pada Kad */}
                       <select
                         value={item.station}
-                        onChange={(e) => handleQuickUpdateStation(item, e.target.value as any)}
+                        onChange={(e) => handleQuickUpdateStation(item, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
-                        className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md neu-btn bg-[#181614] text-stone-200 border border-stone-800 focus:outline-none cursor-pointer"
+                        className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md neu-btn bg-[#181614] text-stone-200 border border-stone-800 focus:outline-none cursor-pointer max-w-[120px] truncate"
                         title="Tukar stesen dapur secara pantas"
                       >
-                        <option value="grill">🔥 Arang</option>
-                        <option value="wok">🍳 Kuali</option>
-                        <option value="prep_bar">🥤 Kaunter</option>
+                        {stations.map((st) => (
+                          <option key={st.id} value={st.id}>
+                            {st.icon} {st.label || st.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
@@ -810,6 +973,89 @@ export default function PosBackofficePage() {
       )}
 
       {/* ======================================================== */}
+      {/* TAB 3: PENGURUSAN STESEN DAPUR (TAMBAH / BUANG / MODIFY) */}
+      {/* ======================================================== */}
+      {activeTab === 'stations' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {stations.map((st) => {
+              const isCoreStation = st.id === 'grill' || st.id === 'wok';
+              const itemCount = menuItems.filter((i) => i.station === st.id).length;
+
+              return (
+                <div
+                  key={st.id}
+                  className="neu-card p-4 flex flex-col justify-between gap-3 rounded-2xl hover:shadow-neu-flat-lg transition-all"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-3xl w-12 h-12 rounded-xl neu-inset flex items-center justify-center shrink-0">
+                        {st.icon}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h3 className="font-black text-sm text-white truncate">
+                            {st.name}
+                          </h3>
+                          {isCoreStation && (
+                            <span className="text-[9px] uppercase px-1.5 py-0.5 rounded font-mono font-bold bg-amber-950/60 text-amber-400 border border-amber-800/60">
+                              Utama
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-stone-400 truncate mt-0.5">
+                          {st.label}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 text-xs text-stone-400">
+                          <span className="font-mono text-[10px] text-stone-500">ID: {st.id}</span>
+                          <span>•</span>
+                          <span className="font-bold text-orange-400">{itemCount} item menu</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tindakan (Edit & Buang) */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditStationModal(st)}
+                        className="p-2 rounded-xl neu-btn text-stone-200 active:scale-95 transition-all"
+                        title="Ubah Stesen Dapur"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-amber-400" />
+                      </button>
+                      {!isCoreStation ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDeleteConfirm({
+                              type: 'station',
+                              id: st.id,
+                              name: st.name,
+                            })
+                          }
+                          className="p-1.5 rounded-lg bg-stone-800 hover:bg-rose-950 text-stone-400 hover:text-rose-400 border border-stone-700 active:scale-95 transition-all"
+                          title="Padam Stesen Dapur"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  {st.description && (
+                    <p className="text-[11px] text-stone-400 bg-black/20 p-2 rounded-lg border border-stone-850">
+                      {st.description}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
       {/* MODAL: TAMBAH / UBAH SUAI MENU (Soft Neumorphic)         */}
       {/* ======================================================== */}
       {menuModalOpen && (
@@ -871,12 +1117,14 @@ export default function PosBackofficePage() {
                   </label>
                   <select
                     value={menuForm.station}
-                    onChange={(e) => setMenuForm({ ...menuForm, station: e.target.value as any })}
+                    onChange={(e) => setMenuForm({ ...menuForm, station: e.target.value })}
                     className="neu-input w-full px-3 py-2.5 rounded-xl text-white focus:outline-none font-bold cursor-pointer"
                   >
-                    <option value="grill">🔥 Arang (Grill / Bakar)</option>
-                    <option value="wok">🍳 Kuali (Wok / Panas)</option>
-                    <option value="prep_bar">🥤 Kaunter (Prep Bar / Air / Kuih)</option>
+                    {stations.map((st) => (
+                      <option key={st.id} value={st.id}>
+                        {st.icon} {st.name} ({st.label})
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -1137,6 +1385,141 @@ export default function PosBackofficePage() {
       )}
 
       {/* ======================================================== */}
+      {/* MODAL: TAMBAH / UBAH SUAI STESEN DAPUR                    */}
+      {/* ======================================================== */}
+      {stationModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 overflow-y-auto animate-fadeIn">
+          <div className="neu-card-lg max-w-md w-full p-5 sm:p-6 space-y-4 shadow-neu-flat-lg relative text-stone-100 my-8 rounded-3xl">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-800/80">
+              <h2 className="text-base font-black text-white flex items-center gap-2">
+                <span>{editingStation ? '✏️ Ubah Stesen Dapur' : '✨ Tambah Stesen Dapur Baru'}</span>
+              </h2>
+              <button
+                type="button"
+                onClick={() => setStationModalOpen(false)}
+                className="p-1.5 rounded-xl neu-btn text-stone-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveStation} className="space-y-4">
+              {/* ID Stesen (Hanya jika baru) */}
+              {!editingStation && (
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                    ID Stesen (Slug unik, cth: fryer / dessert)
+                  </label>
+                  <input
+                    type="text"
+                    value={stationForm.id}
+                    onChange={(e) => setStationForm({ ...stationForm, id: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') })}
+                    placeholder="cth: fryer / dessert"
+                    className="neu-input w-full px-3 py-2.5 rounded-xl text-white font-mono text-xs focus:outline-none"
+                  />
+                  <p className="text-[10px] text-stone-500 mt-1">Jika dikosongkan, ID dijana secara automatik daripada nama.</p>
+                </div>
+              )}
+
+              {/* Nama Stesen */}
+              <div>
+                <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                  Nama Stesen Dapur *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={stationForm.name}
+                  onChange={(e) => setStationForm({ ...stationForm, name: e.target.value })}
+                  placeholder="Cth: Stesen Goreng / Air & Minuman"
+                  className="neu-input w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none font-bold"
+                />
+              </div>
+
+              {/* Label Ringkas / Paparan POS */}
+              <div>
+                <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                  Label Paparan POS (Cth: Kuali / Fryer / Arang)
+                </label>
+                <input
+                  type="text"
+                  value={stationForm.label}
+                  onChange={(e) => setStationForm({ ...stationForm, label: e.target.value })}
+                  placeholder="Cth: Fryer"
+                  className="neu-input w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none"
+                />
+              </div>
+
+              {/* Ikon Emoji */}
+              <div>
+                <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                  Ikon Stesen (Emoji)
+                </label>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl w-10 h-10 rounded-xl neu-inset flex items-center justify-center shrink-0">
+                    {stationForm.icon}
+                  </span>
+                  <input
+                    type="text"
+                    maxLength={4}
+                    value={stationForm.icon}
+                    onChange={(e) => setStationForm({ ...stationForm, icon: e.target.value })}
+                    className="neu-input flex-1 px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 p-2.5 neu-inset-sm rounded-xl max-h-24 overflow-y-auto">
+                  {PRESET_ICONS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => setStationForm({ ...stationForm, icon: emoji })}
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-base hover:bg-stone-800 transition-all ${
+                        stationForm.icon === emoji ? 'neu-btn-primary shadow-neu-orange text-white' : 'neu-btn'
+                      }`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Penerangan Ringkas */}
+              <div>
+                <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                  Penerangan Stesen
+                </label>
+                <textarea
+                  rows={2}
+                  value={stationForm.description}
+                  onChange={(e) => setStationForm({ ...stationForm, description: e.target.value })}
+                  placeholder="Cth: Stesen menggoreng cucur, kentang dan makanan celup tepung."
+                  className="neu-input w-full px-3 py-2.5 rounded-xl text-white placeholder-stone-600 focus:outline-none resize-none text-xs"
+                />
+              </div>
+
+              {/* Butang Tindakan Form */}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800/80">
+                <button
+                  type="button"
+                  onClick={() => setStationModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl neu-btn text-stone-300 font-bold active:scale-95"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl neu-btn-emerald text-white font-black shadow-neu-green border border-emerald-400/40 active:scale-95"
+                >
+                  Simpan Stesen
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
       {/* MODAL: PENGESAHAN PADAM (Soft Neumorphic)                */}
       {/* ======================================================== */}
       {deleteConfirm && (
@@ -1148,7 +1531,7 @@ export default function PosBackofficePage() {
               </span>
               <div>
                 <h3 className="font-black text-sm text-white">
-                  Sahkan Padam {deleteConfirm.type === 'menu' ? 'Menu' : 'Kategori'}
+                  Sahkan Padam {deleteConfirm.type === 'menu' ? 'Menu' : deleteConfirm.type === 'category' ? 'Kategori' : 'Stesen Dapur'}
                 </h3>
                 <p className="text-xs text-stone-400">Tindakan ini tidak boleh diundur.</p>
               </div>
@@ -1169,7 +1552,13 @@ export default function PosBackofficePage() {
               </button>
               <button
                 type="button"
-                onClick={deleteConfirm.type === 'menu' ? handleDeleteMenuConfirm : handleDeleteCategoryConfirm}
+                onClick={
+                  deleteConfirm.type === 'menu'
+                    ? handleDeleteMenuConfirm
+                    : deleteConfirm.type === 'category'
+                    ? handleDeleteCategoryConfirm
+                    : handleDeleteStationConfirm
+                }
                 className="px-4 py-2.5 rounded-xl neu-btn bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-lg active:scale-95 border border-rose-500/50"
               >
                 Ya, Padamkan

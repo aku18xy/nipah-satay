@@ -18,6 +18,15 @@ export interface MenuCategory {
   sortOrder?: number;
 }
 
+export interface KitchenStation {
+  id: string;
+  name: string;
+  label: string;
+  icon: string;
+  description?: string;
+  sortOrder?: number;
+}
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -27,7 +36,7 @@ export interface MenuItem {
   minOrder?: number;
   image?: string;
   description: string;
-  station: 'grill' | 'wok' | 'prep_bar';
+  station: 'grill' | 'wok' | 'prep_bar' | (string & {});
   available: boolean;
   costEstimate: number; // raw cost per unit
 }
@@ -37,7 +46,7 @@ export interface OrderItem {
   name: string;
   price: number;
   quantity: number;
-  station: 'grill' | 'wok' | 'prep_bar';
+  station: 'grill' | 'wok' | 'prep_bar' | (string & {});
   notes?: string;
 }
 
@@ -51,9 +60,10 @@ export interface Order {
   items: OrderItem[];
   status: 'pending' | 'cooking' | 'ready' | 'completed' | 'cancelled';
   stationStatus: {
-    grill: 'pending' | 'grilling' | 'done';
-    wok: 'pending' | 'cooking' | 'done';
-    prep_bar: 'pending' | 'ready' | 'done';
+    grill?: 'pending' | 'grilling' | 'done';
+    wok?: 'pending' | 'cooking' | 'done';
+    prep_bar?: 'pending' | 'ready' | 'done';
+    [stationId: string]: string | undefined;
   };
   paymentMethod: 'cash' | 'duitnow_qr' | 'card' | 'online_unpaid';
   isPaid: boolean;

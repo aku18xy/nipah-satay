@@ -1,20 +1,22 @@
 import { NextResponse } from 'next/server';
-import { getDbMenuItems, getDbCategories, createDbMenuItem } from '@/lib/db';
+import { getDbMenuItems, getDbCategories, getDbStations, createDbMenuItem } from '@/lib/db';
 import { MenuItem } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const [items, categories] = await Promise.all([
+    const [items, categories, stations] = await Promise.all([
       getDbMenuItems(),
       getDbCategories(),
+      getDbStations(),
     ]);
 
     return NextResponse.json({
       success: true,
       items,
       categories,
+      stations,
     });
   } catch (error: any) {
     console.error('Error fetching menu & categories:', error);
