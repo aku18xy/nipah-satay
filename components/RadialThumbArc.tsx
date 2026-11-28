@@ -14,14 +14,27 @@ interface RadialThumbArcProps {
   categories: RadialCategory[];
   selectedCategory: string;
   onSelectCategory: (id: string) => void;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function RadialThumbArc({
   categories,
   selectedCategory,
   onSelectCategory,
+  isOpen: controlledIsOpen,
+  onOpenChange,
 }: RadialThumbArcProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+
+  const setIsOpen = useCallback((val: boolean | ((prev: boolean) => boolean)) => {
+    const nextVal = typeof val === 'function' ? val(isOpen) : val;
+    if (onOpenChange) {
+      onOpenChange(nextVal);
+    }
+    setInternalIsOpen(nextVal);
+  }, [isOpen, onOpenChange]);
   const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 

@@ -154,6 +154,7 @@ export default function PosPage() {
   // Top Dynamic Island Notification State (Semua notifikasi menggunakan morph island atas)
   const [islandNotification, setIslandNotification] = useState<string | null>(null);
   const islandNotificationTimer = useRef<NodeJS.Timeout | null>(null);
+  const [thumbArcOpen, setThumbArcOpen] = useState(false);
 
   const showIslandNotification = useCallback((msg: string, duration = 2500) => {
     // Bersihkan emoji tanda tick berulang jika mesej sudah ada ikon sendiri
@@ -162,6 +163,7 @@ export default function PosPage() {
     if (islandNotificationTimer.current) clearTimeout(islandNotificationTimer.current);
     islandNotificationTimer.current = setTimeout(() => {
       setIslandNotification(null);
+      setThumbArcOpen(false); // Auto hide thumb arc sama masa dengan pill oren hilang
     }, duration);
   }, []);
 
@@ -617,7 +619,10 @@ export default function PosPage() {
             {islandNotification ? (
               /* Kapsul Berubah Jadi Pill Oren Notifikasi Persis Gambar Rujukan */
               <div
-                onClick={() => setIslandNotification(null)}
+                onClick={() => {
+                  setIslandNotification(null);
+                  setThumbArcOpen(false);
+                }}
                 className="cursor-pointer rounded-full px-5 py-2 sm:py-2.5 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 border border-orange-400 shadow-[0_4px_22px_rgba(234,88,12,0.6)] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all duration-300 transform scale-100 animate-fadeIn hover:brightness-110 active:scale-95 max-w-md mx-auto"
                 title="Ketik untuk tutup notifikasi"
               >
@@ -1000,7 +1005,10 @@ export default function PosPage() {
             {islandNotification ? (
               /* Kapsul Berubah Jadi Pill Oren (Persis Gambar Rujukan) Bila Ada Notifikasi */
               <div
-                onClick={() => setIslandNotification(null)}
+                onClick={() => {
+                  setIslandNotification(null);
+                  setThumbArcOpen(false);
+                }}
                 className="cursor-pointer rounded-full px-5 py-2 sm:py-2.5 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 border border-orange-400 shadow-[0_4px_22px_rgba(234,88,12,0.6)] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all duration-300 transform scale-100 animate-fadeIn hover:brightness-110 active:scale-95 max-w-md mx-auto"
                 title="Ketik untuk tutup notifikasi"
               >
@@ -1360,6 +1368,8 @@ export default function PosPage() {
                 count: cat.id === 'all' ? menu.length : menu.filter((m) => m.category === cat.id).length,
               }))}
               selectedCategory={selectedCategory}
+              isOpen={thumbArcOpen}
+              onOpenChange={setThumbArcOpen}
               onSelectCategory={(id) => {
                 setSelectedCategory(id);
                 setExpandedItemId(null);
