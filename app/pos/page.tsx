@@ -595,7 +595,7 @@ export default function PosPage() {
       {/* SKRIN 1: PILIHAN MEJA & BUNGKUS (MINIMALIS)               */}
       {/* ======================================================== */}
       {posView === 'tables' && (
-        <div className="space-y-3 pb-20">
+        <div className={`space-y-3 transition-[padding] duration-300 ${selectedDetailOrder ? 'pb-[52vh] sm:pb-[56vh]' : 'pb-20'}`}>
           {/* ======================================================== */}
           {/* TOP DYNAMIC ISLAND: HANYA STATUS MEJA / NOTIFIKASI MORPH */}
           {/* (Gunakan struktur kapsul sama seperti dalam menu)         */}
@@ -825,19 +825,14 @@ export default function PosPage() {
           )}
 
           {/* ======================================================== */}
-          {/* KOTAK PERINCIAN TERAPUNG (Persis Kotak Troli Rujukan)     */}
-          {/* Tetingkap Meja: Tunjuk Item Dipesan + Bayar / Tambah Order */}
+          {/* MASTER–DETAIL SPLIT PANE (KOTAK PERINCIAN DOCK BAWAH)    */}
+          {/* Master di atas boleh discroll bebas sampai ke bawah      */}
+          {/* Detail di bawah terapung kemas tanpa halang scroll       */}
           {/* ======================================================== */}
           {selectedDetailOrder && (
-            <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto select-none animate-fadeIn">
-              {/* Latar Belakang Gelap Lembut (Tanpa Sebarang Blur) */}
-              <div 
-                className="fixed inset-0 bg-black/40 -z-10 transition-opacity"
-                onClick={() => setSelectedDetailOrder(null)}
-              />
-
+            <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto select-none animate-fadeIn pointer-events-auto">
               {/* Kotak Terapung: Gaya Persis Rujukan Gambar (rounded-3xl, border-orange-500/80, bg-[#161311]) */}
-              <div className="rounded-3xl p-4 sm:p-5 max-h-[82vh] flex flex-col space-y-3.5 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
+              <div className="rounded-3xl p-4 sm:p-5 max-h-[48vh] sm:max-h-[52vh] flex flex-col space-y-3 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
                 {/* Header Kotak */}
                 <div className="flex items-center justify-between pb-2 border-b border-stone-800/80">
                   <div className="flex items-center gap-2.5">
@@ -868,8 +863,8 @@ export default function PosPage() {
                   <button 
                     type="button"
                     onClick={() => setSelectedDetailOrder(null)} 
-                    className="p-1.5 rounded-full neu-btn text-stone-400 hover:text-white"
-                    title="Tutup Kotak"
+                    className="p-1.5 rounded-full neu-btn text-stone-400 hover:text-white flex items-center gap-1 active:scale-90"
+                    title="Tutup Perincian"
                   >
                     <ChevronDown className="w-4 h-4 text-orange-400" />
                   </button>
@@ -880,7 +875,7 @@ export default function PosPage() {
                   <span>Item Dipesan ({selectedDetailOrder.items.reduce((a, b) => a + b.quantity, 0)} item):</span>
                 </div>
 
-                <div className="max-h-56 overflow-y-auto space-y-2 pr-0.5 flex-1 min-h-0">
+                <div className="max-h-36 sm:max-h-44 overflow-y-auto space-y-2 pr-0.5 flex-1 min-h-0">
                   {selectedDetailOrder.items.map((item, idx) => (
                     <div key={idx} className="neu-inset-sm p-2.5 rounded-2xl flex items-center justify-between text-xs">
                       <div className="min-w-0 pr-2">
