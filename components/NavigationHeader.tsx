@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -28,10 +29,12 @@ export default function NavigationHeader() {
   const pathname = usePathname();
   const [isOnline, setIsOnline] = useState(true);
   const [appLauncherOpen, setAppLauncherOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { isSeniorMode, toggleSeniorMode } = useSeniorMode();
   const { roleConfig, canAccess, setShowAuthModal } = useAuthRole();
 
   useEffect(() => {
+    setMounted(true);
     setIsOnline(navigator.onLine);
 
     const handleOnline = () => setIsOnline(true);
@@ -45,6 +48,18 @@ export default function NavigationHeader() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Kunci tatalan latar belakang semasa App Launcher dibuka
+  useEffect(() => {
+    if (appLauncherOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [appLauncherOpen]);
 
   // Tutup App Launcher bila route bertukar atau bila Escape ditekan
   useEffect(() => {
@@ -241,21 +256,21 @@ export default function NavigationHeader() {
       </div>
 
       {/* ======================================================== */}
-      {/* PELANCAR APLIKASI (APP LAUNCHER HUB / DRAWER OVERLAY)    */}
+      {/* PELANCAR APLIKASI (PORTAL TOP-LEVEL KE DOCUMENT.BODY)    */}
       {/* ======================================================== */}
-      {appLauncherOpen && (
+      {mounted && appLauncherOpen && createPortal(
         <div 
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col justify-start items-center p-3 sm:p-6 overflow-y-auto animate-fadeIn"
+          className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn"
           onClick={() => setAppLauncherOpen(false)}
         >
           <div 
-            className="neu-card-lg max-w-3xl w-full p-4 sm:p-6 space-y-4 rounded-3xl relative text-stone-100 shadow-neu-flat-lg my-auto"
+            className="neu-card-lg max-w-2xl w-full max-h-[92vh] sm:max-h-[88vh] flex flex-col rounded-3xl relative text-stone-100 shadow-neu-flat-lg overflow-hidden border border-stone-800/80 bg-[#181614]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header Pelancar Aplikasi */}
-            <div className="flex items-center justify-between pb-3 border-b border-stone-800/80">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-neu-orange">
+            {/* Header Pelancar Aplikasi (Pinned Top - Tidak Akan Terpotong) */}
+            <div className="p-4 sm:p-5 border-b border-stone-800/80 flex items-center justify-between shrink-0 bg-[#181614]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow-neu-orange shrink-0">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
@@ -263,7 +278,7 @@ export default function NavigationHeader() {
                     <span>Pusat Aplikasi Nipah Satay™</span>
                   </h2>
                   <p className="text-[11px] text-stone-400">
-                    Setiap modul berfungsi sebagai aplikasi kendiri. Pilih aplikasi untuk dilancarkan:
+                    Pilih modul aplikasi kendiri untuk dilancarkan:
                   </p>
                 </div>
               </div>
@@ -271,66 +286,65 @@ export default function NavigationHeader() {
               <button
                 type="button"
                 onClick={() => setAppLauncherOpen(false)}
-                className="p-2 rounded-xl neu-btn text-stone-400 hover:text-white"
+                className="p-2.5 rounded-xl neu-btn text-stone-400 hover:text-white shrink-0 active:scale-95"
+                title="Tutup (Esc)"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Grid Aplikasi Kendiri (Single App Hub) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[60vh] overflow-y-auto pr-1">
-              {navLinks.map((app) => {
-                const Icon = app.icon;
-                const isCurrent = pathname === app.href || (app.href === '/pos' && pathname.startsWith('/pos') && !pathname.startsWith('/pos/backoffice'));
+            {/* Grid Aplikasi Kendiri (Scrollable Cleanly) */}
+            <div className="p-3 sm:p-4 overflow-y-auto flex-1 min-h-0 space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+                {navLinks.map((app) => {
+                  const Icon = app.icon;
+                  const isCurrent = pathname === app.href || (app.href === '/pos' && pathname.startsWith('/pos') && !pathname.startsWith('/pos/backoffice'));
 
-                return (
-                  <Link
-                    key={app.href}
-                    href={app.href}
-                    onClick={() => setAppLauncherOpen(false)}
-                    className={`p-3.5 rounded-2xl flex items-start gap-3 transition-all duration-200 cursor-pointer active:scale-98 ${
-                      isCurrent
-                        ? 'neu-inset border border-orange-500/50 shadow-neu-pressed'
-                        : 'neu-card hover:shadow-neu-flat-lg hover:border-orange-500/30'
-                    }`}
-                  >
-                    <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${app.color} flex items-center justify-center text-white shrink-0 shadow-md`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className={`font-black text-sm truncate ${isCurrent ? 'text-orange-400' : 'text-white'}`}>
-                          {app.label}
-                        </span>
-                        {isCurrent ? (
-                          <span className="text-[9px] font-black px-2 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
-                            Sedang Aktif
-                          </span>
-                        ) : (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-lg neu-inset-sm text-stone-400 shrink-0">
-                            {app.badge}
-                          </span>
-                        )}
+                  return (
+                    <Link
+                      key={app.href}
+                      href={app.href}
+                      onClick={() => setAppLauncherOpen(false)}
+                      className={`p-3 rounded-2xl flex items-center gap-3 transition-all duration-200 cursor-pointer active:scale-98 ${
+                        isCurrent
+                          ? 'neu-inset border border-orange-500/60 shadow-neu-pressed'
+                          : 'neu-card hover:shadow-neu-flat-lg hover:border-orange-500/30'
+                      }`}
+                    >
+                      <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${app.color} flex items-center justify-center text-white shrink-0 shadow-md`}>
+                        <Icon className="w-5 h-5" />
                       </div>
 
-                      <p className="text-[11px] text-stone-300 font-semibold mt-0.5 line-clamp-1">
-                        {app.sublabel}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className={`font-black text-sm truncate ${isCurrent ? 'text-orange-400' : 'text-white'}`}>
+                            {app.label}
+                          </span>
+                          {isCurrent ? (
+                            <span className="text-[9px] font-black px-2 py-0.5 rounded-full neu-btn-primary text-white shadow-neu-orange shrink-0">
+                              Aktif
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-lg neu-inset-sm text-stone-400 shrink-0">
+                              {app.badge}
+                            </span>
+                          )}
+                        </div>
 
-                      <p className="text-[10px] text-stone-500 line-clamp-1 mt-0.5">
-                        {app.description}
-                      </p>
-                    </div>
+                        <p className="text-[11px] text-stone-300 font-semibold mt-0.5 truncate">
+                          {app.sublabel}
+                        </p>
+                      </div>
 
-                    <ArrowRight className={`w-4 h-4 self-center shrink-0 transition-transform ${isCurrent ? 'text-orange-400' : 'text-stone-500'}`} />
-                  </Link>
-                );
-              })}
+                      <ArrowRight className={`w-4 h-4 shrink-0 transition-transform ${isCurrent ? 'text-orange-400' : 'text-stone-500'}`} />
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Footer: Tukar Peranan & Pasang PWA */}
-            <div className="pt-3 border-t border-stone-800/80 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+            {/* Footer (Pinned Bottom - Sentiasa Boleh Dilihat) */}
+            <div className="p-3.5 sm:p-4 border-t border-stone-800/80 bg-[#151311] shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2.5">
               <div className="flex items-center gap-2 text-xs text-stone-400">
                 <span>Peranan:</span>
                 <span className="font-extrabold text-amber-300">{roleConfig ? roleConfig.label : 'Petugas'}</span>
@@ -340,7 +354,7 @@ export default function NavigationHeader() {
                     setAppLauncherOpen(false);
                     setShowAuthModal(true);
                   }}
-                  className="px-2 py-0.5 rounded-lg neu-btn text-[10px] font-bold text-orange-400 hover:text-white"
+                  className="px-2.5 py-1 rounded-lg neu-btn text-[10px] font-bold text-orange-400 hover:text-white active:scale-95"
                 >
                   Tukar Peranan
                 </button>
@@ -356,14 +370,15 @@ export default function NavigationHeader() {
                     'Cara Pasang PWA Nipah Satay™:\n\n1. Tekan butang menu 3 titik (⋮) di bucu atas kanan Chrome.\n2. Pilih "Install app" atau "Add to Home screen" (Tambah ke Skrin Utama).\n3. Tekan "Install" untuk muat turun ke desktop/tablet anda!'
                   );
                 }}
-                className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-stone-300 hover:text-white flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-stone-300 hover:text-white flex items-center gap-1.5 active:scale-95"
               >
                 <Download className="w-3.5 h-3.5 text-orange-400" />
                 <span>Pasang PWA ke Skrin Utama</span>
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );
