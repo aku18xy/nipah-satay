@@ -1118,10 +1118,6 @@ export default function PosPage() {
             onSelectCategory={(id) => {
               setSelectedCategory(id);
               setExpandedItemId(null);
-              const catObj = categories.find((c) => c.id === id);
-              if (catObj) {
-                showToast(`${catObj.icon} Kategori: ${catObj.label}`);
-              }
             }}
           />
 
