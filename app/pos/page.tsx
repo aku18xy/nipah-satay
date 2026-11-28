@@ -1104,9 +1104,8 @@ export default function PosPage() {
           </div>
 
           {/* ======================================================== */}
-          {/* DETAIL PANE: MODIFIER & ATTRIBUTE CUSTOMIZER DOCK         */}
-          {/* (Master-Detail Split Pane: Tetap terapung di bawah dengan */}
-          {/* backdrop blur split tanpa mengganggu skrol menu utama)    */}
+          {/* DETAIL PANE: MODIFIER & ATTRIBUTE CUSTOMIZER SHEET        */}
+          {/* (Reka bentuk persis Troli: Terapung dengan backdrop blur) */}
           {/* ======================================================== */}
           {activeExpandedItem && (() => {
             const isSatay = activeExpandedItem.category === 'sate';
@@ -1118,13 +1117,15 @@ export default function PosPage() {
             const totalInCart = itemsInCart.reduce((sum, c) => sum + c.quantity, 0);
 
             return (
-              <div className="fixed bottom-0 inset-x-0 z-40 select-none animate-fadeIn pointer-events-none">
-                {/* Latar Belakang Kaca Fros Penuh (Separas Tepat dengan Kad) */}
-                <div className="absolute inset-0 bg-[#0c0a09]/85 backdrop-blur-md border-t-2 border-orange-500/40 shadow-[0_-16px_40px_rgba(0,0,0,0.85)]" />
+              <div className="fixed bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-40 max-w-xl mx-auto select-none animate-fadeIn pointer-events-auto">
+                {/* Latar Belakang Gelap Semasa Panel Ubahsuai Terbuka (Sama Macam Troli) */}
+                <div 
+                  className="fixed inset-0 bg-black/50 backdrop-blur-sm -z-10 animate-fadeIn"
+                  onClick={() => setExpandedItemId(null)}
+                />
 
-                {/* Kontena Kad Pengubahsuai Terapung Di Atas Kaca */}
-                <div className="relative z-10 max-w-xl mx-auto px-2 sm:px-6 pt-1.5 pb-3 pointer-events-auto">
-                  <div className="rounded-3xl p-4 sm:p-5 max-h-[52vh] sm:max-h-[56vh] flex flex-col space-y-3.5 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
+                {/* Kontena Kad Ubahsuai: Persis Reka Bentuk Lembaran Troli (rounded-3xl, border-orange-500/80, bg-[#161311]) */}
+                <div className="rounded-3xl p-4 sm:p-5 max-h-[75vh] sm:max-h-[80vh] flex flex-col space-y-3.5 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
                   {/* HEADER DETAIL PANE */}
                   <div className="flex items-center justify-between pb-2.5 border-b border-stone-800 shrink-0">
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -1370,7 +1371,6 @@ export default function PosPage() {
                     </button>
                   </div>
                 </div>
-              </div>
               </div>
             );
           })()}
