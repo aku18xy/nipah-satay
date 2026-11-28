@@ -173,6 +173,40 @@ body {
   border-color: #f97316 !important;
 }
 
+/* Dynamic Island Fluid Morphing Styles & Animations */
+@keyframes island-spring {
+  0% { transform: scale(0.95); opacity: 0.85; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes island-glow-pulse {
+  0%, 100% { 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), 0 0 15px rgba(249, 115, 22, 0.15); 
+  }
+  50% { 
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 25px rgba(249, 115, 22, 0.35); 
+  }
+}
+
+.dynamic-island-top {
+  background: rgba(18, 16, 14, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dynamic-island-bottom {
+  background: rgba(18, 16, 14, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 /* Mobile-first touch improvements */
 @media (max-width: 768px) {
   input, select, textarea, button {
