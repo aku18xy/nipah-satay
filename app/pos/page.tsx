@@ -246,8 +246,8 @@ export default function PosPage() {
       return;
     }
     setExpandedItemId(item.id);
-    // Kuantiti lalai: Sate 10 cucuk (minOrder 5), Makanan & Minuman 1 unit
-    const defaultQty = item.category === 'sate' ? Math.max(item.minOrder || 5, 10) : 1;
+    // Kuantiti lalai minima 1 untuk semua item termasuk sate
+    const defaultQty = 1;
     setMatrixQty(defaultQty);
 
     // Suhu/Variasi lalai mengikut kategori
@@ -1088,16 +1088,6 @@ export default function PosPage() {
                       </div>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <div
-                      className={`w-9 h-9 rounded-xl neu-btn text-xs font-bold flex items-center justify-center transition-all ${
-                        isSelected ? 'text-orange-400 neu-inset' : 'text-stone-300'
-                      }`}
-                    >
-                      {isSelected ? <ChevronDown className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                    </div>
-                  </div>
                 </div>
               );
             })}
@@ -1113,7 +1103,7 @@ export default function PosPage() {
             const displayIcon = getItemDisplayIcon(activeExpandedItem);
             const tempOptions = getItemTemperatureOptions(activeExpandedItem);
             const quickNotes = getItemQuickNotes(activeExpandedItem);
-            const qtyPresets = isSatay ? [5, 10, 15, 20, 30, 50] : [1, 2, 3, 4, 5, 10];
+            const qtyPresets = isSatay ? [1, 5, 10, 20, 30, 50] : [1, 2, 3, 4, 5, 10];
             const itemsInCart = cart.filter((c) => c.itemId === activeExpandedItem.id);
             const totalInCart = itemsInCart.reduce((sum, c) => sum + c.quantity, 0);
 
@@ -1125,12 +1115,12 @@ export default function PosPage() {
                   onClick={() => setExpandedItemId(null)}
                 />
 
-                {/* Kontena Kad Ubahsuai Minimalis */}
-                <div className="rounded-3xl p-4 sm:p-5 max-h-[78vh] flex flex-col space-y-4 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
+                {/* Kontena Kad Ubahsuai Minimalis Terhad Kepada Separuh Skrin */}
+                <div className="rounded-3xl p-3.5 sm:p-4 max-h-[50vh] flex flex-col space-y-3 shadow-2xl border border-orange-500/80 bg-[#161311] text-stone-100">
                   {/* HEADER MINIMALIS: Nama Besar & Harga Jelas */}
-                  <div className="flex items-center justify-between pb-3 border-b border-stone-800 shrink-0">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-stone-800 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
+                      <div className="w-11 h-11 rounded-2xl neu-inset flex items-center justify-center text-2xl shrink-0">
                         <span>{displayIcon.emoji}</span>
                       </div>
                       <div className="min-w-0">
@@ -1147,7 +1137,6 @@ export default function PosPage() {
                         <div className="flex items-center gap-2 mt-0.5 text-xs">
                           <span className="font-mono font-black text-sm text-orange-400">
                             RM {activeExpandedItem.price.toFixed(2)}
-                            <span className="text-xs text-stone-400 font-sans font-normal"> /{unitLabel}</span>
                           </span>
                           <span className="text-xs font-bold px-2 py-0.5 rounded neu-inset-sm text-stone-400 uppercase">
                             {getStationLabel(activeExpandedItem.station)}
@@ -1166,31 +1155,28 @@ export default function PosPage() {
                     </button>
                   </div>
 
-                  {/* KANDUNGAN UBAHSUAI MINIMALIS */}
-                  <div className="overflow-y-auto space-y-4 pr-0.5 flex-1 min-h-0 text-xs">
-                    {/* SEKSYEN 1: KUANTITI MINIMALIS (Stepper Hero + Baris Preset Bersih) */}
+                  {/* KANDUNGAN UBAHSUAI BOLEH DISKROL DALAMAN */}
+                  <div className="overflow-y-auto space-y-3 pr-1 flex-1 min-h-0 text-xs">
+                    {/* SEKSYEN 1: KUANTITI MINIMALIS (Hanya Nombor Kuantiti & Stepper) */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between neu-inset-sm p-1.5 rounded-2xl">
                         <button
                           type="button"
-                          onClick={() => setMatrixQty((prev) => Math.max(isSatay ? 5 : 1, prev - (isSatay ? 5 : 1)))}
+                          onClick={() => setMatrixQty((prev) => Math.max(1, prev - 1))}
                           className="w-11 h-11 rounded-xl neu-btn flex items-center justify-center text-stone-300 hover:text-white active:scale-90"
                         >
                           <Minus className="w-5 h-5" />
                         </button>
                         
-                        <div className="text-center">
-                          <div className="font-mono text-2xl font-black text-white leading-none">
-                            {matrixQty} <span className="text-xs font-sans font-bold text-stone-400">{unitLabel}</span>
-                          </div>
-                          <div className="text-xs font-mono font-bold text-orange-400 mt-1">
-                            RM {(activeExpandedItem.price * matrixQty).toFixed(2)}
+                        <div className="text-center px-4">
+                          <div className="font-mono text-3xl font-black text-white leading-none">
+                            {matrixQty}
                           </div>
                         </div>
 
                         <button
                           type="button"
-                          onClick={() => setMatrixQty((prev) => prev + (isSatay ? 5 : 1))}
+                          onClick={() => setMatrixQty((prev) => prev + 1)}
                           className="w-11 h-11 rounded-xl neu-btn-primary text-white flex items-center justify-center active:scale-90 shadow-neu-orange"
                         >
                           <Plus className="w-5 h-5" />
@@ -1317,7 +1303,7 @@ export default function PosPage() {
                             <div className="flex items-center gap-1.5 shrink-0">
                               <button
                                 type="button"
-                                onClick={() => updateCartItemQuantity(activeExpandedItem.id, cItem.notes, isSatay ? -5 : -1)}
+                                onClick={() => updateCartItemQuantity(activeExpandedItem.id, cItem.notes, -1)}
                                 className="w-6 h-6 rounded-lg neu-btn flex items-center justify-center text-stone-300 active:scale-90"
                               >
                                 <Minus className="w-3 h-3" />
@@ -1325,7 +1311,7 @@ export default function PosPage() {
                               <span className="font-mono font-bold text-xs px-1 text-white">{cItem.quantity}</span>
                               <button
                                 type="button"
-                                onClick={() => updateCartItemQuantity(activeExpandedItem.id, cItem.notes, isSatay ? 5 : 1)}
+                                onClick={() => updateCartItemQuantity(activeExpandedItem.id, cItem.notes, 1)}
                                 className="w-6 h-6 rounded-lg neu-btn-primary flex items-center justify-center text-white active:scale-90"
                               >
                                 <Plus className="w-3 h-3" />
